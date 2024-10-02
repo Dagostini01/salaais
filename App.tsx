@@ -1,20 +1,26 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { AppRoutes } from "./src/routes/app.routes";
+import { NavigationContainer } from "@react-navigation/native";
+import { ThemeProvider } from "styled-components";
+import theme from "./src/global/global/theme";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { AuthProvider } from "./src/contexts/auth";
+import * as WebBrowser from "expo-web-browser";
+import { SignIn } from "./src/screens";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <GestureHandlerRootView>
+      <ThemeProvider theme={theme}>
+        <NavigationContainer>
+          <AuthProvider>
+            {/* <AppRoutes /> */}
+            <SignIn />
+          </AuthProvider>
+        </NavigationContainer>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
