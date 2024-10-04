@@ -1,6 +1,13 @@
-import React from 'react';
-import { Modal } from 'react-native';
-import { ModalContainer, ModalText, ModalButton, ModalButtonText, ModalButtonCancel, ModalButtonTextCancel } from './styles';
+import type React from "react";
+import { Modal } from "react-native";
+import {
+  ModalButton,
+  ModalButtonCancel,
+  ModalButtonText,
+  ModalButtonTextCancel,
+  ModalContainer,
+  ModalText,
+} from "./styles";
 
 type CustomModalProps = {
   visible: boolean;
@@ -11,7 +18,14 @@ type CustomModalProps = {
   cancelText: string;
 };
 
-export const CustomModal: React.FC<CustomModalProps> = ({ visible, onConfirm, onCancel, text, confirmText, cancelText }) => (
+export const CustomModal: React.FC<CustomModalProps> = ({
+  visible,
+  onConfirm,
+  onCancel,
+  text,
+  confirmText,
+  cancelText,
+}) => (
   <Modal visible={visible} animationType="slide" transparent={true}>
     <ModalContainer>
       <ModalText>{text}</ModalText>

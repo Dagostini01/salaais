@@ -1,30 +1,30 @@
 import React, { useContext } from "react";
 import {
+  CardsTest,
   Container,
   Header,
-  UserWrapper,
-  UserInfo,
+  HighlightCards,
+  Icon,
+  LastNameTest,
+  LastTest,
+  NameCardTest,
+  NameTest,
   Photo,
+  TestAnac,
   User,
   UserGreeting,
+  UserInfo,
   UserName,
-  Icon,
-  LastTest,
-  NameTest,
-  TestAnac,
-  LastNameTest,
-  CardsTest,
-  NameCardTest,
-  HighlightCards,
+  UserWrapper,
 } from "./styles";
 
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { useNavigation } from "@react-navigation/native";
+import { TouchableOpacity } from "react-native";
+import { ButtonOpacity } from "../../components/ButtonOpacity";
+import { Card } from "../../components/Card";
 import { CardImage } from "../../components/CardImage";
 import { CirclePercentage } from "../../components/CirclePercentage";
-import { Card } from "../../components/Card";
-import { ButtonOpacity } from "../../components/ButtonOpacity";
-import { useNavigation } from "@react-navigation/native";
-import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
-import { TouchableOpacity } from "react-native";
 import { AuthContext } from "../../contexts/auth";
 
 // Define os tipos de navegação
@@ -61,7 +61,7 @@ export function Principal() {
             </User>
           </UserInfo>
           <TouchableOpacity onPress={signOut}>
-            <Icon name='power' />
+            <Icon name="power" />
           </TouchableOpacity>
         </UserWrapper>
       </Header>
@@ -70,24 +70,24 @@ export function Principal() {
         <HighlightCards>
           <CardImage
             onPress={() => navigation.navigate("Quiz")}
-            imageUrl='https://logodownload.org/wp-content/uploads/2018/06/anac-logo.png'
+            imageUrl="https://logodownload.org/wp-content/uploads/2018/06/anac-logo.png"
           />
           <Card
             onPress={() => navigation.navigate("Blocos")}
-            title='Blocos'
-            iconName='book'
+            title="Blocos"
+            iconName="book"
           />
           <Card
             onPress={() => navigation.navigate("Materias")}
-            title='Matérias'
-            iconName='menu-book'
+            title="Matérias"
+            iconName="menu-book"
           />
         </HighlightCards>
       </CardsTest>
       <ButtonOpacity
         onPress={() => navigation.navigate("Planos")}
-        text='Contratar Planos'
-        icon='shopping-bag'
+        text="Contratar Planos"
+        icon="shopping-bag"
       />
       <LastTest>
         <CirclePercentage />

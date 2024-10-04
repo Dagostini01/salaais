@@ -1,7 +1,7 @@
-import styled from "styled-components/native";
-import { RFValue } from "react-native-responsive-fontsize";
 import { Platform } from "react-native";
 import { getStatusBarHeight } from "react-native-iphone-x-helper";
+import { RFValue } from "react-native-responsive-fontsize";
+import styled from "styled-components/native";
 
 export const Container = styled.View`
   flex: 1;
@@ -24,14 +24,21 @@ export const Bloco = styled.Text`
   color: ${({ theme }) => theme.colors.text};
 `;
 
-export const Answer = styled.TouchableOpacity<{ correct: boolean; selected: boolean }>`
+export const Answer = styled.TouchableOpacity<{
+  correct: boolean;
+  selected: boolean;
+}>`
   background-color: ${({ selected, correct, theme }) =>
-    selected ? theme.colors.shape : correct ? theme.colors.success : theme.colors.card};
+    selected
+      ? theme.colors.shape
+      : correct
+        ? theme.colors.success
+        : theme.colors.card};
   padding: ${RFValue(15)}px;
   border-radius: ${RFValue(8)}px;
   margin-bottom: ${RFValue(10)}px;
   border: ${({ selected, theme }) =>
-    selected ? `2px solid ${theme.colors.shape}` : 'none'};
+    selected ? `2px solid ${theme.colors.shape}` : "none"};
 `;
 
 export const AnswerText = styled.Text<{ selected: boolean }>`
@@ -113,7 +120,6 @@ export const FinishButtonText = styled.Text`
   text-align: center;
   font-weight: bold;
 `;
-
 
 export const ScrollContainer = {
   paddingBottom: RFValue(20), // Adicione um padding se necessário

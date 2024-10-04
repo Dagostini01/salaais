@@ -1,5 +1,5 @@
-import { createContext, ReactNode, useState, useEffect } from "react";
 import * as Google from "expo-auth-session/providers/google";
+import { type ReactNode, createContext, useEffect, useState } from "react";
 
 type UserType =
   | {
