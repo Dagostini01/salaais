@@ -1,31 +1,22 @@
 import React, { useContext } from "react";
-import {
-  Container,
-  Header,
-  TitleWrapper,
-  SignInTitle,
-  Footer,
-  FooterWrapper,
-} from "./styles";
-import LogoSvg from "../../assets/logo-amarelo.svg";
-import GoogleSvg from "../../assets/google.svg";
-import AppleSvg from "../../assets/apple.svg";
+import { Alert } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
+import AppleSvg from "../../assets/apple.svg";
+import GoogleSvg from "../../assets/google.svg";
+import LogoSvg from "../../assets/logo-amarelo.svg";
 import { SignInSocialButton } from "../../components/SignInSocialButton";
 import { AuthContext } from "../../contexts/auth";
-import { Alert } from "react-native";
+import {
+  Container,
+  Footer,
+  FooterWrapper,
+  Header,
+  SignInTitle,
+  TitleWrapper,
+} from "./styles";
 
 export function SignIn() {
   const { signInWithGoogle } = useContext(AuthContext);
-
-  async function handleSignInWithGoogle() {
-    try {
-      await signInWithGoogle();
-    } catch (error) {
-      console.log(error);
-      Alert.alert("Não foi possível conectar a conta Google");
-    }
-  }
 
   return (
     <Container>
@@ -35,15 +26,18 @@ export function SignIn() {
         </TitleWrapper>
         <SignInTitle>Faça seu login com uma das contas abaixo</SignInTitle>
       </Header>
-
       <Footer>
         <FooterWrapper>
           <SignInSocialButton
-            title='Entrar com Google'
+            title="Entrar com Google"
             svg={GoogleSvg}
             onPress={signInWithGoogle}
           />
-          <SignInSocialButton onPress={()=>{}} title='Entrar com Apple' svg={AppleSvg} />
+          <SignInSocialButton
+            onPress={() => {}}
+            title="Entrar com Apple"
+            svg={AppleSvg}
+          />
         </FooterWrapper>
       </Footer>
     </Container>

@@ -6,7 +6,9 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "format": "yarn biome format --write ./src ",
+    "lint": "yarn biome lint --write ./src"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.0.0",
@@ -30,6 +32,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@biomejs/biome": "1.9.3",
     "@types/react": "~18.2.45",
     "react-native-svg-transformer": "^1.5.0",
     "typescript": "^5.1.3"
