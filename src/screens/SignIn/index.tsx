@@ -18,15 +18,6 @@ import { Alert } from "react-native";
 export function SignIn() {
   const { signInWithGoogle } = useContext(AuthContext);
 
-  async function handleSignInWithGoogle() {
-    try {
-      await signInWithGoogle();
-    } catch (error) {
-      console.log(error);
-      Alert.alert("Não foi possível conectar a conta Google");
-    }
-  }
-
   return (
     <Container>
       <Header>
@@ -43,7 +34,11 @@ export function SignIn() {
             svg={GoogleSvg}
             onPress={signInWithGoogle}
           />
-          <SignInSocialButton onPress={()=>{}} title='Entrar com Apple' svg={AppleSvg} />
+          <SignInSocialButton
+            onPress={() => {}}
+            title='Entrar com Apple'
+            svg={AppleSvg}
+          />
         </FooterWrapper>
       </Footer>
     </Container>
