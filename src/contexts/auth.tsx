@@ -1,16 +1,25 @@
 import { createContext, ReactNode, useState, useEffect } from "react";
 import * as Google from "expo-auth-session/providers/google";
 
+type UserType =
+  | {
+      email: string;
+      name: string;
+      photoUrl: string;
+    }
+  | undefined;
+
 type AuthContextType = {
+  user: UserType;
   signed: boolean;
-  signInWithGoogle(): Promise<void>;
-  user: any;
+  signInWithGoogle: () => Promise<void>;
+  signOut: () => void;
 };
 
 export const AuthContext = createContext({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<UserType>();
 
   const config = {
     webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
@@ -28,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
       });
       const user = await res.json();
-      setUser(user);
+      setUser({ email: user.email, name: user.name, photoUrl: user.picture });
     } catch (err) {
       console.log("error", err);
     }
@@ -56,9 +65,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const signOut = () => setUser(undefined);
+
   return (
     <AuthContext.Provider
-      value={{ signed: Boolean(user), user, signInWithGoogle }}
+      value={{ signed: Boolean(user), user, signInWithGoogle, signOut }}
     >
       {children}
     </AuthContext.Provider>
