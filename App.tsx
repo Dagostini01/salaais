@@ -6,7 +6,6 @@ import theme from "./src/global/global/theme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider } from "./src/contexts/auth";
 import * as WebBrowser from "expo-web-browser";
-import { SignIn } from "./src/screens";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -16,8 +15,7 @@ export default function App() {
       <ThemeProvider theme={theme}>
         <NavigationContainer>
           <AuthProvider>
-            {/* <AppRoutes /> */}
-            <SignIn />
+            <AppRoutes />
           </AuthProvider>
         </NavigationContainer>
       </ThemeProvider>

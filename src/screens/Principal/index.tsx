@@ -52,7 +52,6 @@ export function Principal() {
                     </UserInfo>
                     <Icon name='power' />
                 </UserWrapper>
-
             </Header>
             <CardsTest>
                 <NameCardTest>Realizar Simulado</NameCardTest>
