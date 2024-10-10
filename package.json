@@ -20,6 +20,7 @@
     "expo": "~51.0.28",
     "expo-auth-session": "~5.5.2",
     "expo-crypto": "~13.0.2",
+    "expo-secure-store": "~13.0.2",
     "expo-status-bar": "~1.12.1",
     "expo-web-browser": "~13.0.3",
     "react": "18.2.0",

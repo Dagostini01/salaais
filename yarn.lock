@@ -4616,6 +4616,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-secure-store@npm:~13.0.2":
+  version: 13.0.2
+  resolution: "expo-secure-store@npm:13.0.2"
+  peerDependencies:
+    expo: "*"
+  checksum: 89d90bc9bbd7042ba28f15764184b672b51f0ca5dfe63b4c3f799f5280d95b79d1c2db8582f356154bf62bbcdda4560a6cc0e540a23c2cea9edeee45e97a10b3
+  languageName: node
+  linkType: hard
+
 "expo-status-bar@npm:~1.12.1":
   version: 1.12.1
   resolution: "expo-status-bar@npm:1.12.1"
@@ -8480,6 +8489,7 @@ __metadata:
     expo: ~51.0.28
     expo-auth-session: ~5.5.2
     expo-crypto: ~13.0.2
+    expo-secure-store: ~13.0.2
     expo-status-bar: ~1.12.1
     expo-web-browser: ~13.0.3
     react: 18.2.0
