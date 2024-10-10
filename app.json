@@ -2,6 +2,7 @@
   "expo": {
     "name": "salaais",
     "slug": "salaais",
+    "sheme:": "salaais",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -30,8 +31,6 @@
         "projectId": "a2ad3ada-0b73-4c68-86f4-c5af0cf62806"
       }
     },
-    "plugins": [
-      "expo-secure-store"
-    ]
+    "plugins": ["expo-secure-store"]
   }
 }
