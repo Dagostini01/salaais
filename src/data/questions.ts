@@ -1,3 +1,5 @@
+import { Materia } from "../enum/enum";
+
 export async function gerarProvaAleatoria() {
   const response = await fetch(
     "https://api-salaais-projects.vercel.app/questao/gerar-prova/aleatoria",
@@ -12,7 +14,7 @@ export async function gerarProvaAleatoria() {
         blocos: [1, 2, 3, 4],
         questoes_por_bloco: 1,
       }),
-    },
+    }
   );
 
   if (!response.ok) {
@@ -21,4 +23,39 @@ export async function gerarProvaAleatoria() {
 
   const data = await response.json();
   return data;
+}
+
+interface ProvaMateriaPayload {
+  questao_por_materia: {
+    curso: string;
+    materia: Materia;
+    quantidade_questoes: number;
+  }[];
+}
+
+export async function gerarProvaPorMateria(payload: ProvaMateriaPayload) {
+  try {
+    const response = await fetch(
+      "https://api-salaais-projects.vercel.app/questao/gerar-prova/materia",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "accept": "*/*",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Erro ao gerar prova: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error("Erro ao gerar prova por todas as matérias:", error);
+    throw new Error("Erro ao gerar prova. Tente novamente mais tarde.");
+  }
 }

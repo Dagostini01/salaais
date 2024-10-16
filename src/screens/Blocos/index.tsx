@@ -277,6 +277,7 @@ export function Blocos() {
                   />
                   <ModalButtonText>Refazer</ModalButtonText>
                 </ModalButton>
+
                 <ModalButton
                   onPress={handleReviewQuiz}
                   style={{ flexDirection: "row", alignItems: "center" }}
@@ -289,6 +290,7 @@ export function Blocos() {
                   />
                   <ModalButtonText>Revisão</ModalButtonText>
                 </ModalButton>
+                
                 <ModalButton
                   onPress={handleShowInfo}
                   style={{ flexDirection: "row", alignItems: "center" }}
