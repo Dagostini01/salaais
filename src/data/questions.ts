@@ -2,7 +2,7 @@ import { Materia } from "../enum/enum";
 
 export async function gerarProvaAleatoria() {
   const response = await fetch(
-    "https://api-salaais-projects.vercel.app/questao/gerar-prova/aleatoria",
+    "https://api-ahrf.onrender.com/questao/gerar-prova/aleatoria",
     {
       method: "POST",
       headers: {
@@ -36,7 +36,7 @@ interface ProvaMateriaPayload {
 export async function gerarProvaPorMateria(payload: ProvaMateriaPayload) {
   try {
     const response = await fetch(
-      "https://api-salaais-projects.vercel.app/questao/gerar-prova/materia",
+      "https://api-ahrf.onrender.com/questao/gerar-prova/materia",
       {
         method: "POST",
         headers: {

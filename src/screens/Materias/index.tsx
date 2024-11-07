@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { CircularProgress } from "react-native-circular-progress";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { gerarProvaAleatoria } from "../../data/questions";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
@@ -37,17 +37,15 @@ import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 export function Materias() {
   const [modalVisible, setModalVisible] = useState(true);
   const [finishModalVisible, setFinishModalVisible] = useState(false);
-  const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState(600); // Tempo inicial (10 minutos)
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: string]: string | null }>({});
   const [scorePercentage, setScorePercentage] = useState(0);
   const [isReviewMode, setIsReviewMode] = useState(false);
   const [finalTime, setFinalTime] = useState(600);
-  const [questions, setQuestions] = useState<Question[]>([]);  // Usar o tipo Question
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedMateria, setSelectedMateria] = useState<Materia | null>(null);  // Matéria selecionada
+  const [selectedMateria, setSelectedMateria] = useState<Materia | null>(null);
   const navigation = useNavigation<NavigationProps>();
-
 
   const initialTime = 600; // Tempo inicial
 
@@ -63,10 +61,11 @@ export function Materias() {
     async function fetchQuestions() {
       try {
         const quizData = await gerarProvaAleatoria();
+        console.log("Dados da API:", quizData.data);  // Verifique os dados recebidos
         const formattedQuestions: Question[] = quizData.data.map((question: any) => ({
           id: question.id,
           question: question.questao_texto,
-          materia: question.materia,
+          materia: question.materia.trim().toLowerCase(),  // Remover espaços extras e converter para minúsculas
           answers: [
             {
               id: "a",
@@ -102,9 +101,14 @@ export function Materias() {
   }, []);
 
   const handleStartQuiz = (materia: Materia) => {
+    console.log("Matéria selecionada:", materia);  // Verificar se a matéria é passada corretamente
     setModalVisible(false);
-    setSelectedMateria(materia);  // Seleciona a matéria
+    setSelectedMateria(materia);  // Sem conversão para string, mantém o tipo Materia
   };
+
+  useEffect(() => {
+    console.log("selectedMateria atualizada:", selectedMateria);
+  }, [selectedMateria]);
 
   const handleSelectAnswer = (questionId: number, answerId: string) => {
     if (!isReviewMode) {
@@ -121,9 +125,13 @@ export function Materias() {
   };
 
   const handleFinishQuiz = () => {
-    const filteredQuestions = questions.filter(
-      (question) => question.materia === selectedMateria,
-    );
+    const filteredQuestions =
+      selectedMateria !== null
+        ? questions.filter((question) => question.materia === selectedMateria?.trim().toLowerCase())  // Comparação com materia em minúsculas e sem espaços extras
+        : [];
+
+    console.log("Perguntas filtradas:", filteredQuestions);
+
     const totalQuestions = filteredQuestions.length;
     const correctAnswers = filteredQuestions.filter((question) => {
       const selectedAnswerId = selectedAnswers[String(question.id)];
@@ -188,8 +196,10 @@ export function Materias() {
 
   const filteredQuestions =
     selectedMateria !== null
-      ? questions.filter((question) => question.materia === selectedMateria)
+      ? questions.filter((question) => question.materia === selectedMateria?.trim().toLowerCase())  // Comparação em minúsculas e sem espaços extras
       : [];
+
+  console.log("Perguntas filtradas na renderização:", filteredQuestions);
 
   return (
     <Container>
@@ -204,19 +214,93 @@ export function Materias() {
           <Modal visible={modalVisible} animationType="slide" transparent={true}>
             <ModalContainer>
               <ModalText>Escolha uma Matéria para Iniciar:</ModalText>
-              {Object.values(Materia).map((materia) => (
-                <ModalButton
-                  key={materia}
-                  onPress={() => handleStartQuiz(materia as Materia)}
-                >
-                  <ModalButtonText>{materia.toUpperCase()}</ModalButtonText>
-                </ModalButton>
-              ))}
+
+              {/* Bloco 1 */}
+              <ModalText style={{ fontWeight: 'bold', fontSize: 18 }}>Bloco 1</ModalText>
+              <View style={{ marginBottom: 10 }}>
+                <View style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  alignItems: "center"
+                }}>
+                  {["EME", "SBV"].map((materia) => (
+                    <ModalButton
+                      key={materia}
+                      style={{ margin: 2 }}  // Espaçamento entre botões
+                      onPress={() => handleStartQuiz(materia as Materia)}>
+                      <ModalButtonText>{materia}</ModalButtonText>
+                    </ModalButton>
+                  ))}
+                </View>
+              </View>
+
+              {/* Bloco 2 */}
+              <ModalText style={{ fontWeight: 'bold', fontSize: 18 }}>Bloco 2</ModalText>
+              <View style={{ marginBottom: 10 }}>
+                <View style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  alignItems: "center"
+                }}>
+                  {["FHU", "SAC", "RAC", "RPA", "SVO"].map((materia) => (
+                    <ModalButton
+                      key={materia}
+                      style={{ margin: 2 }}  // Espaçamento entre botões
+                      onPress={() => handleStartQuiz(materia as Materia)}>
+                      <ModalButtonText>{materia}</ModalButtonText>
+                    </ModalButton>
+                  ))}
+                </View>
+              </View>
+
+              {/* Bloco 3 */}
+              <ModalText style={{ fontWeight: 'bold', fontSize: 18 }}>Bloco 3</ModalText>
+              <View style={{ marginBottom: 10 }}>
+                <View style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  alignItems: "center"
+                }}>
+                  {["AFI", "PSS"].map((materia) => (
+                    <ModalButton
+                      key={materia}
+                      style={{ margin: 2 }}  // Espaçamento entre botões
+                      onPress={() => handleStartQuiz(materia as Materia)}>
+                      <ModalButtonText>{materia}</ModalButtonText>
+                    </ModalButton>
+                  ))}
+                </View>
+              </View>
+
+              {/* Bloco 4 */}
+              <ModalText style={{ fontWeight: 'bold', fontSize: 18 }}>Bloco 4</ModalText>
+              <View style={{ marginBottom: 10 }}>
+                <View style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  alignItems: "center"
+                }}>
+                  {["AER", "NAV", "MET"].map((materia) => (
+                    <ModalButton
+                      key={materia}
+                      style={{ margin: 2 }}  // Espaçamento entre botões
+                      onPress={() => handleStartQuiz(materia as Materia)}>
+                      <ModalButtonText>{materia}</ModalButtonText>
+                    </ModalButton>
+                  ))}
+                </View>
+              </View>
+
               <ModalButtonCancel onPress={handleCancelQuiz}>
                 <ModalButtonTextCancel>Cancelar</ModalButtonTextCancel>
               </ModalButtonCancel>
             </ModalContainer>
           </Modal>
+
 
           {/* Modal de finalização */}
           <Modal visible={finishModalVisible} animationType="slide" transparent={true}>
@@ -330,7 +414,7 @@ export function Materias() {
                         Matéria: {questionData.materia.toUpperCase()}
                       </Bloco>
                       <Text>{`${index + 1}. ${questionData.question}`}</Text>
-                      {questionData.answers.map((answer: Answer) => {
+                      {questionData.answers && questionData.answers.map((answer: Answer) => {
                         const isSelected =
                           selectedAnswers[String(questionData.id)] === answer.id;
                         return (
