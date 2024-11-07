@@ -1,4 +1,3 @@
-import * as Google from "expo-auth-session/providers/google";
 import {
   type ReactNode,
   createContext,
@@ -6,14 +5,18 @@ import {
   useState,
   useCallback,
 } from "react";
-import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
+import * as Google from "expo-auth-session/providers/google";
+import * as Apple from "expo-apple-authentication";
+import * as SecureStore from "expo-secure-store";
+import { jwtDecode } from "jwt-decode";
 
 type UserType =
   | {
+      token: string;
       email: string;
       name: string;
-      photoUrl: string;
+      photoUrl?: string;
     }
   | undefined;
 
@@ -21,6 +24,7 @@ type AuthContextType = {
   user: UserType;
   signed: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithApple: () => Promise<void>;
   signOut: () => void;
   getToken: () => Promise<void>;
   loading: boolean;
@@ -39,10 +43,51 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   const [_, response, promptAsync] = Google.useAuthRequest(config);
 
-  const validateToken = async (token: string) => {
+  const signInWithApple = async () => {
+    try {
+      const credential = await Apple.signInAsync({
+        requestedScopes: [
+          Apple.AppleAuthenticationScope.FULL_NAME,
+          Apple.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      console.log("credential", credential);
+      if (credential?.email && credential.fullName?.givenName) {
+        const userItem = {
+          token: credential.user,
+          email: credential.email,
+          name: credential.fullName.givenName,
+          photoUrl: undefined,
+        };
+        setUser(userItem);
+        SecureStore.setItem("userApple", JSON.stringify(userItem));
+      }
+    } catch (err) {
+      console.error("Error signing in with Apple", err);
+    }
+  };
+
+  const validateAppleToken = async (token: string) => {
+    try {
+      const decoded = jwtDecode(token);
+      const clientId = process.env.EXPO_PUBLIC_PACKAGE_NAME;
+      if (decoded.iss !== "https://appleid.apple.com") {
+        return false;
+      }
+      if (decoded.aud !== clientId) {
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error("Erro ao decodificar o token", err);
+      return false;
+    }
+  };
+
+  const validateGoogleToken = async (token: string) => {
     try {
       const res = await fetch(
-        `https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`,
+        `https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`
       );
       if (res.ok) {
         const data = await res.json();
@@ -55,6 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       }
     } catch (err) {
+      console.error("Erro ao verificar o token", err);
       return false;
     }
   };
@@ -68,7 +114,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
       });
       const user = await res.json();
-      setUser({ email: user.email, name: user.name, photoUrl: user.picture });
+      console.log(user);
+      const userItem = {
+        token,
+        email: user.email,
+        name: user.name,
+        photoUrl: user.picture,
+      };
+      setUser(userItem);
+      SecureStore.setItem("userGoogle", JSON.stringify(userItem));
     } catch (err) {
       console.log("error", err);
     } finally {
@@ -79,12 +133,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const handleToken = useCallback(async () => {
     if (response?.type === "success") {
       const { authentication } = response;
+      console.log(authentication);
       const token = authentication?.accessToken;
       if (token != null) {
-        Promise.all([
-          SecureStore.setItemAsync("userToken", token),
-          getUserProfile(token),
-        ]);
+        getUserProfile(token);
       }
     }
   }, [getUserProfile, response]);
@@ -106,16 +158,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getToken = async () => {
-    const token = await SecureStore.getItemAsync("userToken");
-    if (token != null) {
-      const isValid = await validateToken(token);
-      if (isValid) return await getUserProfile(token);
+    const userGoogle = SecureStore.getItem("userGoogle");
+    const userApple = SecureStore.getItem("userApple");
+
+    if (userApple != null) {
+      const user = JSON.parse(userApple);
+      const isValid = await validateAppleToken(user.token);
+      if (isValid) setUser(user);
+    }
+    if (userGoogle != null) {
+      const user = JSON.parse(userGoogle);
+      const isValid = await validateGoogleToken(user.token);
+      if (isValid) setUser(user);
     }
     setLoading(false);
   };
 
   const signOut = async () => {
-    await SecureStore.deleteItemAsync("userToken");
+    await SecureStore.deleteItemAsync("userGoogle");
+    await SecureStore.deleteItemAsync("userApple");
     setUser(undefined);
   };
 
@@ -128,6 +189,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signOut,
         loading,
         getToken,
+        signInWithApple,
       }}
     >
       {children}

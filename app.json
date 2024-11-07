@@ -13,6 +13,7 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "usesAppleSignIn": true,
       "supportsTablet": true,
       "bundleIdentifier": "com.salaais"
     },
@@ -31,6 +32,6 @@
         "projectId": "a2ad3ada-0b73-4c68-86f4-c5af0cf62806"
       }
     },
-    "plugins": ["expo-secure-store"]
+    "plugins": ["expo-apple-authentication", "expo-secure-store"]
   }
 }

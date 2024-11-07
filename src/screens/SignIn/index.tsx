@@ -16,7 +16,7 @@ import {
 } from "./styles";
 
 export function SignIn() {
-  const { signInWithGoogle } = useContext(AuthContext);
+  const { signInWithGoogle, signInWithApple } = useContext(AuthContext);
 
   return (
     <Container>
@@ -29,13 +29,13 @@ export function SignIn() {
       <Footer>
         <FooterWrapper>
           <SignInSocialButton
-            title="Entrar com Google"
+            title='Entrar com Google'
             svg={GoogleSvg}
             onPress={signInWithGoogle}
           />
           <SignInSocialButton
-            onPress={() => {}}
-            title="Entrar com Apple"
+            onPress={signInWithApple}
+            title='Entrar com Apple'
             svg={AppleSvg}
           />
         </FooterWrapper>
