@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Alert } from "react-native";
+import { Platform } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 import AppleSvg from "../../assets/apple.svg";
 import GoogleSvg from "../../assets/google.svg";
@@ -29,15 +29,17 @@ export function SignIn() {
       <Footer>
         <FooterWrapper>
           <SignInSocialButton
-            title='Entrar com Google'
+            title="Entrar com Google"
             svg={GoogleSvg}
             onPress={signInWithGoogle}
           />
-          <SignInSocialButton
-            onPress={signInWithApple}
-            title='Entrar com Apple'
-            svg={AppleSvg}
-          />
+          {Platform.OS === "ios" && (
+            <SignInSocialButton
+              onPress={signInWithApple}
+              title="Entrar com Apple"
+              svg={AppleSvg}
+            />
+          )}
         </FooterWrapper>
       </Footer>
     </Container>

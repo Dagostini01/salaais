@@ -1,15 +1,16 @@
+import * as Apple from "expo-apple-authentication";
+import * as Google from "expo-auth-session/providers/google";
+import * as SecureStore from "expo-secure-store";
+import { jwtDecode } from "jwt-decode";
 import {
   type ReactNode,
   createContext,
+  useCallback,
   useEffect,
   useState,
-  useCallback,
 } from "react";
 import { Platform } from "react-native";
-import * as Google from "expo-auth-session/providers/google";
-import * as Apple from "expo-apple-authentication";
-import * as SecureStore from "expo-secure-store";
-import { jwtDecode } from "jwt-decode";
+import { authLogin } from "../services/";
 
 type UserType =
   | {
@@ -17,6 +18,7 @@ type UserType =
       email: string;
       name: string;
       photoUrl?: string;
+      accessToken: string;
     }
   | undefined;
 
@@ -51,9 +53,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           Apple.AppleAuthenticationScope.EMAIL,
         ],
       });
-      console.log("credential", credential);
       if (credential?.email && credential.fullName?.givenName) {
+        const { access_token: accessToken } = await authLogin(credential.user);
         const userItem = {
+          accessToken,
           token: credential.user,
           email: credential.email,
           name: credential.fullName.givenName,
@@ -87,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const validateGoogleToken = async (token: string) => {
     try {
       const res = await fetch(
-        `https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`
+        `https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`,
       );
       if (res.ok) {
         const data = await res.json();
@@ -105,44 +108,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const getUserProfile = useCallback(async (token: string | undefined) => {
-    if (!token) return;
-    try {
-      const res = await fetch("https://www.googleapis.com/userinfo/v2/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const user = await res.json();
-      console.log(user);
-      const userItem = {
-        token,
-        email: user.email,
-        name: user.name,
-        photoUrl: user.picture,
-      };
-      setUser(userItem);
-      SecureStore.setItem("userGoogle", JSON.stringify(userItem));
-    } catch (err) {
-      console.log("error", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const getUserProfile = useCallback(
+    async (token: string | undefined, accessToken: string) => {
+      if (!token) return;
+      try {
+        const res = await fetch("https://www.googleapis.com/userinfo/v2/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const user = await res.json();
+        const userItem = {
+          token,
+          accessToken,
+          email: user.email,
+          name: user.name,
+          photoUrl: user.picture,
+        };
+        setUser(userItem);
+        SecureStore.setItem("userGoogle", JSON.stringify(userItem));
+      } catch (err) {
+        console.log("error", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   const handleToken = useCallback(async () => {
     if (response?.type === "success") {
       const { authentication } = response;
-      console.log(authentication);
       const token = authentication?.accessToken;
       if (token != null) {
-        getUserProfile(token);
+        const { access_token: accessToken } = await authLogin(token);
+        await getUserProfile(token, accessToken);
       }
     }
-  }, [getUserProfile, response]);
+  }, [getUserProfile, response, authLogin]);
 
   // "response" nas dependência para que para verificação do token
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     handleToken();
   }, [response]);
