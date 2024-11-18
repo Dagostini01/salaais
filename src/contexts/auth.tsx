@@ -3,11 +3,11 @@ import * as Google from "expo-auth-session/providers/google";
 import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
 import {
-  type ReactNode,
-  createContext,
-  useCallback,
-  useEffect,
-  useState,
+    type ReactNode,
+    createContext,
+    useCallback,
+    useEffect,
+    useState,
 } from "react";
 import { Platform } from "react-native";
 import { authLogin } from "../services/";
@@ -47,6 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithApple = async () => {
     try {
+      setLoading(true);
       const credential = await Apple.signInAsync({
         requestedScopes: [
           Apple.AppleAuthenticationScope.FULL_NAME,
@@ -67,6 +68,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (err) {
       console.error("Error signing in with Apple", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,12 +141,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const handleToken = useCallback(async () => {
     if (response?.type === "success") {
+      setLoading(true);
       const { authentication } = response;
       const token = authentication?.accessToken;
       if (token != null) {
         const { access_token: accessToken } = await authLogin(token);
         await getUserProfile(token, accessToken);
+
       }
+      setLoading(false);
     }
   }, [getUserProfile, response, authLogin]);
 
