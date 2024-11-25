@@ -4,26 +4,31 @@ export const paymentSheetParams = async (
   accessToken: string,
   productKey: string,
 ) => {
-  const response = await fetch(
-    `${API_URL}/stripe/criar-intencao-pagamento/${productKey}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+  try {
+    const response = await fetch(
+      `${API_URL}/stripe/criar-intencao-pagamento/${productKey}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
       },
-    },
-  );
+    );
 
-  const data = await response.json();
+    const data = await response.json();
 
-  const { client_secret, ephemeral_key, id_customer } = data;
+    const { client_secret, ephemeral_key, id_customer } = data;
 
-  return {
-    paymentIntent: client_secret,
-    ephemeralKey: ephemeral_key,
-    customer: id_customer,
-  };
+    return {
+      paymentIntent: client_secret,
+      ephemeralKey: ephemeral_key,
+      customer: id_customer,
+    };
+  } catch (err) {
+    console.error(err);
+    throw new Error("Erro ao criar pagamento");
+  }
 };
 
 export const authLogin = async (token: string) => {
