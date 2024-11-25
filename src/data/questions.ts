@@ -1,6 +1,6 @@
 export async function gerarProvaAleatoria() {
   const response = await fetch(
-    "https://api-salaais-projects.vercel.app/questao/gerar-prova/aleatoria",
+    "https://api-ahrf.onrender.com/questao/gerar-prova/aleatoria",
     {
       method: "POST",
       headers: {
@@ -21,4 +21,41 @@ export async function gerarProvaAleatoria() {
 
   const data = await response.json();
   return data;
+}
+
+interface ProvaMateriaPayload {
+  questao_por_materia: {
+    curso: string;
+    materia: string;
+    quantidade_questoes: number;
+  }[];
+}
+
+export async function gerarProvaPorMateria(
+  token: string,
+  payload: ProvaMateriaPayload,
+) {
+  console.log(token);
+  try {
+    const response = await fetch(
+      "https://api-ahrf.onrender.com/questao/gerar-prova/materia",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          accept: "*/*",
+        },
+        body: JSON.stringify(payload),
+      },
+    );
+    if (!response.ok) {
+      throw new Error(`Erro ao gerar prova: ${response.statusText}`);
+    }
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Erro ao gerar prova por todas as matérias:", error);
+    throw new Error("Erro ao gerar prova. Tente novamente mais tarde.");
+  }
 }
