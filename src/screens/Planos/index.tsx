@@ -33,6 +33,7 @@ export function Planos() {
       customerEphemeralKeySecret: ephemeralKey,
       paymentIntentClientSecret: paymentIntent,
     });
+    console.log(error)
     setLoading(false);
     await openPaymentSheet();
     if (error) {
@@ -43,6 +44,7 @@ export function Planos() {
 
   const openPaymentSheet = async () => {
     const { error } = await presentPaymentSheet();
+    console.log(error)
     if (error) {
       Alert.alert(`Houve um problema: ${error.code}`, error.message);
     } else {

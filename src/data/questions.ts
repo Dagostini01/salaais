@@ -1,4 +1,4 @@
-export async function gerarProvaAleatoria() {
+export async function gerarProvaAleatoria(token: string) {
   const response = await fetch(
     "https://api-ahrf.onrender.com/questao/gerar-prova/aleatoria",
     {
@@ -6,6 +6,7 @@ export async function gerarProvaAleatoria() {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         curso: "cms",
