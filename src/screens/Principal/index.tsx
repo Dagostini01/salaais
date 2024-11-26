@@ -20,7 +20,7 @@ import {
 
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
-import { TouchableOpacity } from "react-native";
+import { Alert, TouchableOpacity } from "react-native";
 import { ButtonOpacity } from "../../components/ButtonOpacity";
 import { Card } from "../../components/Card";
 import { CardImage } from "../../components/CardImage";
@@ -43,6 +43,20 @@ export function Principal() {
   const navigation = useNavigation<NavigationProps>();
   const { user, signOut } = useContext(AuthContext);
 
+  const logout = () => {
+    Alert.alert("Realmente deseja sair?", "", [
+      {
+        text: "Cancelar",
+        style: "cancel",
+      },
+      {
+        text: "Sair",
+        onPress: signOut,
+        style: "destructive",
+      },
+    ]);
+  };
+
   if (user == null) return null;
 
   return (
@@ -60,7 +74,7 @@ export function Principal() {
               <UserName>Pronto para decolar?</UserName>
             </User>
           </UserInfo>
-          <TouchableOpacity onPress={signOut}>
+          <TouchableOpacity onPress={logout}>
             <Icon name="power" />
           </TouchableOpacity>
         </UserWrapper>

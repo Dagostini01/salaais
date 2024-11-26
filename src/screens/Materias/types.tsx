@@ -1,3 +1,4 @@
+// types.tsx
 export interface Answer {
   id: string;
   text: string;
@@ -7,12 +8,6 @@ export interface Answer {
 export interface Question {
   id: number;
   question: string;
-  bloco: number;
   materia: string;
   answers: Answer[];
-}
-
-export interface QuizData {
-  items: number;
-  data: Question[];
 }

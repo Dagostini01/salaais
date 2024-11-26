@@ -1,3 +1,4 @@
+import { StyleSheet } from "react-native";
 import { RFPercentage } from "react-native-responsive-fontsize";
 import styled from "styled-components/native";
 
@@ -21,3 +22,11 @@ export const Payments = styled.View`
 export const TextPayment = styled.Text`
   color: ${({ theme }) => theme.colors.text};
 `;
+
+export const LoadingContainer = styled.View({
+  ...StyleSheet.absoluteFillObject,
+  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 1000,
+});

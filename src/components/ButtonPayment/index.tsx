@@ -6,11 +6,12 @@ import { LastTest, NameTest, TestAnac } from "./styles";
 interface ButtonOpacityProps {
   text: string;
   icon: string;
+  onPress: () => void;
 }
 
-export function ButtonPayment({ text, icon }: ButtonOpacityProps) {
+export function ButtonPayment({ text, icon, onPress }: ButtonOpacityProps) {
   return (
-    <LastTest>
+    <LastTest onPress={onPress}>
       <TestAnac>
         <MaterialIcons name={icon} size={30} color={theme.colors.shape} />
         <NameTest>{text}</NameTest>

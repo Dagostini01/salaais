@@ -2,6 +2,7 @@
   "expo": {
     "name": "salaais",
     "slug": "salaais",
+    "sheme:": "salaais",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,6 +13,7 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "usesAppleSignIn": true,
       "supportsTablet": true,
       "bundleIdentifier": "com.salaais"
     },
@@ -29,6 +31,7 @@
       "eas": {
         "projectId": "a2ad3ada-0b73-4c68-86f4-c5af0cf62806"
       }
-    }
+    },
+    "plugins": ["expo-apple-authentication", "expo-secure-store"]
   }
 }

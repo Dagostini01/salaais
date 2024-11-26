@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Alert } from "react-native";
+import { ActivityIndicator, Platform } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 import AppleSvg from "../../assets/apple.svg";
 import GoogleSvg from "../../assets/google.svg";
@@ -11,15 +11,22 @@ import {
   Footer,
   FooterWrapper,
   Header,
+  LoadingContainer,
   SignInTitle,
   TitleWrapper,
 } from "./styles";
 
 export function SignIn() {
-  const { signInWithGoogle } = useContext(AuthContext);
+  const { signInWithGoogle, signInWithApple, loading } =
+    useContext(AuthContext);
 
   return (
     <Container>
+      {loading && (
+        <LoadingContainer>
+          <ActivityIndicator size="large" color="#fff" />
+        </LoadingContainer>
+      )}
       <Header>
         <TitleWrapper>
           <LogoSvg width={RFValue(160)} height={RFValue(98)} />
@@ -33,11 +40,13 @@ export function SignIn() {
             svg={GoogleSvg}
             onPress={signInWithGoogle}
           />
-          <SignInSocialButton
-            onPress={() => {}}
-            title="Entrar com Apple"
-            svg={AppleSvg}
-          />
+          {Platform.OS === "ios" && (
+            <SignInSocialButton
+              onPress={signInWithApple}
+              title="Entrar com Apple"
+              svg={AppleSvg}
+            />
+          )}
         </FooterWrapper>
       </Footer>
     </Container>
