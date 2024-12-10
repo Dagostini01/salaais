@@ -1,4 +1,12 @@
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { useNavigation } from "@react-navigation/native";
 import React, { useContext } from "react";
+import { Alert, TouchableOpacity } from "react-native";
+import { ButtonOpacity } from "../../components/ButtonOpacity";
+import { Card } from "../../components/Card";
+import { CardImage } from "../../components/CardImage";
+import { CirclePercentage } from "../../components/CirclePercentage";
+import { AuthContext } from "../../contexts/auth";
 import {
   CardsTest,
   Container,
@@ -17,15 +25,6 @@ import {
   UserName,
   UserWrapper,
 } from "./styles";
-
-import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
-import { useNavigation } from "@react-navigation/native";
-import { Alert, TouchableOpacity } from "react-native";
-import { ButtonOpacity } from "../../components/ButtonOpacity";
-import { Card } from "../../components/Card";
-import { CardImage } from "../../components/CardImage";
-import { CirclePercentage } from "../../components/CirclePercentage";
-import { AuthContext } from "../../contexts/auth";
 
 // Define os tipos de navegação
 type BottomTabParamList = {
@@ -86,16 +85,20 @@ export function Principal() {
             onPress={() => navigation.navigate("Quiz")}
             imageUrl="https://logodownload.org/wp-content/uploads/2018/06/anac-logo.png"
           />
-          <Card
-            onPress={() => navigation.navigate("Blocos")}
-            title="Blocos"
-            iconName="book"
-          />
-          <Card
-            onPress={() => navigation.navigate("Materias")}
-            title="Matérias"
-            iconName="menu-book"
-          />
+          {user.permission !== "COMUM" && (
+            <>
+              <Card
+                onPress={() => navigation.navigate("Blocos")}
+                title="Blocos"
+                iconName="book"
+              />
+              <Card
+                onPress={() => navigation.navigate("Materias")}
+                title="Matérias"
+                iconName="menu-book"
+              />
+            </>
+          )}
         </HighlightCards>
       </CardsTest>
       <ButtonOpacity
