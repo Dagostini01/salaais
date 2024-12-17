@@ -83,7 +83,7 @@ export function Principal() {
         <HighlightCards>
           <CardImage
             onPress={() => navigation.navigate("Quiz")}
-            imageUrl="https://logodownload.org/wp-content/uploads/2018/06/anac-logo.png"
+            imageUrl={require("../../assets/anac-logo.png")}
           />
           {user.permission !== "COMUM" && (
             <>
