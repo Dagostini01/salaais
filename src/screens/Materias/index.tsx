@@ -13,9 +13,9 @@ import {
 } from "react-native";
 import { CircularProgress } from "react-native-circular-progress";
 import { AuthContext } from "../../contexts/auth";
-import { gerarProvaPorMateria } from "../../data/questions";
 import { Materia } from "../../enum/enum";
 import theme from "../../global/global/theme";
+import { gerarProvaPorMateria } from "../../services";
 import {
   Bloco,
   Container,

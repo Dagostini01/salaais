@@ -2,7 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,8 +13,9 @@ import {
   View,
 } from "react-native";
 import { CircularProgress } from "react-native-circular-progress";
-import { gerarProvaAleatoria } from "../../data/questions";
+import { AuthContext } from "../../contexts/auth";
 import theme from "../../global/global/theme";
+import { gerarProvaAleatoria } from "../../services";
 import {
   AnswerText,
   Bloco,
@@ -35,7 +36,6 @@ import {
   TimerText,
 } from "./styles";
 import type { Question as QuizQuestion } from "./types";
-import { AuthContext } from "../../contexts/auth";
 
 type BottomTabParamList = {
   Principal: undefined;
@@ -46,7 +46,7 @@ type BottomTabParamList = {
 type NavigationProps = BottomTabNavigationProp<BottomTabParamList, "Principal">;
 
 export function Quiz() {
-  const {user} = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(true);
   const [finishModalVisible, setFinishModalVisible] = useState(false);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
@@ -67,7 +67,14 @@ export function Quiz() {
   useEffect(() => {
     async function fetchQuestions() {
       try {
-        const quizData = await gerarProvaAleatoria(user?.accessToken as string);
+        const quizData = await gerarProvaAleatoria(
+          user?.accessToken as string,
+          {
+            curso: "cms",
+            blocos: [1, 2, 3, 4],
+            questoes_por_bloco: 20,
+          },
+        );
         const formattedQuestions: QuizQuestion[] = quizData.data.map(
           (question: any) => ({
             id: question.id,
@@ -105,7 +112,6 @@ export function Quiz() {
         setIsLoading(false);
       }
     }
-
     fetchQuestions();
   }, []);
 
