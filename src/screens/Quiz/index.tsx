@@ -185,9 +185,10 @@ export function Quiz() {
   };
 
   const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const hour = Math.floor(seconds / 3600);
+    return `${hour}:${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
 
   useFocusEffect(
@@ -382,20 +383,13 @@ export function Quiz() {
               >
                 {filteredQuestions.map((questionData, index) => (
                   <QuizAnac key={questionData.id}>
-                    <Bloco
-                      style={{
-                        marginVertical: 5,
-                        marginHorizontal: 5,
-                        marginTop: 20,
-                      }}
-                    >
-                      BL {questionData.bloco} - (
-                      {questionData.materia.toUpperCase()})
+                    <Bloco>
+                      {/* BL {questionData.bloco} - (
+                      {questionData.materia.toUpperCase()}) */}
                     </Bloco>
                     <Question
                       style={{
                         padding: 10,
-                        marginVertical: 5,
                         marginHorizontal: 5,
                       }}
                     >{`${index + 1}. ${questionData.question}`}</Question>

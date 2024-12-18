@@ -45,6 +45,7 @@ type BottomTabParamList = {
 type NavigationProps = BottomTabNavigationProp<BottomTabParamList, "Principal">;
 
 export function Blocos() {
+  const initialTime = 0;
   const { user } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(true);
   const [finishModalVisible, setFinishModalVisible] = useState(false);
@@ -61,7 +62,6 @@ export function Blocos() {
   const [selectedBlock, setSelectedBlock] = useState<number | null>(null); // Bloco selecionado no início
   const navigation = useNavigation<NavigationProps>();
 
-  const initialTime = 600;
 
   const fetchQuestions = async (blockNumber: number) => {
     try {
@@ -164,7 +164,7 @@ export function Blocos() {
     Alert.alert(
       "Informações do Simulado",
       `Você acertou ${scorePercentage.toFixed(2)}% das perguntas.\n` +
-        `Tempo total: ${formatTime(finalTime)}`,
+      `Tempo total: ${formatTime(finalTime)}`,
     );
   };
 
@@ -179,20 +179,18 @@ export function Blocos() {
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      if (isReviewMode) return;
-
+  useEffect(() => {
+    if (!isLoading) {
       const timer = setInterval(() => {
-        setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+        if (isReviewMode) return;
+        setTimeLeft((prevTime) => prevTime + 1);
       }, 1000);
-
       return () => clearInterval(timer);
-    }, [isReviewMode]),
-  );
+    }
+  }, [isReviewMode, isLoading]);
 
   useEffect(() => {
-    if (timeLeft === 0 && !isReviewMode) {
+    if (timeLeft === 600 && !isReviewMode) {
       Alert.alert("Tempo esgotado!", "O tempo para o quiz acabou.");
       navigation.navigate("Principal");
     }
@@ -201,8 +199,8 @@ export function Blocos() {
   const filteredQuestions =
     selectedBlock !== null
       ? questions
-          .filter((question) => question.bloco === selectedBlock)
-          .slice(0, 20)
+        .filter((question) => question.bloco === selectedBlock)
+        .slice(0, 20)
       : [];
 
   return (
