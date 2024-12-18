@@ -4,7 +4,7 @@ import styled from "styled-components/native";
 
 export const LastTest = styled.TouchableOpacity`
   width: 90%;
-  height: ${RFValue(60)}px;
+  height: ${RFValue(70)}px;
   padding: 16px 18px;
   background-color: ${({ theme }) => theme.colors.primary};
   color: ${({ theme }) => theme.colors.text_dark};

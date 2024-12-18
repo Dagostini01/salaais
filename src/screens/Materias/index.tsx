@@ -441,7 +441,7 @@ export function Materias() {
                   >
                     Matéria: {questionData.materia.toUpperCase()}
                   </Bloco>
-                  <Text>{`${index + 1}. ${questionData.question}`}</Text>
+                  <Bloco>{`${index + 1}. ${questionData.question}`}</Bloco>
                   {questionData.answers &&
                     questionData.answers.map((answer: Answer) => {
                       const isSelected =
@@ -461,7 +461,7 @@ export function Materias() {
                             borderRadius: 10,
                           }}
                         >
-                          <Text>{`${answer.id.toUpperCase()}. ${answer.text}`}</Text>
+                          <Text style={{color:"white"}}>{`${answer.id.toUpperCase()}. ${answer.text}`}</Text>
                         </TouchableOpacity>
                       );
                     })}

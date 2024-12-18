@@ -50,19 +50,19 @@ export function Quiz() {
   const [modalVisible, setModalVisible] = useState(true);
   const [finishModalVisible, setFinishModalVisible] = useState(false);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(600);
+  const [timeLeft, setTimeLeft] = useState(7200);
   const [selectedAnswers, setSelectedAnswers] = useState<{
     [key: string]: string | null;
   }>({});
   const [scorePercentage, setScorePercentage] = useState(0);
   const [isReviewMode, setIsReviewMode] = useState(false);
-  const [finalTime, setFinalTime] = useState(600);
+  const [finalTime, setFinalTime] = useState(7200);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBlock, setSelectedBlock] = useState<number | null>(null); // Novo estado para o bloco selecionado
   const navigation = useNavigation<NavigationProps>();
 
-  const initialTime = 600;
+  const initialTime = 7200;
 
   useEffect(() => {
     async function fetchQuestions() {
@@ -363,7 +363,7 @@ export function Quiz() {
                       marginTop: 5,
                     }}
                   >
-                    <Text style={{ color: "white", fontSize: 16 }}>
+                    <Text style={{ color: "white", fontSize: 15 }}>
                       Bloco {blockNumber}
                     </Text>
                   </TouchableOpacity>

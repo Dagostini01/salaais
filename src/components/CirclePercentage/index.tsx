@@ -33,7 +33,7 @@ export function CirclePercentage() {
   return (
     <Circle backgroundColor={getBackgroundColor()}>
       <TextInsideCircle>
-        {lastResult !== null ? `${lastResult.toFixed(0)}%` : "Nenhum Resultado"}
+        {lastResult !== null ? `${lastResult.toFixed(0)}%` : "0%"}
       </TextInsideCircle>
     </Circle>
   );
