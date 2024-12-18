@@ -11,7 +11,7 @@ export async function gerarProvaAleatoria(token: string) {
       body: JSON.stringify({
         curso: "cms",
         blocos: [1, 2, 3, 4],
-        questoes_por_bloco: 1,
+        questoes_por_bloco: 20,
       }),
     },
   );

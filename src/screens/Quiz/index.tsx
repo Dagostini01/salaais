@@ -376,20 +376,13 @@ export function Quiz() {
               >
                 {filteredQuestions.map((questionData, index) => (
                   <QuizAnac key={questionData.id}>
-                    <Bloco
-                      style={{
-                        marginVertical: 5,
-                        marginHorizontal: 5,
-                        marginTop: 20,
-                      }}
-                    >
-                      BL {questionData.bloco} - (
-                      {questionData.materia.toUpperCase()})
+                    <Bloco>
+                      {/* BL {questionData.bloco} - (
+                      {questionData.materia.toUpperCase()}) */}
                     </Bloco>
                     <Question
                       style={{
                         padding: 10,
-                        marginVertical: 5,
                         marginHorizontal: 5,
                       }}
                     >{`${index + 1}. ${questionData.question}`}</Question>

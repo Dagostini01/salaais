@@ -15,12 +15,12 @@ export const QuizAnac = styled.View`
 `;
 
 export const Question = styled.Text`
-  font-size: ${RFValue(22)}px;
+  font-size: ${RFValue(20)}px;
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${RFValue(5)}px;
 `;
 export const Bloco = styled.Text`
-  font-size: ${RFValue(22)}px;
+  font-size: ${RFValue(20)}px;
   color: ${({ theme }) => theme.colors.text};
 `;
 
