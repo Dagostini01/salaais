@@ -3,14 +3,15 @@ import * as Google from "expo-auth-session/providers/google";
 import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
 import {
-    type ReactNode,
-    createContext,
-    useCallback,
-    useEffect,
-    useState,
+  type ReactNode,
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
 } from "react";
 import { Platform } from "react-native";
 import { authLogin } from "../services/";
+import { dataUser } from "../services/services";
 
 type UserType =
   | {
@@ -19,6 +20,7 @@ type UserType =
       name: string;
       photoUrl?: string;
       accessToken: string;
+      permission: string;
     }
   | undefined;
 
@@ -56,12 +58,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       if (credential?.email && credential.fullName?.givenName) {
         const { access_token: accessToken } = await authLogin(credential.user);
+        const { permissoes } = await dataUser(accessToken);
+        const { key: permission } = permissoes.map((item: any) =>
+          item.ativo === true ? item : null,
+        )[0];
         const userItem = {
           accessToken,
           token: credential.user,
           email: credential.email,
           name: credential.fullName.givenName,
           photoUrl: undefined,
+          permission,
         };
         setUser(userItem);
         SecureStore.setItem("userApple", JSON.stringify(userItem));
@@ -112,7 +119,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getUserProfile = useCallback(
-    async (token: string | undefined, accessToken: string) => {
+    async (
+      token: string | undefined,
+      accessToken: string,
+      permission: string,
+    ) => {
       if (!token) return;
       try {
         const res = await fetch("https://www.googleapis.com/userinfo/v2/me", {
@@ -127,6 +138,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           email: user.email,
           name: user.name,
           photoUrl: user.picture,
+          permission,
         };
         setUser(userItem);
         SecureStore.setItem("userGoogle", JSON.stringify(userItem));
@@ -146,8 +158,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const token = authentication?.accessToken;
       if (token != null) {
         const { access_token: accessToken } = await authLogin(token);
-        await getUserProfile(token, accessToken);
-
+        const { permissoes } = await dataUser(accessToken);
+        const { key: permission } = permissoes.map((item: any) =>
+          item.ativo === true ? item : null,
+        )[0];
+        await getUserProfile(token, accessToken, permission);
       }
       setLoading(false);
     }

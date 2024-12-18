@@ -1,3 +1,13 @@
-import { authLogin, paymentSheetParams } from "./services";
+import {
+  authLogin,
+  gerarProvaAleatoria,
+  gerarProvaPorMateria,
+  paymentSheetParams,
+} from "./services";
 
-export { authLogin, paymentSheetParams };
+export {
+  authLogin,
+  gerarProvaAleatoria,
+  gerarProvaPorMateria,
+  paymentSheetParams,
+};
