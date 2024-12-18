@@ -36,10 +36,11 @@ import {
 import { Answer, Question } from "./types"; // Importe os tipos do arquivo types.tsx
 
 export function Materias() {
+  const initialTime = 0; // Tempo inicial
   const { user } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(true);
   const [finishModalVisible, setFinishModalVisible] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(600); // Tempo inicial (10 minutos)
+  const [timeLeft, setTimeLeft] = useState(initialTime); // Tempo inicial (10 minutos)
   const [selectedAnswers, setSelectedAnswers] = useState<{
     [key: string]: string | null;
   }>({});
@@ -51,7 +52,6 @@ export function Materias() {
   const [selectedMateria, setSelectedMateria] = useState<Materia | null>(null);
   const navigation = useNavigation<NavigationProps>();
 
-  const initialTime = 600; // Tempo inicial
 
   type BottomTabParamList = {
     Principal: undefined;
@@ -135,9 +135,9 @@ export function Materias() {
     const filteredQuestions =
       selectedMateria !== null
         ? questions.filter(
-            (question) =>
-              question.materia === selectedMateria?.trim().toLowerCase(),
-          ) // Comparação com materia em minúsculas e sem espaços extras
+          (question) =>
+            question.materia === selectedMateria?.trim().toLowerCase(),
+        ) // Comparação com materia em minúsculas e sem espaços extras
         : [];
 
     const totalQuestions = filteredQuestions.length;
@@ -171,7 +171,7 @@ export function Materias() {
     Alert.alert(
       "Informações do Simulado",
       `Você acertou ${scorePercentage.toFixed(2)}% das perguntas.\n` +
-        `Tempo total: ${formatTime(finalTime)}`,
+      `Tempo total: ${formatTime(finalTime)}`,
     );
   };
 
@@ -187,27 +187,27 @@ export function Materias() {
   };
 
   useEffect(() => {
-    if (timeLeft === 0 && !isReviewMode) {
+    if (timeLeft === 600 && !isReviewMode) {
       Alert.alert("Tempo esgotado!", "O tempo para o quiz acabou.");
     }
   }, [timeLeft, isReviewMode]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      if (!isReviewMode && timeLeft > 0) {
-        setTimeLeft((prevTime) => prevTime - 1);
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isReviewMode, timeLeft]);
+    if (!isLoading) {
+      const timer = setInterval(() => {
+        if (isReviewMode) return;
+        setTimeLeft((prevTime) => prevTime + 1);
+      }, 1000); 
+      return () => clearInterval(timer);
+    }
+  }, [isReviewMode, isLoading]);
 
   const filteredQuestions =
     selectedMateria !== null
       ? questions.filter(
-          (question) =>
-            question.materia === selectedMateria?.trim().toLowerCase(),
-        ) // Comparação em minúsculas e sem espaços extras
+        (question) =>
+          question.materia === selectedMateria?.trim().toLowerCase(),
+      ) // Comparação em minúsculas e sem espaços extras
       : [];
 
   return (
@@ -414,9 +414,9 @@ export function Materias() {
       </Modal>
 
       {!modalVisible &&
-      selectedMateria &&
-      filteredQuestions.length > 0 &&
-      !isLoading ? (
+        selectedMateria &&
+        filteredQuestions.length > 0 &&
+        !isLoading ? (
         <>
           <HeaderQuiz>
             <FixedTimerContainer>
@@ -461,7 +461,7 @@ export function Materias() {
                             borderRadius: 10,
                           }}
                         >
-                          <Text style={{color:"white"}}>{`${answer.id.toUpperCase()}. ${answer.text}`}</Text>
+                          <Text style={{ color: "white" }}>{`${answer.id.toUpperCase()}. ${answer.text}`}</Text>
                         </TouchableOpacity>
                       );
                     })}
