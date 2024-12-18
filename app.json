@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "salaais",
+    "name": "Sala AIS",
     "slug": "salaais",
     "sheme:": "salaais",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./src/assets/logo-amarelo.jpg",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./src/assets/logo-amarelo.jpg",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#fbd434"
     },
     "ios": {
       "usesAppleSignIn": true,
@@ -19,8 +19,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./src/assets/logo-amarelo.jpg",
+        "backgroundColor": "#fbd434"
       },
       "package": "com.salaais"
     },

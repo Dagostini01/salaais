@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "expo/AppEntry.js",
   "scripts": {
+    "setup": "yarn && npx expo prebuild",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
