@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -12,8 +12,9 @@ import {
   View,
 } from "react-native";
 import { CircularProgress } from "react-native-circular-progress";
-import { gerarProvaAleatoria } from "../../data/questions";
+import { AuthContext } from "../../contexts/auth";
 import theme from "../../global/global/theme";
+import { gerarProvaAleatoria } from "../../services";
 import {
   AnswerText,
   Bloco,
@@ -44,6 +45,7 @@ type BottomTabParamList = {
 type NavigationProps = BottomTabNavigationProp<BottomTabParamList, "Principal">;
 
 export function Blocos() {
+  const { user } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(true);
   const [finishModalVisible, setFinishModalVisible] = useState(false);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
@@ -61,54 +63,54 @@ export function Blocos() {
 
   const initialTime = 600;
 
-  useEffect(() => {
-    async function fetchQuestions() {
-      try {
-        const quizData = await gerarProvaAleatoria();
-        const formattedQuestions: QuizQuestion[] = quizData.data.map(
-          (question: any) => ({
-            id: question.id,
-            question: question.questao_texto,
-            bloco: question.bloco,
-            materia: question.materia,
-            answers: [
-              {
-                id: "a",
-                text: question.questao_a,
-                correct: question.alternativa_correta === "a",
-              },
-              {
-                id: "b",
-                text: question.questao_b,
-                correct: question.alternativa_correta === "b",
-              },
-              {
-                id: "c",
-                text: question.questao_c,
-                correct: question.alternativa_correta === "c",
-              },
-              {
-                id: "d",
-                text: question.questao_d,
-                correct: question.alternativa_correta === "d",
-              },
-            ],
-          }),
-        );
-        setQuestions(formattedQuestions);
-      } catch (error) {
-        console.error("Erro ao carregar as questões:", error);
-      } finally {
-        setIsLoading(false);
-      }
+  const fetchQuestions = async (blockNumber: number) => {
+    try {
+      const quizData = await gerarProvaAleatoria(user?.accessToken as string, {
+        curso: "cms",
+        blocos: [blockNumber],
+        questoes_por_bloco: 20,
+      });
+      const formattedQuestions: QuizQuestion[] = quizData.data.map(
+        (question: any) => ({
+          id: question.id,
+          question: question.questao_texto,
+          bloco: question.bloco,
+          materia: question.materia,
+          answers: [
+            {
+              id: "a",
+              text: question.questao_a,
+              correct: question.alternativa_correta === "a",
+            },
+            {
+              id: "b",
+              text: question.questao_b,
+              correct: question.alternativa_correta === "b",
+            },
+            {
+              id: "c",
+              text: question.questao_c,
+              correct: question.alternativa_correta === "c",
+            },
+            {
+              id: "d",
+              text: question.questao_d,
+              correct: question.alternativa_correta === "d",
+            },
+          ],
+        }),
+      );
+      setQuestions(formattedQuestions);
+    } catch (error) {
+      console.error("Erro ao carregar as questões:", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    fetchQuestions();
-  }, []);
-
+  };
   const handleStartQuiz = (blockNumber: number) => {
+    fetchQuestions(blockNumber);
     setModalVisible(false);
-    setSelectedBlock(blockNumber); // Inicia o quiz com o bloco selecionado
+    setSelectedBlock(blockNumber);
   };
 
   const handleCancelQuiz = () => {
@@ -205,7 +207,7 @@ export function Blocos() {
 
   return (
     <Container>
-      {isLoading ? (
+      {!isLoading ? (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
