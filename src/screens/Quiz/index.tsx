@@ -185,9 +185,10 @@ export function Quiz() {
   };
 
   const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const hour = Math.floor(seconds / 3600);
+    return `${hour}:${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
 
   useFocusEffect(
