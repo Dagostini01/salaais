@@ -60,6 +60,7 @@ export function Quiz() {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBlock, setSelectedBlock] = useState<number | null>(null); // Novo estado para o bloco selecionado
+  const [finish, setFinish] = useState(false);
   const navigation = useNavigation<NavigationProps>();
 
   const initialTime = 7200;
@@ -152,6 +153,7 @@ export function Quiz() {
 
     setFinalTime(timeLeft);
     setFinishModalVisible(true);
+    setFinish(true)
   };
 
   const handleRestartQuiz = () => {
@@ -160,6 +162,7 @@ export function Quiz() {
     setFinishModalVisible(false);
     setIsReviewMode(false);
     setSelectedBlock(1); // Reinicia no Bloco 1
+    setFinish(false)
   };
 
   const handleReviewQuiz = () => {
@@ -171,7 +174,7 @@ export function Quiz() {
     Alert.alert(
       "Informações do Simulado",
       `Você acertou ${scorePercentage.toFixed(2)}% das perguntas.\n` +
-        `Tempo total: ${formatTime(finalTime)}`,
+      `Tempo total: ${formatTime(finalTime)}`,
     );
   };
 
@@ -191,24 +194,22 @@ export function Quiz() {
     return `${hour}:${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      if (isReviewMode) return;
-
+  useEffect(() => {
+    if (isReviewMode) return;
+    if (!finish) {
       const timer = setInterval(() => {
         setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
       }, 1000);
-
       return () => clearInterval(timer);
-    }, [isReviewMode]),
-  );
-
-  useEffect(() => {
-    if (timeLeft === 0 && !isReviewMode) {
-      Alert.alert("Tempo esgotado!", "O tempo para o quiz acabou.");
-      navigation.navigate("Principal");
     }
-  }, [timeLeft, isReviewMode, navigation]);
+  }, [isReviewMode, finish]),
+
+    useEffect(() => {
+      if (timeLeft === 0 && !isReviewMode) {
+        Alert.alert("Tempo esgotado!", "O tempo para o quiz acabou.");
+        navigation.navigate("Principal");
+      }
+    }, [timeLeft, isReviewMode, navigation]);
 
   const handleSelectBlock = (blockNumber: number) => {
     setSelectedBlock(blockNumber);
@@ -217,8 +218,8 @@ export function Quiz() {
   const filteredQuestions =
     selectedBlock !== null
       ? questions
-          .filter((question) => question.bloco === selectedBlock)
-          .slice(0, 20)
+        .filter((question) => question.bloco === selectedBlock)
+        .slice(0, 20)
       : [];
 
   return (
