@@ -49,7 +49,6 @@ export function Blocos() {
   const { user } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(true);
   const [finishModalVisible, setFinishModalVisible] = useState(false);
-  const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<{
     [key: string]: string | null;
@@ -58,12 +57,15 @@ export function Blocos() {
   const [isReviewMode, setIsReviewMode] = useState(false);
   const [finalTime, setFinalTime] = useState(600);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [statusLoading, setStatusLoading] = useState<
+    "loading" | "complete" | "idle"
+  >("idle");
   const [selectedBlock, setSelectedBlock] = useState<number | null>(null); // Bloco selecionado no início
   const navigation = useNavigation<NavigationProps>();
 
   const fetchQuestions = async (blockNumber: number) => {
     try {
+      setStatusLoading("loading");
       const quizData = await gerarProvaAleatoria(user?.accessToken as string, {
         curso: "cms",
         blocos: [blockNumber],
@@ -103,9 +105,10 @@ export function Blocos() {
     } catch (error) {
       console.error("Erro ao carregar as questões:", error);
     } finally {
-      setIsLoading(false);
+      setStatusLoading("complete");
     }
   };
+
   const handleStartQuiz = (blockNumber: number) => {
     fetchQuestions(blockNumber);
     setModalVisible(false);
@@ -179,14 +182,14 @@ export function Blocos() {
   };
 
   useEffect(() => {
-    if (!isLoading) {
+    if (statusLoading === "complete") {
       const timer = setInterval(() => {
         if (isReviewMode) return;
         setTimeLeft((prevTime) => prevTime + 1);
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [isReviewMode, isLoading]);
+  }, [isReviewMode, statusLoading]);
 
   useEffect(() => {
     if (timeLeft === 600 && !isReviewMode) {
@@ -204,7 +207,7 @@ export function Blocos() {
 
   return (
     <Container>
-      {isLoading ? (
+      {statusLoading === "loading" ? (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
