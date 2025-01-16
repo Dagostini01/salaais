@@ -15,7 +15,7 @@
     "ios": {
       "usesAppleSignIn": true,
       "supportsTablet": true,
-      "bundleIdentifier": "com.salaais"
+      "bundleIdentifier": "com.sala.ais"
     },
     "android": {
       "adaptiveIcon": {
