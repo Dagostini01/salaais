@@ -8,7 +8,7 @@
     "icon": "./src/assets/logo-amarelo.jpg",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./src/assets/logo-amarelo.jpg",
+      "image": "./src/assets/logo-amarelo-removebg.png",
       "resizeMode": "contain",
       "backgroundColor": "#fbd434"
     },
@@ -19,8 +19,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/logo-amarelo.jpg",
-        "backgroundColor": "#fbd434"
+        "foregroundImage": "./src/assets/logo-amarelo-removebg.png",
+        "backgroundColor": "#fbcb04"
       },
       "package": "com.salaais"
     },
