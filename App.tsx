@@ -1,14 +1,23 @@
-import React from "react";
-import { AppRoutes } from "./src/routes/app.routes";
 import { NavigationContainer } from "@react-navigation/native";
-import { ThemeProvider } from "styled-components";
-import theme from "./src/global/global/theme";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { AuthProvider } from "./src/contexts/auth";
-import * as WebBrowser from "expo-web-browser";
 import { StripeProvider } from "@stripe/stripe-react-native";
+import * as WebBrowser from "expo-web-browser";
+import React from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ThemeProvider } from "styled-components";
+import { AuthProvider } from "./src/contexts/auth";
+import theme from "./src/global/global/theme";
+import { AppRoutes } from "./src/routes/app.routes";
 
 WebBrowser.maybeCompleteAuthSession();
+
+const linking = {
+  prefixes: ["salaais://"],
+  config: {
+    screens: {
+      SignIn: "signin",
+    },
+  },
+};
 
 export default function App() {
   return (
@@ -19,7 +28,7 @@ export default function App() {
         }
       >
         <ThemeProvider theme={theme}>
-          <NavigationContainer>
+          <NavigationContainer linking={linking}>
             <AuthProvider>
               <AppRoutes />
             </AuthProvider>

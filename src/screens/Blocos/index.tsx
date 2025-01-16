@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import React, { useContext, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -50,7 +50,7 @@ export function Blocos() {
   const [modalVisible, setModalVisible] = useState(true);
   const [finishModalVisible, setFinishModalVisible] = useState(false);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(600);
+  const [timeLeft, setTimeLeft] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<{
     [key: string]: string | null;
   }>({});
@@ -61,7 +61,6 @@ export function Blocos() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBlock, setSelectedBlock] = useState<number | null>(null); // Bloco selecionado no início
   const navigation = useNavigation<NavigationProps>();
-
 
   const fetchQuestions = async (blockNumber: number) => {
     try {
@@ -164,7 +163,7 @@ export function Blocos() {
     Alert.alert(
       "Informações do Simulado",
       `Você acertou ${scorePercentage.toFixed(2)}% das perguntas.\n` +
-      `Tempo total: ${formatTime(finalTime)}`,
+        `Tempo total: ${formatTime(finalTime)}`,
     );
   };
 
@@ -199,13 +198,13 @@ export function Blocos() {
   const filteredQuestions =
     selectedBlock !== null
       ? questions
-        .filter((question) => question.bloco === selectedBlock)
-        .slice(0, 20)
+          .filter((question) => question.bloco === selectedBlock)
+          .slice(0, 20)
       : [];
 
   return (
     <Container>
-      {!isLoading ? (
+      {isLoading ? (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
