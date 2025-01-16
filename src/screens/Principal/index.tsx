@@ -85,20 +85,20 @@ export function Principal() {
             onPress={() => navigation.navigate("Quiz")}
             imageUrl={require("../../assets/anac-logo.png")}
           />
-          {/* {user.permission !== "COMUM" && ( */}
-          <>
-            <Card
-              onPress={() => navigation.navigate("Blocos")}
-              title="Blocos"
-              iconName="book"
-            />
-            <Card
-              onPress={() => navigation.navigate("Materias")}
-              title="Matérias"
-              iconName="menu-book"
-            />
-          </>
-          {/* )} */}
+          {user.permission !== "COMUM" && (
+            <>
+              <Card
+                onPress={() => navigation.navigate("Blocos")}
+                title="Blocos"
+                iconName="book"
+              />
+              <Card
+                onPress={() => navigation.navigate("Materias")}
+                title="Matérias"
+                iconName="menu-book"
+              />
+            </>
+          )}
         </HighlightCards>
       </CardsTest>
       <ButtonOpacity
