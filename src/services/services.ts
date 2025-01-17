@@ -47,6 +47,22 @@ export const authLogin = async (token: string) => {
   }
 };
 
+export const loginApple = async (payload: LoginApplePayload) => {
+  try {
+    const response = await fetch(`${API_URL}/auth/login-ios`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    throw new Error("Erro ao autenticar");
+  }
+};
+
 export const dataUser = async (token: string) => {
   try {
     const response = await fetch(`${API_URL}/auth/dados-usuario-por-token`, {

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { ActivityIndicator, View, StyleSheet } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { AuthContext } from "../contexts/auth";
 import { CommomRoutes } from "./common.routes";
 import { SignInRoutes } from "./signin.routes";
@@ -8,7 +8,6 @@ export const AppRoutes = () => {
   const { signed, getToken, loading } = useContext(AuthContext);
 
   // "signed" nas dependências para que a verificação do token aconteça quando mudar o estado de "signed"
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     getToken();
   }, [signed]);

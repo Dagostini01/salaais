@@ -1,3 +1,5 @@
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { useNavigation } from "@react-navigation/native";
 import React, { useContext } from "react";
 import { ActivityIndicator, Platform } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
@@ -16,9 +18,24 @@ import {
   TitleWrapper,
 } from "./styles";
 
+type BottomTabParamList = {
+  Principal: undefined;
+  CompleteProfile: undefined;
+};
+
+type NavigationProps = BottomTabNavigationProp<BottomTabParamList, "Principal">;
+
 export function SignIn() {
+  const navigation = useNavigation<NavigationProps>();
   const { signInWithGoogle, signInWithApple, loading } =
     useContext(AuthContext);
+
+  const signApple = async () => {
+    const result = await signInWithApple();
+    if (result === "goToComplete")
+      return navigation.navigate("CompleteProfile");
+    if (result === "success") return navigation.navigate("Principal");
+  };
 
   return (
     <Container>
@@ -42,7 +59,7 @@ export function SignIn() {
           />
           {Platform.OS === "ios" && (
             <SignInSocialButton
-              onPress={signInWithApple}
+              onPress={signApple}
               title="Entrar com Apple"
               svg={AppleSvg}
             />

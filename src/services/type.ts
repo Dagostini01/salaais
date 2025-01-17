@@ -11,3 +11,11 @@ interface ProvaMateriaPayload {
     quantidade_questoes: number;
   }[];
 }
+
+interface LoginApplePayload {
+  authorizationCode: string;
+  identityToken: string;
+  user: string;
+  email?: string;
+  name?: string;
+}
