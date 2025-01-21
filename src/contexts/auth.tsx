@@ -73,9 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         name: credential.fullName?.givenName ?? "",
         user: credential.user ?? "",
       };
-      console.log(appleCredential);
       const user = await loginApple(appleCredential);
-      console.log("user", user);
       const { permissoes } = await dataUser(user.token);
       const permissionItem = permissoes.find(
         (item: any) => item.ativo === true,
@@ -107,9 +105,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         name,
       });
       const { permissoes } = await dataUser(user.token);
-      const { key: permission } = permissoes.map((item: any) =>
-        item.ativo === true ? item : null,
-      )[0];
+      const { key: permission } = permissoes.find(
+        (item: any) =>
+          item.ativo === true &&
+          ["BRONZE", "PRATA", "OURO", "PREMIUM"].includes(item.key),
+      ) || { key: "COMUM" };
       setUser({
         token: credentials?.user ?? "",
         email: user?.email,
@@ -206,9 +206,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (token != null) {
         const { access_token: accessToken } = await authLogin(token);
         const { permissoes } = await dataUser(accessToken);
-        const { key: permission } = permissoes.map((item: any) =>
-          item.ativo === true ? item : null,
-        )[0];
+        const { key: permission } = permissoes.find(
+          (item: any) =>
+            item.ativo === true &&
+            ["BRONZE", "PRATA", "OURO", "PREMIUM"].includes(item.key),
+        ) || { key: "COMUM" };
         await getUserProfile(token, accessToken, permission);
       }
       setLoading(false);

@@ -42,6 +42,23 @@ export function Principal() {
   const navigation = useNavigation<NavigationProps>();
   const { user, signOut } = useContext(AuthContext);
 
+  const alertForComumPermission = () => {
+    Alert.alert(
+      "Você não tem permissão para acessar este simulado.",
+      "Para ter acesso, você deve contratar um dos planos",
+      [
+        {
+          text: "Ok",
+        },
+        {
+          text: "Ir para planos",
+          style: "cancel",
+          onPress: () => navigation.navigate("Planos"),
+        },
+      ],
+    );
+  };
+
   const logout = () => {
     Alert.alert("Realmente deseja sair?", "", [
       {
@@ -87,20 +104,24 @@ export function Principal() {
             onPress={() => navigation.navigate("Quiz")}
             imageUrl={require("../../assets/anac-logo.png")}
           />
-          {user.permission !== "COMUM" && (
-            <>
-              <Card
-                onPress={() => navigation.navigate("Blocos")}
-                title="Blocos"
-                iconName="book"
-              />
-              <Card
-                onPress={() => navigation.navigate("Materias")}
-                title="Matérias"
-                iconName="menu-book"
-              />
-            </>
-          )}
+          <Card
+            onPress={() =>
+              user.permission === "COMUM"
+                ? alertForComumPermission()
+                : navigation.navigate("Blocos")
+            }
+            title="Blocos"
+            iconName="book"
+          />
+          <Card
+            onPress={() =>
+              user.permission === "COMUM"
+                ? alertForComumPermission()
+                : navigation.navigate("Materias")
+            }
+            title="Matérias"
+            iconName="menu-book"
+          />
         </HighlightCards>
       </CardsTest>
       <ButtonOpacity
