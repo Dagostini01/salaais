@@ -1,13 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
-import {
-  Blocos,
-  CompleteProfile,
-  Materias,
-  Planos,
-  Principal,
-  Quiz,
-} from "../screens";
+import { Blocos, Materias, Planos, Principal, Quiz } from "../screens";
 
 const Stack = createNativeStackNavigator();
 const screenOptions = { headerShown: false };
@@ -20,7 +13,6 @@ export const CommomRoutes = () => {
       <Stack.Screen name="Planos" component={Planos} />
       <Stack.Screen name="Blocos" component={Blocos} />
       <Stack.Screen name="Materias" component={Materias} />
-      <Stack.Screen name="CompleteProfile" component={CompleteProfile} />
     </Stack.Navigator>
   );
 };

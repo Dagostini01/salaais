@@ -63,11 +63,13 @@ export function Principal() {
       <Header>
         <UserWrapper>
           <UserInfo>
-            <Photo
-              source={{
-                uri: `${user.photoUrl}`,
-              }}
-            />
+            {user.photoUrl != undefined && (
+              <Photo
+                source={{
+                  uri: `${user.photoUrl}`,
+                }}
+              />
+            )}
             <User>
               <UserGreeting>Olá {user.name}!</UserGreeting>
               <UserName>Pronto para decolar?</UserName>
