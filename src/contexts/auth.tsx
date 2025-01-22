@@ -36,7 +36,7 @@ type AuthContextType = {
   user: UserType;
   signed: boolean;
   signInWithGoogle: () => Promise<void>;
-  signInWithApple: () => Promise<"success" | "goToComplete" | undefined>;
+  signInWithApple: () => Promise<void>;
   signInWithAppleComplete: (name?: string, email?: string) => Promise<void>;
   signOut: () => void;
   getToken: () => Promise<void>;
@@ -57,9 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   const [_, response, promptAsync] = Google.useAuthRequest(config);
 
-  const signInWithApple = async (): Promise<
-    "success" | "goToComplete" | undefined
-  > => {
+  const signInWithApple = async () => {
     try {
       setLoading(true);
       const credential = await Apple.signInAsync({
@@ -68,36 +66,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           Apple.AppleAuthenticationScope.EMAIL,
         ],
       });
-      if (
-        credential?.email !== null &&
-        credential.fullName?.givenName !== null
-      ) {
-        setCredentials({
-          authorizationCode: credential.authorizationCode ?? "",
-          identityToken: credential.identityToken ?? "",
-          user: credential.user,
-        });
-        return "goToComplete";
-      }
-      const user = await loginApple({
-        authorizationCode: credentials?.authorizationCode ?? "",
-        identityToken: credentials?.identityToken ?? "",
-        user: credentials?.user ?? "",
-      });
+      const appleCredential = {
+        authorizationCode: credential.authorizationCode ?? "",
+        identityToken: credential.identityToken ?? "",
+        email: credential.email ?? "",
+        name: credential.fullName?.givenName ?? "",
+        user: credential.user ?? "",
+      };
+      const user = await loginApple(appleCredential);
       const { permissoes } = await dataUser(user.token);
-      const { key: permission } = permissoes.map((item: any) =>
-        item.ativo === true ? item : null,
-      )[0];
+      const permissionItem = permissoes.find(
+        (item: any) => item.ativo === true,
+      );
+      const permission = permissionItem?.key ?? null;
       setUser({
-        token: credentials?.user ?? "",
+        token: credential.user ?? "",
         email: user?.email,
-        name: user.name,
+        name: user.nome,
         photoUrl: undefined,
         permission,
         accessToken: user.token,
       });
-      SecureStore.setItem("userApple", JSON.stringify(user));
-      return "success";
+      await SecureStore.setItemAsync("userApple", JSON.stringify(user));
     } catch (err) {
       console.error("Error signing in with Apple", err);
     } finally {
@@ -115,9 +105,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         name,
       });
       const { permissoes } = await dataUser(user.token);
-      const { key: permission } = permissoes.map((item: any) =>
-        item.ativo === true ? item : null,
-      )[0];
+      const { key: permission } = permissoes.find(
+        (item: any) =>
+          item.ativo === true &&
+          ["BRONZE", "PRATA", "OURO", "PREMIUM"].includes(item.key),
+      ) || { key: "COMUM" };
       setUser({
         token: credentials?.user ?? "",
         email: user?.email,
@@ -214,9 +206,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (token != null) {
         const { access_token: accessToken } = await authLogin(token);
         const { permissoes } = await dataUser(accessToken);
-        const { key: permission } = permissoes.map((item: any) =>
-          item.ativo === true ? item : null,
-        )[0];
+        const { key: permission } = permissoes.find(
+          (item: any) =>
+            item.ativo === true &&
+            ["BRONZE", "PRATA", "OURO", "PREMIUM"].includes(item.key),
+        ) || { key: "COMUM" };
         await getUserProfile(token, accessToken, permission);
       }
       setLoading(false);
