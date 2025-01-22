@@ -22,4 +22,6 @@ export const Name = styled.Text`
   color: ${({ theme }) => theme.colors.text};
   font-size: ${RFValue(20)}px;
   margin-left: 10px;
+  width: 50%;
+  align-self: center;
 `;

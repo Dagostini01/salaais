@@ -57,6 +57,7 @@ export const ModalText = styled.Text`
   font-size: ${RFValue(18)}px;
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${RFValue(20)}px;
+  width: 80%;
 `;
 
 export const ModalButton = styled.TouchableOpacity`
@@ -64,6 +65,7 @@ export const ModalButton = styled.TouchableOpacity`
   padding: ${RFValue(15)}px;
   border-radius: ${RFValue(8)}px;
   margin-bottom: ${RFValue(10)}px;
+  width: 25%;
 `;
 
 export const ModalButtonText = styled.Text`
@@ -76,6 +78,7 @@ export const ModalButtonCancel = styled.TouchableOpacity`
   background-color: ${({ theme }) => theme.colors.attention};
   padding: ${RFValue(15)}px;
   border-radius: ${RFValue(8)}px;
+  width: 25%;
 `;
 
 export const ModalButtonTextCancel = styled.Text`

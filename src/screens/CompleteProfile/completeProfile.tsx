@@ -2,6 +2,8 @@ import { StatusBar } from "expo-status-bar";
 import { useContext, useState } from "react";
 import { AuthContext } from "../../contexts/auth";
 import { Button, ButtonText, Container, Input } from "./styles";
+import LogoSvg from "../../assets/logo-amarelo.svg";
+import { RFValue } from "react-native-responsive-fontsize";
 
 export const CompleteProfile = () => {
   const { signInWithAppleComplete } = useContext(AuthContext);
@@ -17,6 +19,7 @@ export const CompleteProfile = () => {
   return (
     <Container>
       <StatusBar style="auto" />
+      <LogoSvg width={RFValue(160)} height={RFValue(98)}/>
       <Input placeholder="Nome" value={name} onChangeText={setName} />
       <Input
         placeholder="Email"
@@ -25,7 +28,7 @@ export const CompleteProfile = () => {
         keyboardType="email-address"
       />
       <Button onPress={onSubmit}>
-        <ButtonText>Confirmar</ButtonText>
+        <ButtonText>Confirmarr</ButtonText>
       </Button>
     </Container>
   );

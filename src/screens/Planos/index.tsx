@@ -115,7 +115,7 @@ export function Planos() {
           </TextPayment>
           <ButtonPayment
             icon="local-atm"
-            text="R$33,50 Contratar"
+            text="R$33,50 - Contratar"
             onPress={() => initializePaymentSheet("BRONZE")}
           />
         </PaymentBox>
