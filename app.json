@@ -15,7 +15,10 @@
     "ios": {
       "usesAppleSignIn": true,
       "supportsTablet": true,
-      "bundleIdentifier": "com.sala.ais"
+      "bundleIdentifier": "com.sala.ais",
+      "infoPlist": {
+        "NSCameraUsageDescription": "$(PRODUCT_NAME) precisa da sua permissão para usar a câmera para autenticar com o Apple."
+      }
     },
     "android": {
       "adaptiveIcon": {
