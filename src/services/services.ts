@@ -85,6 +85,10 @@ type ProvaAleatoriaPayload = {
   questoes_por_bloco: number;
 };
 
+type ProvaNormalPayload = {
+  keys: string[];
+};
+
 export async function gerarProvaAleatoria(
   token: string,
   payload: ProvaAleatoriaPayload,
@@ -135,5 +139,31 @@ export async function gerarProvaPorMateria(
   } catch (error) {
     console.error("Erro ao gerar prova por todas as matérias:", error);
     throw new Error("Erro ao gerar prova. Tente novamente mais tarde.");
+  }
+}
+
+
+export async function gerarProvaNormal(
+  token: string,
+  payload: ProvaNormalPayload,
+) {
+  try {
+    const response = await fetch(`${API_URL}/questao/gerar-prova/normal`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error("Erro ao gerar a prova normal");
+    }
+    const data = await response.json();
+    console.log("DATA", data);
+    return data;
+  } catch (error: any) {
+    throw new Error("Erro ao gerar prova normal", error);
   }
 }

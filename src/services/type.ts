@@ -4,6 +4,10 @@ interface ProvaAleatoriaPayload {
   questoes_por_bloco: number;
 }
 
+interface ProvaNormalPayload {
+  keys: string[];
+}
+
 interface ProvaMateriaPayload {
   questao_por_materia: {
     curso: string;

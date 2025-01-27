@@ -3,6 +3,7 @@ import {
   gerarProvaAleatoria,
   gerarProvaPorMateria,
   paymentSheetParams,
+  gerarProvaNormal,
 } from "./services";
 
 export {
@@ -10,4 +11,5 @@ export {
   gerarProvaAleatoria,
   gerarProvaPorMateria,
   paymentSheetParams,
+  gerarProvaNormal,
 };
