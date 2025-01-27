@@ -34,6 +34,7 @@ type BottomTabParamList = {
   Quiz: undefined;
   Planos: undefined;
   Blocos: undefined;
+  QuizFree: undefined;
 };
 
 type NavigationProps = BottomTabNavigationProp<BottomTabParamList, "Principal">;
@@ -101,7 +102,10 @@ export function Principal() {
         <NameCardTest>Realizar Simulado</NameCardTest>
         <HighlightCards>
           <CardImage
-            onPress={() => navigation.navigate("Quiz")}
+            onPress={() =>
+              user.permission === "COMUM"
+                ? navigation.navigate("QuizFree")
+                : navigation.navigate("Quiz")}
             imageUrl={require("../../assets/anac-logo.png")}
           />
           <Card

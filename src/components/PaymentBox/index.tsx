@@ -14,7 +14,7 @@ export function PaymentBox({ icon, text, color, children }: PaymentButton) {
   return (
     <ViewButtonDad>
       <ViewButton>
-        <View style={{ flexDirection: "row" }}>
+        <View style={{ flexDirection: "row"}}>
           <MaterialIcons name={icon} size={50} color={color} />
           <Name>{text}</Name>
         </View>

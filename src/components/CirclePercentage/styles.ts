@@ -17,4 +17,6 @@ export const Circle = styled.View<CircleProps>`
 export const TextInsideCircle = styled.Text`
   color: ${({ theme }) => theme.colors.shape};
   font-size: ${RFValue(15)}px;
+  width: 100%;
+  text-align: center;
 `;

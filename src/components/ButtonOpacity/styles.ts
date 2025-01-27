@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import styled from "styled-components/native";
+import { Platform } from "react-native";
 
 export const LastTest = styled.TouchableOpacity`
   width: 90%;
@@ -22,6 +23,7 @@ export const TestAnac = styled.View`
 
 export const NameTest = styled.Text`
   color: ${({ theme }) => theme.colors.text};
-  font-size: ${RFValue(20)}px;
+  font-size: ${Platform.OS === "ios" ? "20px" : "18px"};
   margin-left: 10px;
+  align-self: center;
 `;
