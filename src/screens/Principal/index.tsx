@@ -1,7 +1,7 @@
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 import React, { useContext } from "react";
-import { Alert, TouchableOpacity } from "react-native";
+import { Alert, TouchableOpacity, View } from "react-native";
 import { ButtonOpacity } from "../../components/ButtonOpacity";
 import { Card } from "../../components/Card";
 import { CardImage } from "../../components/CardImage";
@@ -79,8 +79,9 @@ export function Principal() {
   return (
     <Container>
       <Header>
-        <UserWrapper>
-          <UserInfo>
+        {/* <UserWrapper> */}
+        <UserInfo>
+          <User>
             {user.photoUrl != undefined && (
               <Photo
                 source={{
@@ -88,15 +89,16 @@ export function Principal() {
                 }}
               />
             )}
-            <User>
+            <View style={{flex: 1}}>
               <UserGreeting>Olá {user.name}!</UserGreeting>
               <UserName>Pronto para decolar?</UserName>
-            </User>
-          </UserInfo>
+            </View>
+          </User>
           <TouchableOpacity onPress={logout}>
             <Icon name="power" />
           </TouchableOpacity>
-        </UserWrapper>
+        </UserInfo>
+        {/* </UserWrapper> */}
       </Header>
       <CardsTest>
         <NameCardTest>Realizar Simulado</NameCardTest>
