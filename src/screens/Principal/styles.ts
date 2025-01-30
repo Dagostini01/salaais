@@ -19,7 +19,6 @@ export const Header = styled.View`
 
 export const UserWrapper = styled.View`
   width: 100%;
-  padding: 0 24px;
   margin-top: ${getStatusBarHeight() + RFValue(35)}px;
   flex-direction: row;
   justify-content: space-between;
@@ -28,6 +27,9 @@ export const UserWrapper = styled.View`
 export const UserInfo = styled.View`
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 22px;
 `;
 
 export const Photo = styled.Image`
@@ -37,7 +39,9 @@ export const Photo = styled.Image`
 `;
 
 export const User = styled.View`
-  margin-left: 17px;
+  flex-direction: row;
+  gap: 12px;
+  flex-shrink: 1;
 `;
 
 export const UserGreeting = styled.Text`
@@ -53,6 +57,7 @@ export const UserName = styled.Text`
 export const Icon = styled(Feather)`
   color: ${({ theme }) => theme.colors.attention};
   font-size: ${RFValue(24)}px;
+  padding: 16px;
 `;
 
 export const LastTest = styled.View`
