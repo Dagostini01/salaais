@@ -75,10 +75,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       };
       const user = await loginApple(appleCredential);
       const { permissoes } = await dataUser(user.token);
-      const permissionItem = permissoes.find(
-        (item: any) => item.ativo === true,
-      );
-      const permission = permissionItem?.key ?? null;
+      const { key: permission } = permissoes.find(
+        (item: any) =>
+          item.ativo === true &&
+          ["BRONZE", "PRATA", "OURO", "PREMIUM"].includes(item.key),
+      ) || { key: "COMUM" };
       setUser({
         token: credential.user ?? "",
         email: user?.email,
