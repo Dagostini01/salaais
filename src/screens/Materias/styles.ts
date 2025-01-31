@@ -1,5 +1,4 @@
 import { Platform } from "react-native";
-import { getStatusBarHeight } from "react-native-iphone-x-helper";
 import { RFValue } from "react-native-responsive-fontsize";
 import styled from "styled-components/native";
 
@@ -32,8 +31,8 @@ export const Answer = styled.TouchableOpacity<{
     selected
       ? theme.colors.shape
       : correct
-      ? theme.colors.success
-      : theme.colors.card};
+        ? theme.colors.success
+        : theme.colors.card};
   padding: ${RFValue(15)}px;
   border-radius: ${RFValue(8)}px;
   margin-bottom: ${RFValue(10)}px;
@@ -92,14 +91,14 @@ export const ModalButtonTextCancel = styled.Text`
   text-align: center;
 `;
 
-export const FixedTimerContainer = styled.SafeAreaView`
+export const FixedTimerContainer = styled.View`
   width: 30%;
-  align-items: center;
+  margin: 8px 0px 8px 0px;
+  padding: 8px;
+  flex-direction: row;
   justify-content: center;
   align-self: center;
   background-color: ${({ theme }) => theme.colors.text};
-  /* margin-top: ${getStatusBarHeight() + RFValue(20)}px; */
-  padding: 10px;
   border-radius: 10px;
 `;
 
@@ -107,12 +106,11 @@ export const TimerText = styled.Text`
   font-size: ${RFValue(16)}px;
   color: ${({ theme }) => theme.colors.light};
   font-weight: bold;
-  width: 100%;
 `;
 
 export const HeaderQuiz = styled.View`
   flex: 1;
-  justify-content: space-between;
+  padding: ${Platform.OS === "ios" ? RFValue(20) : 0}px;
 `;
 
 export const FinishButton = styled.TouchableOpacity`

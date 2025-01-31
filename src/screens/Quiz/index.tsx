@@ -1,8 +1,8 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import React, { useContext, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,13 +13,13 @@ import {
   View,
 } from "react-native";
 import { CircularProgress } from "react-native-circular-progress";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AuthContext } from "../../contexts/auth";
 import theme from "../../global/global/theme";
 import { gerarProvaAleatoria } from "../../services";
 import {
   AnswerText,
   Bloco,
-  Container,
   FinishButton,
   FinishButtonText,
   FixedTimerContainer,
@@ -49,7 +49,6 @@ export function Quiz() {
   const { user } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(true);
   const [finishModalVisible, setFinishModalVisible] = useState(false);
-  const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState(7200);
   const [selectedAnswers, setSelectedAnswers] = useState<{
     [key: string]: string | null;
@@ -145,18 +144,21 @@ export function Quiz() {
             const totalQuestions = questions.length;
             const correctAnswers = questions.filter((question) => {
               const selectedAnswerId = selectedAnswers[String(question.id)];
-              const correctAnswer = question.answers.find((answer) => answer.correct);
+              const correctAnswer = question.answers.find(
+                (answer) => answer.correct,
+              );
               return selectedAnswerId === correctAnswer?.id;
             }).length;
 
-            const calculatedScorePercentage = (correctAnswers / totalQuestions) * 100;
+            const calculatedScorePercentage =
+              (correctAnswers / totalQuestions) * 100;
             setScorePercentage(calculatedScorePercentage);
 
             // Salva o resultado no AsyncStorage
             try {
               await AsyncStorage.setItem(
                 "lastQuizResult",
-                JSON.stringify(calculatedScorePercentage)
+                JSON.stringify(calculatedScorePercentage),
               );
             } catch (error) {
               console.error("Erro ao salvar o resultado do quiz:", error);
@@ -167,10 +169,9 @@ export function Quiz() {
             setFinish(true);
           },
         },
-      ]
+      ],
     );
   };
-
 
   const handleRestartQuiz = () => {
     setSelectedAnswers({});
@@ -178,7 +179,7 @@ export function Quiz() {
     setFinishModalVisible(false);
     setIsReviewMode(false);
     setSelectedBlock(1); // Reinicia no Bloco 1
-    setFinish(false)
+    setFinish(false);
   };
 
   const handleReviewQuiz = () => {
@@ -190,7 +191,7 @@ export function Quiz() {
     Alert.alert(
       "Informações do Simulado",
       `Você acertou ${scorePercentage.toFixed(2)}% das perguntas.\n` +
-      `Tempo total: ${formatTime(finalTime)}`,
+        `Tempo total: ${formatTime(finalTime)}`,
     );
   };
 
@@ -219,7 +220,6 @@ export function Quiz() {
       return () => clearInterval(timer);
     }
   }, [isReviewMode, finish]),
-
     useEffect(() => {
       if (timeLeft === 0 && !isReviewMode) {
         Alert.alert("Tempo esgotado!", "O tempo para o quiz acabou.");
@@ -234,12 +234,21 @@ export function Quiz() {
   const filteredQuestions =
     selectedBlock !== null
       ? questions
-        .filter((question) => question.bloco === selectedBlock)
-        .slice(0, 20)
+          .filter((question) => question.bloco === selectedBlock)
+          .slice(0, 20)
       : [];
 
+  const { top } = useSafeAreaInsets();
+
   return (
-    <Container>
+    <View
+      style={{
+        flex: 1,
+        paddingVertical: top,
+        paddingHorizontal: 20,
+        backgroundColor: theme.colors.background,
+      }}
+    >
       {isLoading ? (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
@@ -271,7 +280,14 @@ export function Quiz() {
             transparent={true}
           >
             <ModalContainer style={{ alignItems: "center" }}>
-              <Text style={{ fontSize: 16, marginBottom: 20, width: "100%", textAlign: "center" }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  marginBottom: 20,
+                  width: "100%",
+                  textAlign: "center",
+                }}
+              >
                 Resultado final simulado ANAC:
               </Text>
               <CircularProgress
@@ -283,7 +299,12 @@ export function Quiz() {
               >
                 {() => (
                   <Text
-                    style={{ fontSize: 24, color: "#000", width: "100%", textAlign: "center" }}
+                    style={{
+                      fontSize: 24,
+                      color: "#000",
+                      width: "100%",
+                      textAlign: "center",
+                    }}
                   >{`${scorePercentage.toFixed(0)}%`}</Text>
                 )}
               </CircularProgress>
@@ -354,12 +375,8 @@ export function Quiz() {
           {!modalVisible && (
             <HeaderQuiz>
               <FixedTimerContainer>
-                <View style={{ flexDirection: "row", alignItems: "center", width: "100%" }}>
-                  <MaterialIcons name="access-time" size={24} color="white" />
-                  {!isReviewMode && (
-                    <TimerText>{formatTime(timeLeft)}</TimerText>
-                  )}
-                </View>
+                <MaterialIcons name="access-time" size={24} color="white" />
+                {!isReviewMode && <TimerText>{formatTime(timeLeft)}</TimerText>}
               </FixedTimerContainer>
 
               {/* Botões para alternar entre os blocos */}
@@ -387,7 +404,14 @@ export function Quiz() {
                       marginTop: 5,
                     }}
                   >
-                    <Text style={{ color: "white", fontSize: 15, width: "100%", textAlign: "center" }}>
+                    <Text
+                      style={{
+                        color: "white",
+                        fontSize: 15,
+                        width: "100%",
+                        textAlign: "center",
+                      }}
+                    >
                       Bloco {blockNumber}
                     </Text>
                   </TouchableOpacity>
@@ -453,6 +477,6 @@ export function Quiz() {
           )}
         </>
       )}
-    </Container>
+    </View>
   );
 }
