@@ -89,7 +89,7 @@ export const ModalButtonTextCancel = styled.Text`
   text-align: center;
 `;
 
-export const FixedTimerContainer = styled.View`
+export const FixedTimerContainer = styled.SafeAreaView`
   width: 33%;
   align-items: center;
   justify-content: center;
