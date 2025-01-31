@@ -131,30 +131,46 @@ export function Quiz() {
   };
 
   const handleFinishQuiz = async () => {
-    const totalQuestions = questions.length;
-    const correctAnswers = questions.filter((question) => {
-      const selectedAnswerId = selectedAnswers[String(question.id)];
-      const correctAnswer = question.answers.find((answer) => answer.correct);
-      return selectedAnswerId === correctAnswer?.id;
-    }).length;
+    Alert.alert(
+      "Finalizar Prova",
+      "Tem certeza que deseja finalizar Prova ANAC?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Finalizar",
+          onPress: async () => {
+            const totalQuestions = questions.length;
+            const correctAnswers = questions.filter((question) => {
+              const selectedAnswerId = selectedAnswers[String(question.id)];
+              const correctAnswer = question.answers.find((answer) => answer.correct);
+              return selectedAnswerId === correctAnswer?.id;
+            }).length;
 
-    const calculatedScorePercentage = (correctAnswers / totalQuestions) * 100;
-    setScorePercentage(calculatedScorePercentage);
+            const calculatedScorePercentage = (correctAnswers / totalQuestions) * 100;
+            setScorePercentage(calculatedScorePercentage);
 
-    // Salva o resultado no AsyncStorage
-    try {
-      await AsyncStorage.setItem(
-        "lastQuizResult",
-        JSON.stringify(calculatedScorePercentage),
-      );
-    } catch (error) {
-      console.error("Erro ao salvar o resultado do quiz:", error);
-    }
+            // Salva o resultado no AsyncStorage
+            try {
+              await AsyncStorage.setItem(
+                "lastQuizResult",
+                JSON.stringify(calculatedScorePercentage)
+              );
+            } catch (error) {
+              console.error("Erro ao salvar o resultado do quiz:", error);
+            }
 
-    setFinalTime(timeLeft);
-    setFinishModalVisible(true);
-    setFinish(true)
+            setFinalTime(timeLeft);
+            setFinishModalVisible(true);
+            setFinish(true);
+          },
+        },
+      ]
+    );
   };
+
 
   const handleRestartQuiz = () => {
     setSelectedAnswers({});
@@ -267,10 +283,10 @@ export function Quiz() {
               >
                 {() => (
                   <Text
-                  style={{ fontSize: 24, color: "#000", width: "100%", textAlign: "center" }}
-                >{`${scorePercentage.toFixed(0)}%`}</Text>
-              )}
-            </CircularProgress>
+                    style={{ fontSize: 24, color: "#000", width: "100%", textAlign: "center" }}
+                  >{`${scorePercentage.toFixed(0)}%`}</Text>
+                )}
+              </CircularProgress>
 
               <View
                 style={{

@@ -27,7 +27,7 @@ export function Planos() {
       plan,
     );
 
-    console.log(user?.token, plan)
+    // console.log(user?.token, plan)
 
     const { error } = await initPaymentSheet({
       merchantDisplayName: user?.name ?? "",

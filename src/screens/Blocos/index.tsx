@@ -130,23 +130,39 @@ export function Blocos() {
   };
 
   const handleFinishQuiz = () => {
-    const filteredQuestions = questions.filter(
-      (question) => question.bloco === selectedBlock,
+    Alert.alert(
+      "Finalizar Bloco", // Título do alerta
+      "Tem certeza que deseja finalizar o Bloco?", // Mensagem do alerta
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Finalizar",
+          onPress: () => {
+            const filteredQuestions = questions.filter(
+              (question) => question.bloco === selectedBlock
+            );
+            const totalQuestions = filteredQuestions.length;
+            const correctAnswers = filteredQuestions.filter((question) => {
+              const selectedAnswerId = selectedAnswers[String(question.id)];
+              const correctAnswer = question.answers.find((answer) => answer.correct);
+              return selectedAnswerId === correctAnswer?.id;
+            }).length;
+  
+            const calculatedScorePercentage = (correctAnswers / totalQuestions) * 100;
+            setScorePercentage(calculatedScorePercentage);
+  
+            setFinalTime(timeLeft);
+  
+            setFinishModalVisible(true);
+          },
+        },
+      ]
     );
-    const totalQuestions = filteredQuestions.length;
-    const correctAnswers = filteredQuestions.filter((question) => {
-      const selectedAnswerId = selectedAnswers[String(question.id)];
-      const correctAnswer = question.answers.find((answer) => answer.correct);
-      return selectedAnswerId === correctAnswer?.id;
-    }).length;
-
-    const calculatedScorePercentage = (correctAnswers / totalQuestions) * 100;
-    setScorePercentage(calculatedScorePercentage);
-
-    setFinalTime(timeLeft);
-
-    setFinishModalVisible(true);
   };
+  
 
   const handleRestartQuiz = () => {
     setSelectedAnswers({});

@@ -209,30 +209,45 @@ export function QuizFree() {
     }
   };
 
-  const handleFinishQuiz = async () => {
-    const totalQuestions = questions.length;
-    const correctAnswers = questions.filter((question) => {
-      const selectedAnswerId = selectedAnswers[String(question.id)];
-      const correctAnswer = question.answers.find((answer) => answer.correct);
-      return selectedAnswerId === correctAnswer?.id;
-    }).length;
+  const handleFinishQuiz = () => {
+    Alert.alert(
+      "Finalizar Prova",
+      "Tem certeza que deseja finalizar a prova?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Finalizar",
+          onPress: async () => {
+            try {
+              const totalQuestions = questions.length;
+              const correctAnswers = questions.filter((question) => {
+                const selectedAnswerId = selectedAnswers[String(question.id)];
+                const correctAnswer = question.answers.find((answer) => answer.correct);
+                return selectedAnswerId === correctAnswer?.id;
+              }).length;
 
-    const calculatedScorePercentage = (correctAnswers / totalQuestions) * 100;
-    setScorePercentage(calculatedScorePercentage);
+              const calculatedScorePercentage = (correctAnswers / totalQuestions) * 100;
+              setScorePercentage(calculatedScorePercentage);
 
-    // Salva o resultado no AsyncStorage
-    try {
-      await AsyncStorage.setItem(
-        "lastQuizResult",
-        JSON.stringify(calculatedScorePercentage),
-      );
-    } catch (error) {
-      console.error("Erro ao salvar o resultado do quiz:", error);
-    }
+              // Salva o resultado no AsyncStorage
+              await AsyncStorage.setItem(
+                "lastQuizResult",
+                JSON.stringify(calculatedScorePercentage)
+              );
 
-    setFinalTime(timeLeft);
-    setFinishModalVisible(true);
-    setFinish(true)
+              setFinalTime(timeLeft);
+              setFinishModalVisible(true);
+              setFinish(true);
+            } catch (error) {
+              console.error("Erro ao salvar o resultado do quiz:", error);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleRestartQuiz = () => {

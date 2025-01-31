@@ -134,25 +134,40 @@ export function Materias() {
   };
 
   const handleFinishQuiz = () => {
-    const filteredQuestions =
-      selectedMateria !== null
-        ? questions.filter(
-          (question) =>
-            question.materia === selectedMateria?.trim().toLowerCase(),
-        ) // Comparação com materia em minúsculas e sem espaços extras
-        : [];
-
-    const totalQuestions = filteredQuestions.length;
-    const correctAnswers = filteredQuestions.filter((question) => {
-      const selectedAnswerId = selectedAnswers[String(question.id)];
-      const correctAnswer = question.answers.find((answer) => answer.correct);
-      return selectedAnswerId === correctAnswer?.id;
-    }).length;
-
-    const calculatedScorePercentage = (correctAnswers / totalQuestions) * 100;
-    setScorePercentage(calculatedScorePercentage);
-    setFinalTime(timeLeft);
-    setFinishModalVisible(true);
+    Alert.alert(
+      "Finalizar Matéria",
+      "Tem certeza que deseja finalizar a Matéria?",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Finalizar",
+          onPress: () => {
+            const filteredQuestions =
+              selectedMateria !== null
+                ? questions.filter(
+                    (question) =>
+                      question.materia === selectedMateria?.trim().toLowerCase()
+                  ) // Comparação com materia em minúsculas e sem espaços extras
+                : [];
+  
+            const totalQuestions = filteredQuestions.length;
+            const correctAnswers = filteredQuestions.filter((question) => {
+              const selectedAnswerId = selectedAnswers[String(question.id)];
+              const correctAnswer = question.answers.find((answer) => answer.correct);
+              return selectedAnswerId === correctAnswer?.id;
+            }).length;
+  
+            const calculatedScorePercentage = (correctAnswers / totalQuestions) * 100;
+            setScorePercentage(calculatedScorePercentage);
+            setFinalTime(timeLeft);
+            setFinishModalVisible(true);
+          },
+        },
+      ]
+    );
   };
 
   const handleRestartQuiz = () => {
