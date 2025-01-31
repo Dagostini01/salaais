@@ -24,5 +24,5 @@ export const NameTest = styled.Text`
   color: ${({ theme }) => theme.colors.shape};
   font-size: ${RFValue(20)}px;
   margin-left: 10px;
-  width: 90%;
+  width: 100%;
 `;

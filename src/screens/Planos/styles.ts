@@ -8,6 +8,7 @@ export const HighlightPayments = styled.ScrollView.attrs({
 })`
   width: 100%;
   margin-top: ${RFPercentage(10)}px;
+  margin-bottom: ${RFPercentage(5)}px;
 `;
 
 export const Payments = styled.View`

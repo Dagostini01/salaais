@@ -255,7 +255,7 @@ export function Quiz() {
             transparent={true}
           >
             <ModalContainer style={{ alignItems: "center" }}>
-              <Text style={{ fontSize: 16, marginBottom: 20 }}>
+              <Text style={{ fontSize: 16, marginBottom: 20, width: "100%", textAlign: "center" }}>
                 Resultado final simulado ANAC:
               </Text>
               <CircularProgress
@@ -267,10 +267,10 @@ export function Quiz() {
               >
                 {() => (
                   <Text
-                    style={{ fontSize: 24, color: "#000" }}
-                  >{`${scorePercentage.toFixed(0)}%`}</Text>
-                )}
-              </CircularProgress>
+                  style={{ fontSize: 24, color: "#000", width: "100%", textAlign: "center" }}
+                >{`${scorePercentage.toFixed(0)}%`}</Text>
+              )}
+            </CircularProgress>
 
               <View
                 style={{
@@ -338,7 +338,7 @@ export function Quiz() {
           {!modalVisible && (
             <HeaderQuiz>
               <FixedTimerContainer>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View style={{ flexDirection: "row", alignItems: "center", width: "100%" }}>
                   <MaterialIcons name="access-time" size={24} color="white" />
                   {!isReviewMode && (
                     <TimerText>{formatTime(timeLeft)}</TimerText>
@@ -371,7 +371,7 @@ export function Quiz() {
                       marginTop: 5,
                     }}
                   >
-                    <Text style={{ color: "white", fontSize: 15 }}>
+                    <Text style={{ color: "white", fontSize: 15, width: "100%", textAlign: "center" }}>
                       Bloco {blockNumber}
                     </Text>
                   </TouchableOpacity>

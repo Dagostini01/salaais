@@ -166,7 +166,7 @@ export function Blocos() {
     Alert.alert(
       "Informações do Simulado",
       `Você acertou ${scorePercentage.toFixed(2)}% das perguntas.\n` +
-        `Tempo total: ${formatTime(finalTime)}`,
+      `Tempo total: ${formatTime(finalTime)}`,
     );
   };
 
@@ -191,18 +191,11 @@ export function Blocos() {
     }
   }, [isReviewMode, statusLoading]);
 
-  useEffect(() => {
-    if (timeLeft === 600 && !isReviewMode) {
-      Alert.alert("Tempo esgotado!", "O tempo para o quiz acabou.");
-      navigation.navigate("Principal");
-    }
-  }, [timeLeft, isReviewMode, navigation]);
-
   const filteredQuestions =
     selectedBlock !== null
       ? questions
-          .filter((question) => question.bloco === selectedBlock)
-          .slice(0, 20)
+        .filter((question) => question.bloco === selectedBlock)
+        .slice(0, 20)
       : [];
 
   return (
@@ -243,7 +236,7 @@ export function Blocos() {
             transparent={true}
           >
             <ModalContainer style={{ alignItems: "center" }}>
-              <Text style={{ fontSize: 16, marginBottom: 20 }}>
+              <Text style={{ fontSize: 16, marginBottom: 20, width: "100%", textAlign: "center" }}>
                 Resultado final Bloco {selectedBlock}:
               </Text>
               <CircularProgress
@@ -254,7 +247,8 @@ export function Blocos() {
                 backgroundColor="#3d5875"
               >
                 {() => (
-                  <Text style={{ fontSize: 24, color: "#000" }}>
+                  <Text
+                    style={{ fontSize: 24, color: "#000", width: "100%", textAlign: "center" }}>
                     {`${scorePercentage.toFixed(0)}%`}
                   </Text>
                 )}
@@ -326,7 +320,7 @@ export function Blocos() {
           {!modalVisible && (
             <HeaderQuiz>
               <FixedTimerContainer>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View style={{ flexDirection: "row", alignItems: "center", width: "100%" }}>
                   <MaterialIcons name="access-time" size={24} color="white" />
                   {!isReviewMode && (
                     <TimerText>{formatTime(timeLeft)}</TimerText>
@@ -399,7 +393,8 @@ export function Blocos() {
             </HeaderQuiz>
           )}
         </>
-      )}
-    </Container>
+      )
+      }
+    </Container >
   );
 }

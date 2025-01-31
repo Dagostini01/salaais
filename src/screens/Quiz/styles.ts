@@ -57,7 +57,8 @@ export const ModalText = styled.Text`
   font-size: ${RFValue(18)}px;
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${RFValue(20)}px;
-  width: 80%;
+  width: 100%;
+  text-align: center;
 `;
 
 export const ModalButton = styled.TouchableOpacity`
@@ -65,20 +66,21 @@ export const ModalButton = styled.TouchableOpacity`
   padding: ${RFValue(15)}px;
   border-radius: ${RFValue(8)}px;
   margin-bottom: ${RFValue(10)}px;
-  width: 25%;
+  width: 35%;
 `;
 
 export const ModalButtonText = styled.Text`
   font-size: ${RFValue(18)}px;
   color: ${({ theme }) => theme.colors.text};
   text-align: center;
+  width: 100%;
 `;
 
 export const ModalButtonCancel = styled.TouchableOpacity`
   background-color: ${({ theme }) => theme.colors.attention};
   padding: ${RFValue(15)}px;
   border-radius: ${RFValue(8)}px;
-  width: 25%;
+  width: 35%;
 `;
 
 export const ModalButtonTextCancel = styled.Text`
@@ -88,12 +90,12 @@ export const ModalButtonTextCancel = styled.Text`
 `;
 
 export const FixedTimerContainer = styled.View`
-  width: 30%;
+  width: 33%;
   align-items: center;
   justify-content: center;
   align-self: center;
   background-color: ${({ theme }) => theme.colors.text};
-  margin-top: ${getStatusBarHeight() + RFValue(20)}px;
+  /* margin-top: ${getStatusBarHeight() + RFValue(20)}px; */
   padding: 10px;
   border-radius: 10px;
 `;
@@ -102,6 +104,7 @@ export const TimerText = styled.Text`
   font-size: ${RFValue(16)}px;
   color: ${({ theme }) => theme.colors.light};
   font-weight: bold;
+  width: 100%;
 `;
 
 export const HeaderQuiz = styled.View`
@@ -122,6 +125,7 @@ export const FinishButtonText = styled.Text`
   color: ${({ theme }) => theme.colors.background};
   text-align: center;
   font-weight: bold;
+  width: 100%;
 `;
 
 export const ScrollContainer = {

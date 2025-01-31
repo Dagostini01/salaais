@@ -58,7 +58,8 @@ export const ModalText = styled.Text`
   font-size: ${RFValue(18)}px;
   color: ${({ theme }) => theme.colors.text};
   margin-bottom: ${RFValue(20)}px;
-  width: 80%;
+  width: 100%;
+  text-align: center;
 `;
 
 export const ModalButton = styled.TouchableOpacity`
@@ -95,7 +96,7 @@ export const FixedTimerContainer = styled.View`
   justify-content: center;
   align-self: center;
   background-color: ${({ theme }) => theme.colors.text};
-  margin-top: ${getStatusBarHeight() + RFValue(20)}px;
+  /* margin-top: ${getStatusBarHeight() + RFValue(20)}px; */
   padding: 10px;
   border-radius: 10px;
 `;

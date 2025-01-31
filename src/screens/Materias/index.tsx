@@ -17,6 +17,7 @@ import { Materia } from "../../enum/enum";
 import theme from "../../global/global/theme";
 import { gerarProvaPorMateria } from "../../services";
 import {
+  AnswerText,
   Bloco,
   Container,
   FinishButton,
@@ -34,6 +35,7 @@ import {
   TimerText,
 } from "./styles";
 import { Answer, Question } from "./types"; // Importe os tipos do arquivo types.tsx
+import { RFValue } from "react-native-responsive-fontsize";
 
 export function Materias() {
   const initialTime = 0; // Tempo inicial
@@ -187,17 +189,11 @@ export function Materias() {
   };
 
   useEffect(() => {
-    if (timeLeft === 600 && !isReviewMode) {
-      Alert.alert("Tempo esgotado!", "O tempo para o quiz acabou.");
-    }
-  }, [timeLeft, isReviewMode]);
-
-  useEffect(() => {
     if (!isLoading) {
       const timer = setInterval(() => {
         if (isReviewMode) return;
         setTimeLeft((prevTime) => prevTime + 1);
-      }, 1000); 
+      }, 1000);
       return () => clearInterval(timer);
     }
   }, [isReviewMode, isLoading]);
@@ -212,115 +208,130 @@ export function Materias() {
 
   return (
     <Container>
+
       {/* Modal para seleção de matéria */}
+
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
-        <ModalContainer>
-          <ModalText>Escolha uma Matéria para Iniciar:</ModalText>
+        <Text style={{
+          fontSize: RFValue(18),
+          color: theme.colors.text,
+          marginTop: RFValue(30),
+          marginBottom: RFValue(10),
+          width: '100%',
+          textAlign: 'center'
+        }}>
+          Escolha uma Matéria para Iniciar:
+        </Text>
 
-          {/* Bloco 1 */}
-          <ModalText style={{ fontWeight: "bold", fontSize: 18 }}>
-            Bloco 1
-          </ModalText>
-          <View style={{ marginBottom: 10 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                flexWrap: "wrap",
-                alignItems: "center",
-              }}
-            >
-              {["EME", "SBV"].map((materia) => (
-                <ModalButton
-                  key={materia}
-                  style={{ margin: 2 }} // Espaçamento entre botões
-                  onPress={() => handleStartQuiz(materia as Materia)}
-                >
-                  <ModalButtonText>{materia}</ModalButtonText>
-                </ModalButton>
-              ))}
+        <ScrollView>
+
+          <ModalContainer>
+
+            {/* Bloco 1 */}
+            <ModalText style={{ fontWeight: "bold", fontSize: 18 }}>
+              Bloco 1
+            </ModalText>
+            <View style={{ marginBottom: 10 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                }}
+              >
+                {["EME", "SBV"].map((materia) => (
+                  <ModalButton
+                    key={materia}
+                    style={{ margin: 2 }} // Espaçamento entre botões
+                    onPress={() => handleStartQuiz(materia as Materia)}
+                  >
+                    <ModalButtonText>{materia}</ModalButtonText>
+                  </ModalButton>
+                ))}
+              </View>
             </View>
-          </View>
 
-          {/* Bloco 2 */}
-          <ModalText style={{ fontWeight: "bold", fontSize: 18 }}>
-            Bloco 2
-          </ModalText>
-          <View style={{ marginBottom: 10 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                flexWrap: "wrap",
-                alignItems: "center",
-              }}
-            >
-              {["FHU", "SAC", "RAC", "RPA", "SVO"].map((materia) => (
-                <ModalButton
-                  key={materia}
-                  style={{ margin: 2 }} // Espaçamento entre botões
-                  onPress={() => handleStartQuiz(materia as Materia)}
-                >
-                  <ModalButtonText>{materia}</ModalButtonText>
-                </ModalButton>
-              ))}
+            {/* Bloco 2 */}
+            <ModalText style={{ fontWeight: "bold", fontSize: 18 }}>
+              Bloco 2
+            </ModalText>
+            <View style={{ marginBottom: 10 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                }}
+              >
+                {["FHU", "SAC", "RAC", "RPA", "SVO"].map((materia) => (
+                  <ModalButton
+                    key={materia}
+                    style={{ margin: 2 }} // Espaçamento entre botões
+                    onPress={() => handleStartQuiz(materia as Materia)}
+                  >
+                    <ModalButtonText>{materia}</ModalButtonText>
+                  </ModalButton>
+                ))}
+              </View>
             </View>
-          </View>
 
-          {/* Bloco 3 */}
-          <ModalText style={{ fontWeight: "bold", fontSize: 18 }}>
-            Bloco 3
-          </ModalText>
-          <View style={{ marginBottom: 10 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                flexWrap: "wrap",
-                alignItems: "center",
-              }}
-            >
-              {["AFI", "PSS"].map((materia) => (
-                <ModalButton
-                  key={materia}
-                  style={{ margin: 2 }} // Espaçamento entre botões
-                  onPress={() => handleStartQuiz(materia as Materia)}
-                >
-                  <ModalButtonText>{materia}</ModalButtonText>
-                </ModalButton>
-              ))}
+            {/* Bloco 3 */}
+            <ModalText style={{ fontWeight: "bold", fontSize: 18 }}>
+              Bloco 3
+            </ModalText>
+            <View style={{ marginBottom: 10 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                }}
+              >
+                {["AFI", "PSS"].map((materia) => (
+                  <ModalButton
+                    key={materia}
+                    style={{ margin: 2 }} // Espaçamento entre botões
+                    onPress={() => handleStartQuiz(materia as Materia)}
+                  >
+                    <ModalButtonText>{materia}</ModalButtonText>
+                  </ModalButton>
+                ))}
+              </View>
             </View>
-          </View>
 
-          {/* Bloco 4 */}
-          <ModalText style={{ fontWeight: "bold", fontSize: 18 }}>
-            Bloco 4
-          </ModalText>
-          <View style={{ marginBottom: 10 }}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                flexWrap: "wrap",
-                alignItems: "center",
-              }}
-            >
-              {["AER", "NAV", "MET"].map((materia) => (
-                <ModalButton
-                  key={materia}
-                  style={{ margin: 2 }} // Espaçamento entre botões
-                  onPress={() => handleStartQuiz(materia as Materia)}
-                >
-                  <ModalButtonText>{materia}</ModalButtonText>
-                </ModalButton>
-              ))}
+            {/* Bloco 4 */}
+            <ModalText style={{ fontWeight: "bold", fontSize: 18 }}>
+              Bloco 4
+            </ModalText>
+            <View style={{ marginBottom: 10 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                }}
+              >
+                {["AER", "NAV", "MET"].map((materia) => (
+                  <ModalButton
+                    key={materia}
+                    style={{ margin: 2 }} // Espaçamento entre botões
+                    onPress={() => handleStartQuiz(materia as Materia)}
+                  >
+                    <ModalButtonText>{materia}</ModalButtonText>
+                  </ModalButton>
+                ))}
+              </View>
             </View>
-          </View>
 
-          <ModalButtonCancel onPress={handleCancelQuiz}>
-            <ModalButtonTextCancel>Cancelar</ModalButtonTextCancel>
-          </ModalButtonCancel>
-        </ModalContainer>
+          </ModalContainer>
+        </ScrollView>
+        <ModalButtonCancel onPress={handleCancelQuiz}>
+          <ModalButtonTextCancel>Cancelar</ModalButtonTextCancel>
+        </ModalButtonCancel>
       </Modal>
 
       {/* Modal de finalização */}
@@ -330,7 +341,7 @@ export function Materias() {
         transparent={true}
       >
         <ModalContainer style={{ alignItems: "center" }}>
-          <Text style={{ fontSize: 16, marginBottom: 20 }}>
+          <Text style={{ fontSize: 16, marginBottom: 20, width: "100%", textAlign: "center" }}>
             Resultado da Matéria: {selectedMateria?.toUpperCase()}
           </Text>
           <CircularProgress
@@ -341,7 +352,9 @@ export function Materias() {
             backgroundColor="#3d5875"
           >
             {() => (
-              <Text style={{ fontSize: 24, color: "#000" }}>
+              <Text
+                style={{ fontSize: 24, color: "#000", width: "100%", textAlign: "center" }}
+              >
                 {`${scorePercentage.toFixed(0)}%`}
               </Text>
             )}
@@ -413,81 +426,86 @@ export function Materias() {
         </ModalContainer>
       </Modal>
 
-      {!modalVisible &&
-        selectedMateria &&
-        filteredQuestions.length > 0 &&
-        !isLoading ? (
-        <>
-          <HeaderQuiz>
-            <FixedTimerContainer>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <MaterialIcons name="access-time" size={24} color="white" />
-                <TimerText>{formatTime(timeLeft)}</TimerText>
-              </View>
-            </FixedTimerContainer>
+      {
+        !modalVisible &&
+          selectedMateria &&
+          filteredQuestions.length > 0 &&
+          !isLoading ? (
+          <>
+            <HeaderQuiz>
+              <FixedTimerContainer>
+                <View style={{ flexDirection: "row", alignItems: "center", width: "100%" }}>
+                  <MaterialIcons name="access-time" size={24} color="white" />
+                  {!isReviewMode && (
+                    <TimerText>{formatTime(timeLeft)}</TimerText>
+                  )}
+                </View>
+              </FixedTimerContainer>
 
-            <ScrollView
-              contentContainerStyle={ScrollContainer}
-              showsVerticalScrollIndicator={false}
-            >
-              {filteredQuestions.map((questionData, index) => (
-                <QuizAnac key={questionData.id}>
-                  <Bloco
-                    style={{
-                      marginVertical: 5,
-                      marginHorizontal: 5,
-                      marginTop: 20,
-                    }}
-                  >
-                    Matéria: {questionData.materia.toUpperCase()}
-                  </Bloco>
-                  <Bloco>{`${index + 1}. ${questionData.question}`}</Bloco>
-                  {questionData.answers &&
-                    questionData.answers.map((answer: Answer) => {
-                      const isSelected =
-                        selectedAnswers[String(questionData.id)] === answer.id;
-                      return (
-                        <TouchableOpacity
-                          key={answer.id}
-                          onPress={() =>
-                            handleSelectAnswer(questionData.id, answer.id)
-                          }
-                          style={{
-                            padding: 10,
-                            marginVertical: 5,
-                            backgroundColor: isSelected
-                              ? theme.colors.primary
-                              : "gray",
-                            borderRadius: 10,
-                          }}
-                        >
-                          <Text style={{ color: "white" }}>{`${answer.id.toUpperCase()}. ${answer.text}`}</Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                </QuizAnac>
-              ))}
-            </ScrollView>
+              <ScrollView
+                contentContainerStyle={ScrollContainer}
+                showsVerticalScrollIndicator={false}
+              >
+                {filteredQuestions.map((questionData, index) => (
+                  <QuizAnac key={questionData.id}>
+                    <Bloco
+                      style={{
+                        marginVertical: 5,
+                        marginHorizontal: 5,
+                        marginTop: 20,
+                      }}
+                    >
+                      Matéria: {questionData.materia.toUpperCase()}
+                    </Bloco>
+                    <Bloco>{`${index + 1}. ${questionData.question}`}</Bloco>
+                    {questionData.answers &&
+                      questionData.answers.map((answer: Answer) => {
+                        const isSelected =
+                          selectedAnswers[String(questionData.id)] === answer.id;
+                        return (
+                          <TouchableOpacity
+                            key={answer.id}
+                            onPress={() =>
+                              handleSelectAnswer(questionData.id, answer.id)
+                            }
+                            style={{
+                              padding: 10,
+                              marginVertical: 5,
+                              backgroundColor: isSelected
+                                ? theme.colors.primary
+                                : "gray",
+                              opacity: isReviewMode ? 0.6 : 1,
+                              borderRadius: 10,
+                            }}
+                          >
+                            <AnswerText style={{ color: "white" }}>{`${answer.id.toUpperCase()}. ${answer.text}`}</AnswerText>
+                          </TouchableOpacity>
+                        );
+                      })}
+                  </QuizAnac>
+                ))}
+              </ScrollView>
 
-            {!isReviewMode ? (
-              <FinishButton onPress={handleFinishQuiz}>
-                <FinishButtonText>Finalizar</FinishButtonText>
-              </FinishButton>
-            ) : (
-              <FinishButton onPress={handleBackToResults}>
-                <FinishButtonText>Voltar ao Resultado</FinishButtonText>
-              </FinishButton>
-            )}
-          </HeaderQuiz>
-        </>
-      ) : (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <ActivityIndicator size="large" color="#0000ff" />
-          <Text>Carregando...</Text>
-        </View>
-      )}
-    </Container>
+              {!isReviewMode ? (
+                <FinishButton onPress={handleFinishQuiz}>
+                  <FinishButtonText>Finalizar</FinishButtonText>
+                </FinishButton>
+              ) : (
+                <FinishButton onPress={handleBackToResults}>
+                  <FinishButtonText>Voltar ao Resultado</FinishButtonText>
+                </FinishButton>
+              )}
+            </HeaderQuiz>
+          </>
+        ) : (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <ActivityIndicator size="large" color="#0000ff" />
+            <Text>Carregando...</Text>
+          </View>
+        )
+      }
+    </Container >
   );
 }
