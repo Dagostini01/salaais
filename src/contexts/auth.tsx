@@ -34,6 +34,8 @@ type AppleCredentials =
 
 type AuthContextType = {
   user: UserType;
+  setUser: React.Dispatch<React.SetStateAction<UserType>>;
+  getPermissionUser: (token: string) => Promise<string>;
   signed: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
@@ -57,6 +59,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   const [_, response, promptAsync] = Google.useAuthRequest(config);
 
+  const getPermissionUser = async (token: string) => {
+    const { permissoes } = await dataUser(token);
+    const { key: permission } = permissoes.find(
+      (item: any) =>
+        item.ativo === true &&
+        ["BRONZE", "PRATA", "OURO", "PREMIUM"].includes(item.key),
+    ) || { key: "COMUM" };
+    return permission;
+  };
+
   const signInWithApple = async () => {
     try {
       setLoading(true);
@@ -74,12 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user: credential.user ?? "",
       };
       const user = await loginApple(appleCredential);
-      const { permissoes } = await dataUser(user.token);
-      const { key: permission } = permissoes.find(
-        (item: any) =>
-          item.ativo === true &&
-          ["BRONZE", "PRATA", "OURO", "PREMIUM"].includes(item.key),
-      ) || { key: "COMUM" };
+      const permission = await getPermissionUser(user.token);
       setUser({
         token: credential.user ?? "",
         email: user?.email,
@@ -105,12 +112,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email,
         name,
       });
-      const { permissoes } = await dataUser(user.token);
-      const { key: permission } = permissoes.find(
-        (item: any) =>
-          item.ativo === true &&
-          ["BRONZE", "PRATA", "OURO", "PREMIUM"].includes(item.key),
-      ) || { key: "COMUM" };
+      const permission = await getPermissionUser(user.token);
       setUser({
         token: credentials?.user ?? "",
         email: user?.email,
@@ -206,12 +208,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const token = authentication?.accessToken;
       if (token != null) {
         const { access_token: accessToken } = await authLogin(token);
-        const { permissoes } = await dataUser(accessToken);
-        const { key: permission } = permissoes.find(
-          (item: any) =>
-            item.ativo === true &&
-            ["BRONZE", "PRATA", "OURO", "PREMIUM"].includes(item.key),
-        ) || { key: "COMUM" };
+        const permission = await getPermissionUser(accessToken);
         await getUserProfile(token, accessToken, permission);
       }
       setLoading(false);
@@ -259,6 +256,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
+        setUser,
+        getPermissionUser,
         signed: Boolean(user),
         user,
         signInWithGoogle,
