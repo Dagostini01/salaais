@@ -451,7 +451,7 @@ export function QuizFree() {
             <HeaderQuiz>
               <FixedTimerContainer>
                 <MaterialIcons name="access-time" size={24} color="white" />
-                {!isReviewMode && <TimerText>{formatTime(timeLeft)}</TimerText>}
+                {!isReviewMode && <TimerText numberOfLines={1} ellipsizeMode="tail">{formatTime(timeLeft)}</TimerText>}
               </FixedTimerContainer>
               {/* Botões para alternar entre os blocos */}
               <View

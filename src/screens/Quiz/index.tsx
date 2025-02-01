@@ -191,7 +191,7 @@ export function Quiz() {
     Alert.alert(
       "Informações do Simulado",
       `Você acertou ${scorePercentage.toFixed(2)}% das perguntas.\n` +
-        `Tempo total: ${formatTime(finalTime)}`,
+      `Tempo total: ${formatTime(finalTime)}`,
     );
   };
 
@@ -234,8 +234,8 @@ export function Quiz() {
   const filteredQuestions =
     selectedBlock !== null
       ? questions
-          .filter((question) => question.bloco === selectedBlock)
-          .slice(0, 20)
+        .filter((question) => question.bloco === selectedBlock)
+        .slice(0, 20)
       : [];
 
   const { top } = useSafeAreaInsets();
@@ -375,8 +375,8 @@ export function Quiz() {
           {!modalVisible && (
             <HeaderQuiz>
               <FixedTimerContainer>
-                <MaterialIcons name="access-time" size={24} color="white" />
-                {!isReviewMode && <TimerText>{formatTime(timeLeft)}</TimerText>}
+                  <MaterialIcons name="access-time" size={24} color="white" />
+                  {!isReviewMode && <TimerText numberOfLines={1} ellipsizeMode="tail">{formatTime(timeLeft)}</TimerText>}
               </FixedTimerContainer>
 
               {/* Botões para alternar entre os blocos */}

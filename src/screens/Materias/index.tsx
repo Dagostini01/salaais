@@ -473,7 +473,7 @@ export function Materias() {
         <HeaderQuiz>
           <FixedTimerContainer>
             <MaterialIcons name="access-time" size={24} color="white" />
-            {!isReviewMode && <TimerText>{formatTime(timeLeft)}</TimerText>}
+            {!isReviewMode && <TimerText numberOfLines={1} ellipsizeMode="tail">{formatTime(timeLeft)}</TimerText>}
           </FixedTimerContainer>
 
           <ScrollView

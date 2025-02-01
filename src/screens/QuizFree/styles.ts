@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 import styled from "styled-components/native";
 
@@ -89,10 +90,11 @@ export const ModalButtonTextCancel = styled.Text`
 `;
 
 export const FixedTimerContainer = styled.View`
-  width: 30%;
-  margin: 8px 0px 8px 0px;
+  width: 40%;
+  margin: 8px 0px;
   padding: 8px;
-  flex-direction: row;
+  flex-direction: row; /* Deixa os elementos lado a lado */
+  align-items: center; /* Alinha verticalmente */
   justify-content: center;
   align-self: center;
   background-color: ${({ theme }) => theme.colors.text};
@@ -100,11 +102,13 @@ export const FixedTimerContainer = styled.View`
 `;
 
 export const TimerText = styled.Text`
+  flex: 1; /* O texto pode crescer */
+  flex-shrink: 1; /* Evita que o texto seja truncado se houver espaço */
   font-size: ${RFValue(16)}px;
   color: ${({ theme }) => theme.colors.light};
   font-weight: bold;
+  text-align: center; /* Mantém o texto alinhado */
 `;
-
 export const HeaderQuiz = styled.View`
   flex: 1;
 `;
@@ -115,6 +119,7 @@ export const FinishButton = styled.TouchableOpacity`
   border-radius: ${RFValue(8)}px;
   align-items: center;
   margin-top: ${RFValue(20)}px;
+  margin-bottom: ${Platform.OS === 'android' ? '10px' : '0px'};
 `;
 
 export const FinishButtonText = styled.Text`
