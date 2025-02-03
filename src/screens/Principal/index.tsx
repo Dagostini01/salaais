@@ -1,6 +1,6 @@
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
-import React, { useContext } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import { Alert, TouchableOpacity, View } from "react-native";
 import { ButtonOpacity } from "../../components/ButtonOpacity";
 import { Card } from "../../components/Card";
@@ -23,7 +23,6 @@ import {
   UserGreeting,
   UserInfo,
   UserName,
-  UserWrapper,
 } from "./styles";
 
 // Define os tipos de navegação
@@ -41,7 +40,18 @@ type NavigationProps = BottomTabNavigationProp<BottomTabParamList, "Principal">;
 
 export function Principal() {
   const navigation = useNavigation<NavigationProps>();
-  const { user, signOut } = useContext(AuthContext);
+  const { user, signOut, setUser, getPermissionUser } = useContext(AuthContext);
+
+  const getUser = useCallback(async () => {
+    if (user?.accessToken !== undefined) {
+      const permission = await getPermissionUser(user.accessToken);
+      setUser({ ...user, permission });
+    }
+  }, []);
+
+  useEffect(() => {
+    getUser();
+  }, []);
 
   const alertForComumPermission = () => {
     Alert.alert(
@@ -82,14 +92,16 @@ export function Principal() {
         {/* <UserWrapper> */}
         <UserInfo>
           <User>
-            {user.photoUrl != undefined && (
-              <Photo
-                source={{
-                  uri: `${user.photoUrl}`,
-                }}
-              />
-            )}
-            <View style={{flex: 1}}>
+            {/* {user.photoUrl != undefined && ( */}
+            <Photo
+              source={
+                user.photoUrl
+                  ? { uri: user.photoUrl }
+                  : require("../../assets/user.png")
+              }
+            />
+            {/* )} */}
+            <View style={{ flex: 1 }}>
               <UserGreeting>Olá {user.name}!</UserGreeting>
               <UserName>Pronto para decolar?</UserName>
             </View>
@@ -107,7 +119,8 @@ export function Principal() {
             onPress={() =>
               user.permission === "COMUM"
                 ? navigation.navigate("QuizFree")
-                : navigation.navigate("Quiz")}
+                : navigation.navigate("Quiz")
+            }
             imageUrl={require("../../assets/anac-logo.png")}
           />
           <Card
