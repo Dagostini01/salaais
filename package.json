@@ -9,7 +9,9 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "format": "yarn biome format --write ./src ",
-    "lint": "yarn biome lint --write ./src"
+    "lint": "yarn biome lint --write ./src",
+    "android:release": "npx react-native run-android --variant=release",
+    "aab": "npx react-native build-android --mode=release"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.0.0",
