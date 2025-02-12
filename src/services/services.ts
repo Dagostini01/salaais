@@ -1,4 +1,6 @@
-const API_URL = "https://api-ahrf.onrender.com";
+const API_URL = !__DEV__
+  ? "https://api-ahrf.onrender.com"
+  : "https://api-lfo8.onrender.com";
 
 export const paymentSheetParams = async (
   accessToken: string,
@@ -6,7 +8,7 @@ export const paymentSheetParams = async (
 ) => {
   try {
     const response = await fetch(
-      `${API_URL}/stripe/criar-intencao-pagamento/${productKey}`,
+      `${API_URL}/stripe/pagamento-mobile/${productKey}`,
       {
         method: "GET",
         headers: {
@@ -17,6 +19,7 @@ export const paymentSheetParams = async (
     );
 
     const data = await response.json();
+    console.log(data);
 
     const { client_secret, ephemeral_key, id_customer } = data;
 
@@ -141,7 +144,6 @@ export async function gerarProvaPorMateria(
     throw new Error("Erro ao gerar prova. Tente novamente mais tarde.");
   }
 }
-
 
 export async function gerarProvaNormal(
   token: string,
