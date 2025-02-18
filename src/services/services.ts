@@ -1,4 +1,4 @@
-const API_URL = !__DEV__
+const API_URL = __DEV__
   ? "https://api-ahrf.onrender.com"
   : "https://api-lfo8.onrender.com";
 
