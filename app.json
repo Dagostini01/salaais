@@ -35,6 +35,15 @@
         "projectId": "a2ad3ada-0b73-4c68-86f4-c5af0cf62806"
       }
     },
-    "plugins": ["expo-apple-authentication", "expo-secure-store"]
+    "plugins": [
+      "expo-apple-authentication",
+      "expo-secure-store",
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.salaais"
+        }
+      ]
+    ]
   }
 }

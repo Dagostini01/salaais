@@ -1,5 +1,5 @@
-import { useStripe } from "@stripe/stripe-react-native";
-import React, { useContext, useState } from "react";
+import { isPlatformPaySupported, useStripe } from "@stripe/stripe-react-native";
+import React, { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Alert } from "react-native";
 import { ButtonPayment } from "../../components/ButtonPayment";
 import { PaymentBox } from "../../components/PaymentBox";
@@ -17,6 +17,13 @@ export function Planos() {
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const [isApplePaySupported, setIsApplePaySupported] = useState(false);
+
+  useEffect(() => {
+    (async function () {
+      setIsApplePaySupported(await isPlatformPaySupported());
+    })();
+  }, [isPlatformPaySupported]);
 
   const initializePaymentSheet = async (
     plan: "BRONZE" | "PRATA" | "OURO" | "PREMIUM",
@@ -27,15 +34,16 @@ export function Planos() {
       plan,
     );
 
-    // console.log(user?.token, plan)
-
     const { error } = await initPaymentSheet({
       merchantDisplayName: user?.name ?? "",
       customerId: customer,
       customerEphemeralKeySecret: ephemeralKey,
       paymentIntentClientSecret: paymentIntent,
+      applePay: {
+        merchantCountryCode: "br",
+        buttonType: 7,
+      },
     });
-    console.log(error)
     setLoading(false);
     await openPaymentSheet();
     if (error) {
@@ -46,7 +54,7 @@ export function Planos() {
 
   const openPaymentSheet = async () => {
     const { error } = await presentPaymentSheet();
-    console.log(error)
+    console.log(error);
     if (error) {
       Alert.alert(`Houve um problema: ${error.code}`, error.message);
     } else {

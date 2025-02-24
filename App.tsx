@@ -26,7 +26,10 @@ const key = __DEV__
 export default function App() {
   return (
     <GestureHandlerRootView>
-      <StripeProvider publishableKey={key}>
+      <StripeProvider
+        publishableKey={key}
+        merchantIdentifier={`${process.env.EXPO_PUBLIC_MERCHANT}`}
+      >
         <ThemeProvider theme={theme}>
           <NavigationContainer linking={linking}>
             <AuthProvider>
