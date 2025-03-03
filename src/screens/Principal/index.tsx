@@ -34,13 +34,14 @@ type BottomTabParamList = {
   Planos: undefined;
   Blocos: undefined;
   QuizFree: undefined;
+  Configuracoes: undefined;
 };
 
 type NavigationProps = BottomTabNavigationProp<BottomTabParamList, "Principal">;
 
 export function Principal() {
   const navigation = useNavigation<NavigationProps>();
-  const { user, signOut, setUser, getPermissionUser } = useContext(AuthContext);
+  const { user, setUser, getPermissionUser } = useContext(AuthContext);
 
   const getUser = useCallback(async () => {
     if (user?.accessToken !== undefined) {
@@ -70,20 +71,6 @@ export function Principal() {
     );
   };
 
-  const logout = () => {
-    Alert.alert("Realmente deseja sair?", "", [
-      {
-        text: "Cancelar",
-        style: "cancel",
-      },
-      {
-        text: "Sair",
-        onPress: signOut,
-        style: "destructive",
-      },
-    ]);
-  };
-
   if (user == null) return null;
 
   return (
@@ -106,8 +93,10 @@ export function Principal() {
               <UserName>Pronto para decolar?</UserName>
             </View>
           </User>
-          <TouchableOpacity onPress={logout}>
-            <Icon name="power" />
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Configuracoes")}
+          >
+            <Icon name="settings" />
           </TouchableOpacity>
         </UserInfo>
         {/* </UserWrapper> */}

@@ -1,15 +1,17 @@
 import {
   authLogin,
+  deleteUser,
   gerarProvaAleatoria,
+  gerarProvaNormal,
   gerarProvaPorMateria,
   paymentSheetParams,
-  gerarProvaNormal,
 } from "./services";
 
 export {
   authLogin,
+  deleteUser,
   gerarProvaAleatoria,
+  gerarProvaNormal,
   gerarProvaPorMateria,
   paymentSheetParams,
-  gerarProvaNormal,
 };

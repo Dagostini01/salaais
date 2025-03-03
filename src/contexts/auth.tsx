@@ -15,6 +15,7 @@ import { dataUser, loginApple } from "../services/services";
 
 type UserType =
   | {
+      id: number;
       token: string;
       email: string;
       name: string;
@@ -88,6 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const user = await loginApple(appleCredential);
       const permission = await getPermissionUser(user.token);
       setUser({
+        id: user.id_usuario ?? 0,
         token: credential.user ?? "",
         email: user?.email,
         name: user.nome,
@@ -114,6 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       const permission = await getPermissionUser(user.token);
       setUser({
+        id: user.id_usuario ?? 0,
         token: credentials?.user ?? "",
         email: user?.email,
         name: user.name,
@@ -183,6 +186,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
         const user = await res.json();
         const userItem = {
+          id: user.id_usuario ?? 0,
           token,
           accessToken,
           email: user.email,
