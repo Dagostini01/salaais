@@ -1,5 +1,5 @@
-import { isPlatformPaySupported, useStripe } from "@stripe/stripe-react-native";
-import React, { useContext, useEffect, useState } from "react";
+import { useStripe } from "@stripe/stripe-react-native";
+import React, { useContext, useState } from "react";
 import { ActivityIndicator, Alert } from "react-native";
 import { ButtonPayment } from "../../components/ButtonPayment";
 import { PaymentBox } from "../../components/PaymentBox";
@@ -17,13 +17,6 @@ export function Planos() {
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
-  const [isApplePaySupported, setIsApplePaySupported] = useState(false);
-
-  useEffect(() => {
-    (async function () {
-      setIsApplePaySupported(await isPlatformPaySupported());
-    })();
-  }, [isPlatformPaySupported]);
 
   const initializePaymentSheet = async (
     plan: "BRONZE" | "PRATA" | "OURO" | "PREMIUM",
