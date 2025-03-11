@@ -40,5 +40,7 @@ export const styles = StyleSheet.create({
     fontSize: Platform.OS === "ios" ? 16 : 14,
     fontWeight: "bold",
     color: "#ffffff",
+    width: '100%',
+    textAlign: 'center',
   },
 });

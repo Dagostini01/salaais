@@ -19,8 +19,8 @@ const linking = {
   },
 };
 
-const key = __DEV__
-  ? (process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST as string)
+const key = process.env.EXPO_PUBLIC_IS_DEV === 'true'
+  ?(process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST as string)
   : (process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY_PUBLISH as string);
 
 export default function App() {
