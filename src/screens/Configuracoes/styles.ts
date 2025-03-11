@@ -1,7 +1,7 @@
 import { Platform, StyleSheet } from "react-native";
 import styled from "styled-components/native";
 
-export const Container = styled.View`
+export const Container = styled.SafeAreaView`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.text};
 `;
@@ -40,7 +40,7 @@ export const styles = StyleSheet.create({
     fontSize: Platform.OS === "ios" ? 16 : 14,
     fontWeight: "bold",
     color: "#ffffff",
-    width: '100%',
-    textAlign: 'center',
+    width: "100%",
+    textAlign: "center",
   },
 });
