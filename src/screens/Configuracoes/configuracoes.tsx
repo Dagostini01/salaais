@@ -1,15 +1,40 @@
-import React, { useContext } from "react";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useContext } from "react";
+import {
+  Alert,
+  Linking,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { AuthContext } from "../../contexts/auth";
 import { deleteUser } from "../../services";
 import { Container, styles } from "./styles";
 
 export const Configuracoes = () => {
   const { user, signOut } = useContext(AuthContext);
+  const url = "https://google.com";
 
-  const onPress = (action: "sair" | "excluir") => {
-    if (user?.token) {
-      if (action === "sair") {
+  const handlePressLinking = useCallback(async () => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert("Erro", "Não é possível abrir o link");
+    }
+  }, [url]);
+
+  const dataButtons = [
+    {
+      text: "Ver sua conta",
+      colorText: "#000000",
+      color: "#fbd434",
+      onPress: handlePressLinking,
+    },
+    {
+      text: "Sair",
+      color: "#990000",
+      onPress: () =>
         Alert.alert("Realmente deseja sair?", "", [
           {
             text: "Cancelar",
@@ -20,8 +45,12 @@ export const Configuracoes = () => {
             onPress: signOut,
             style: "destructive",
           },
-        ]);
-      } else if (action === "excluir") {
+        ]),
+    },
+    {
+      text: "Excluir",
+      color: "#990000",
+      onPress: () =>
         Alert.alert(
           "Realmente deseja excluir sua conta?",
           "Essa ação é irreversível",
@@ -33,34 +62,32 @@ export const Configuracoes = () => {
             {
               text: "Excluir",
               onPress: () => {
-                deleteUser(user.token, user?.id);
+                deleteUser(user?.token ?? "", user?.id ?? 0);
               },
               style: "destructive",
             },
           ],
-        );
-      }
-    }
-  };
+        ),
+    },
+  ];
 
   return (
     <Container>
-      <View style={styles.header}>
+      <SafeAreaView style={styles.header}>
         <Text style={styles.headerTitle}>Configurações</Text>
-      </View>
+      </SafeAreaView>
       <View style={styles.content}>
-        <TouchableOpacity
-          style={styles.roundedButton}
-          onPress={() => onPress("sair")}
-        >
-          <Text style={styles.text}>Sair</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.roundedButton}
-          onPress={() => onPress("excluir")}
-        >
-          <Text style={styles.text}>Excluir Conta</Text>
-        </TouchableOpacity>
+        {dataButtons.map((i) => (
+          <TouchableOpacity
+            style={[styles.roundedButton, { backgroundColor: i.color }]}
+            onPress={i.onPress}
+            key={i.text}
+          >
+            <Text style={[styles.text, { color: i.colorText ?? "white" }]}>
+              {i.text}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
     </Container>
   );
