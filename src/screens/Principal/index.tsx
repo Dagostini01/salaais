@@ -2,7 +2,6 @@ import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useContext, useEffect } from "react";
 import { Alert, TouchableOpacity, View } from "react-native";
-import { ButtonOpacity } from "../../components/ButtonOpacity";
 import { Card } from "../../components/Card";
 import { CardImage } from "../../components/CardImage";
 import { CirclePercentage } from "../../components/CirclePercentage";
@@ -57,15 +56,10 @@ export function Principal() {
   const alertForComumPermission = () => {
     Alert.alert(
       "Você não tem permissão para acessar este simulado.",
-      "Para ter acesso, você deve contratar um dos planos",
+      "Para ter acesso, você deve ir em 'Ver sua conta' e escolher um dos planos disponíveis",
       [
         {
           text: "Ok",
-        },
-        {
-          text: "Ir para planos",
-          style: "cancel",
-          onPress: () => navigation.navigate("Planos"),
         },
       ],
     );
@@ -132,11 +126,6 @@ export function Principal() {
           />
         </HighlightCards>
       </CardsTest>
-      <ButtonOpacity
-        onPress={() => navigation.navigate("Planos")}
-        text="Contratar Planos"
-        icon="shopping-bag"
-      />
       <LastTest>
         <CirclePercentage />
         <TestAnac>
