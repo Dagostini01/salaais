@@ -13,7 +13,7 @@ import { Container, styles } from "./styles";
 
 export const Configuracoes = () => {
   const { user, signOut } = useContext(AuthContext);
-  const url = "https://google.com";
+  const url = `https://salaais.vercel.app/settings?token=${user?.accessToken}`;
 
   const handlePressLinking = useCallback(async () => {
     const supported = await Linking.canOpenURL(url);
