@@ -22,7 +22,7 @@
       }
     },
     "android": {
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/logo-amarelo-removebg.png",
         "backgroundColor": "#fbcb04"
