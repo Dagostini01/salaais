@@ -1,7 +1,7 @@
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useContext, useEffect } from "react";
-import { Alert, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { Card } from "../../components/Card";
 import { CardImage } from "../../components/CardImage";
 import { AuthContext } from "../../contexts/auth";
@@ -51,18 +51,6 @@ export function Principal() {
   useEffect(() => {
     getUser();
   }, []);
-
-  const alertForComumPermission = () => {
-    Alert.alert(
-      "Você não tem permissão para acessar este simulado.",
-      "Para ter acesso, você deve ir em 'Ver sua conta' e escolher um dos planos disponíveis",
-      [
-        {
-          text: "Ok",
-        },
-      ],
-    );
-  };
 
   if (user == null) return null;
 
