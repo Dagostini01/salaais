@@ -13,7 +13,7 @@
       "backgroundColor": "#fbd434"
     },
     "ios": {
-      "buildNumber": "1.0.1",
+      "buildNumber": "1.0.0",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "bundleIdentifier": "com.sala.ais",
@@ -22,7 +22,7 @@
       }
     },
     "android": {
-      "versionCode": 4,
+      "versionCode": 5,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/logo-amarelo-removebg.png",
         "backgroundColor": "#fbcb04"
