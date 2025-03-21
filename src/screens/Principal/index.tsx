@@ -4,7 +4,6 @@ import React, { useCallback, useContext, useEffect } from "react";
 import { Alert, TouchableOpacity, View } from "react-native";
 import { Card } from "../../components/Card";
 import { CardImage } from "../../components/CardImage";
-import { CirclePercentage } from "../../components/CirclePercentage";
 import { AuthContext } from "../../contexts/auth";
 import {
   CardsTest,
@@ -106,28 +105,24 @@ export function Principal() {
             }
             imageUrl={require("../../assets/anac-logo.png")}
           />
-          <Card
-            onPress={() =>
-              user.permission === "COMUM"
-                ? alertForComumPermission()
-                : navigation.navigate("Blocos")
-            }
-            title="Blocos"
-            iconName="book"
-          />
-          <Card
-            onPress={() =>
-              user.permission === "COMUM"
-                ? alertForComumPermission()
-                : navigation.navigate("Materias")
-            }
-            title="Matérias"
-            iconName="menu-book"
-          />
+          {user.permission !== "COMUM" && (
+            <>
+              <Card
+                onPress={() => navigation.navigate("Blocos")}
+                title="Blocos"
+                iconName="book"
+              />
+              <Card
+                onPress={() => navigation.navigate("Materias")}
+                title="Matérias"
+                iconName="menu-book"
+              />
+            </>
+          )}
         </HighlightCards>
       </CardsTest>
       <LastTest>
-        <CirclePercentage />
+        {/* <CirclePercentage /> */}
         <TestAnac>
           <NameTest>Simulado ANAC</NameTest>
           <LastNameTest>Último Simulado ANAC</LastNameTest>
