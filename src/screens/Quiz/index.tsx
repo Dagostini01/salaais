@@ -36,6 +36,7 @@ import {
   TimerText,
 } from "./styles";
 import type { Question as QuizQuestion } from "./types";
+import { ProgressStatusBar } from "../../components/ProgressStatusBar";
 
 type BottomTabParamList = {
   Principal: undefined;
@@ -60,6 +61,8 @@ export function Quiz() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBlock, setSelectedBlock] = useState<number | null>(null); // Novo estado para o bloco selecionado
   const [finish, setFinish] = useState(false);
+  const [selectedResultBlock, setSelectedResultBlock] = useState(1);
+  const [scoreByBlock, setScoreByBlock] = useState<Record<number, number>>({});
   const navigation = useNavigation<NavigationProps>();
 
   const initialTime = 7200;
@@ -154,7 +157,6 @@ export function Quiz() {
               (correctAnswers / totalQuestions) * 100;
             setScorePercentage(calculatedScorePercentage);
 
-            // Salva o resultado no AsyncStorage
             try {
               await AsyncStorage.setItem(
                 "lastQuizResult",
@@ -164,6 +166,24 @@ export function Quiz() {
               console.error("Erro ao salvar o resultado do quiz:", error);
             }
 
+            // Novo: cálculo por bloco
+            const blocosUnicos = [...new Set(questions.map((q) => q.bloco))];
+            const resultadosPorBloco: Record<number, number> = {};
+
+            blocosUnicos.forEach((bloco) => {
+              const questoesDoBloco = questions.filter((q) => q.bloco === bloco);
+              const acertosDoBloco = questoesDoBloco.filter((q) => {
+                const respostaUsuario = selectedAnswers[String(q.id)];
+                const correta = q.answers.find((a) => a.correct);
+                return respostaUsuario === correta?.id;
+              }).length;
+
+              const percentual = (acertosDoBloco / questoesDoBloco.length) * 100;
+              resultadosPorBloco[bloco] = percentual;
+            });
+
+            setScoreByBlock(resultadosPorBloco);
+            setSelectedResultBlock(1);
             setFinalTime(timeLeft);
             setFinishModalVisible(true);
             setFinish(true);
@@ -283,17 +303,51 @@ export function Quiz() {
               <Text
                 style={{
                   fontSize: 16,
-                  marginBottom: 20,
+                  marginBottom: 10,
                   width: "100%",
                   textAlign: "center",
                 }}
               >
-                Resultado final simulado ANAC:
+                Resultado por bloco:
               </Text>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  marginBottom: 20,
+                }}
+              >
+                {[1, 2, 3, 4].map((bloco) => (
+                  <TouchableOpacity
+                    key={bloco}
+                    style={{
+                      backgroundColor:
+                        selectedResultBlock === bloco
+                          ? theme.colors.primary
+                          : "gray",
+                      paddingVertical: 10,
+                      paddingHorizontal: 15,
+                      borderRadius: 8,
+                      marginHorizontal: 5,
+                      marginBottom: 5,
+                    }}
+                    onPress={() => setSelectedResultBlock(bloco)}
+                  >
+                    <Text style={{ color: "white", fontWeight: "bold" }}>
+                      Bloco {bloco}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+                <ProgressStatusBar scoreByBlock={scoreByBlock} />
+              </View>
+
+
               <CircularProgress
                 size={120}
                 width={15}
-                fill={scorePercentage}
+                fill={scoreByBlock[selectedResultBlock] ?? 0}
                 tintColor="#00e0ff"
                 backgroundColor="#3d5875"
               >
@@ -305,7 +359,9 @@ export function Quiz() {
                       width: "100%",
                       textAlign: "center",
                     }}
-                  >{`${scorePercentage.toFixed(0)}%`}</Text>
+                  >
+                    {`${(scoreByBlock[selectedResultBlock] ?? 0).toFixed(0)}%`}
+                  </Text>
                 )}
               </CircularProgress>
 
@@ -375,8 +431,8 @@ export function Quiz() {
           {!modalVisible && (
             <HeaderQuiz>
               <FixedTimerContainer>
-                  <MaterialIcons name="access-time" size={24} color="white" />
-                  {!isReviewMode && <TimerText numberOfLines={1} ellipsizeMode="tail">{formatTime(timeLeft)}</TimerText>}
+                <MaterialIcons name="access-time" size={24} color="white" />
+                {!isReviewMode && <TimerText numberOfLines={1} ellipsizeMode="tail">{formatTime(timeLeft)}</TimerText>}
               </FixedTimerContainer>
 
               {/* Botões para alternar entre os blocos */}
@@ -434,21 +490,34 @@ export function Quiz() {
                         marginHorizontal: 5,
                       }}
                     >{`${index + 1}. ${questionData.question}`}</Question>
+
                     {questionData.answers.map((answer) => {
-                      const isSelected =
-                        selectedAnswers[String(questionData.id)] === answer.id;
+                      const selectedAnswerId = selectedAnswers[String(questionData.id)];
+                      const isSelected = selectedAnswerId === answer.id;
+                      const isCorrect = answer.correct;
+
+                      let backgroundColor = "gray";
+
+                      if (isReviewMode) {
+                        if (isSelected && isCorrect) {
+                          backgroundColor = theme.colors.primary; // amarelo (selecionada e correta)
+                        } else if (isSelected && !isCorrect) {
+                          backgroundColor = theme.colors.primary; // selecionada errada (ainda em amarelo)
+                        } else if (!isSelected && isCorrect) {
+                          backgroundColor = theme.colors.succes; // resposta correta (verde)
+                        }
+                      } else {
+                        backgroundColor = isSelected ? theme.colors.primary : "gray";
+                      }
+
                       return (
                         <TouchableOpacity
                           key={answer.id}
-                          onPress={() =>
-                            handleSelectAnswer(questionData.id, answer.id)
-                          }
+                          onPress={() => handleSelectAnswer(questionData.id, answer.id)}
                           style={{
                             padding: 10,
                             marginVertical: 5,
-                            backgroundColor: isSelected
-                              ? theme.colors.primary
-                              : "gray",
+                            backgroundColor,
                             opacity: isReviewMode ? 0.6 : 1,
                             borderRadius: 10,
                           }}
@@ -459,7 +528,8 @@ export function Quiz() {
                           </AnswerText>
                         </TouchableOpacity>
                       );
-                    })}
+                    })
+                    }
                   </QuizAnac>
                 ))}
               </ScrollView>

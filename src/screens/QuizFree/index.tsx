@@ -36,6 +36,8 @@ import {
   TimerText,
 } from "./styles";
 import type { Question as QuizQuestion } from "./types";
+import { ProgressStatusBar } from "../../components/ProgressStatusBar";
+import { ReviewButton } from "../../components/ReviewButton";
 
 type BottomTabParamList = {
   Principal: undefined;
@@ -60,6 +62,8 @@ export function QuizFree() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBlock, setSelectedBlock] = useState<number | null>(null); // Novo estado para o bloco selecionado
   const [finish, setFinish] = useState(false);
+  const [selectedResultBlock, setSelectedResultBlock] = useState(1);
+  const [scoreByBlock, setScoreByBlock] = useState<Record<number, number>>({});
   const { top } = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProps>();
 
@@ -232,12 +236,30 @@ export function QuizFree() {
                 (correctAnswers / totalQuestions) * 100;
               setScorePercentage(calculatedScorePercentage);
 
-              // Salva o resultado no AsyncStorage
+              // Salvar o resultado geral
               await AsyncStorage.setItem(
                 "lastQuizResult",
                 JSON.stringify(calculatedScorePercentage),
               );
 
+              // Cálculo por bloco
+              const blocosUnicos = [...new Set(questions.map((q) => q.bloco))];
+              const resultadosPorBloco: Record<number, number> = {};
+
+              blocosUnicos.forEach((bloco) => {
+                const questoesDoBloco = questions.filter((q) => q.bloco === bloco);
+                const acertosDoBloco = questoesDoBloco.filter((q) => {
+                  const respostaUsuario = selectedAnswers[String(q.id)];
+                  const correta = q.answers.find((a) => a.correct);
+                  return respostaUsuario === correta?.id;
+                }).length;
+
+                const percentual = (acertosDoBloco / questoesDoBloco.length) * 100;
+                resultadosPorBloco[bloco] = percentual;
+              });
+
+              setScoreByBlock(resultadosPorBloco);
+              setSelectedResultBlock(1); // Começa com bloco 1
               setFinalTime(timeLeft);
               setFinishModalVisible(true);
               setFinish(true);
@@ -249,6 +271,7 @@ export function QuizFree() {
       ],
     );
   };
+
 
   const handleRestartQuiz = () => {
     setSelectedAnswers({});
@@ -268,7 +291,7 @@ export function QuizFree() {
     Alert.alert(
       "Informações do Simulado",
       `Você acertou ${scorePercentage.toFixed(2)}% das perguntas.\n` +
-        `Tempo total: ${formatTime(finalTime)}`,
+      `Tempo total: ${formatTime(finalTime)}`,
     );
   };
 
@@ -311,8 +334,8 @@ export function QuizFree() {
   const filteredQuestions =
     selectedBlock !== null
       ? questions
-          .filter((question) => question.bloco === selectedBlock)
-          .slice(0, 20)
+        .filter((question) => question.bloco === selectedBlock)
+        .slice(0, 20)
       : [];
 
   return (
@@ -354,21 +377,55 @@ export function QuizFree() {
             animationType="slide"
             transparent={true}
           >
-            <ModalContainer>
+            <ModalContainer style={{ alignItems: "center" }}>
               <Text
                 style={{
                   fontSize: 16,
-                  marginBottom: 20,
+                  marginBottom: 10,
                   width: "100%",
                   textAlign: "center",
                 }}
               >
-                Resultado final simulado ANAC:
+                Resultado por bloco:
               </Text>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  marginBottom: 20,
+                }}
+              >
+                {[1, 2, 3, 4].map((bloco) => (
+                  <TouchableOpacity
+                    key={bloco}
+                    style={{
+                      backgroundColor:
+                        selectedResultBlock === bloco
+                          ? theme.colors.primary
+                          : "gray",
+                      paddingVertical: 10,
+                      paddingHorizontal: 15,
+                      borderRadius: 8,
+                      marginHorizontal: 5,
+                      marginBottom: 5,
+                    }}
+                    onPress={() => setSelectedResultBlock(bloco)}
+                  >
+                    <Text style={{ color: "white", fontWeight: "bold" }}>
+                      Bloco {bloco}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+                <ProgressStatusBar scoreByBlock={scoreByBlock} />
+              </View>
+
+
               <CircularProgress
                 size={120}
                 width={15}
-                fill={scorePercentage}
+                fill={scoreByBlock[selectedResultBlock] ?? 0}
                 tintColor="#00e0ff"
                 backgroundColor="#3d5875"
               >
@@ -380,7 +437,9 @@ export function QuizFree() {
                       width: "100%",
                       textAlign: "center",
                     }}
-                  >{`${scorePercentage.toFixed(0)}%`}</Text>
+                  >
+                    {`${(scoreByBlock[selectedResultBlock] ?? 0).toFixed(0)}%`}
+                  </Text>
                 )}
               </CircularProgress>
 
@@ -445,6 +504,7 @@ export function QuizFree() {
                 </ModalButton>
               </View>
             </ModalContainer>
+
           </Modal>
 
           {!modalVisible && (
@@ -508,32 +568,52 @@ export function QuizFree() {
                         marginHorizontal: 5,
                       }}
                     >{`${index + 1}. ${questionData.question}`}</Question>
-                    {questionData.answers.map((answer) => {
-                      const isSelected =
-                        selectedAnswers[String(questionData.id)] === answer.id;
-                      return (
-                        <TouchableOpacity
-                          key={answer.id}
-                          onPress={() =>
-                            handleSelectAnswer(questionData.id, answer.id)
+                    {
+                      questionData.answers.map((answer) => {
+                        const selectedAnswerId = selectedAnswers[String(questionData.id)];
+                        const isSelected = selectedAnswerId === answer.id;
+                        const isCorrect = answer.correct;
+
+                        let backgroundColor = "gray";
+
+                        if (isReviewMode) {
+                          if (isSelected && isCorrect) {
+                            backgroundColor = theme.colors.primary; // Acertou - resposta marcada
+                          } else if (isSelected && !isCorrect) {
+                            backgroundColor = theme.colors.primary; // Errou - resposta marcada
+                          } else if (!isSelected && isCorrect) {
+                            backgroundColor = theme.colors.succes; // Mostra a correta (verde)
                           }
-                          style={{
-                            padding: 10,
-                            marginVertical: 5,
-                            backgroundColor: isSelected
-                              ? theme.colors.primary
-                              : "gray",
-                            opacity: isReviewMode ? 0.6 : 1,
-                            borderRadius: 10,
-                          }}
-                          disabled={isReviewMode}
-                        >
-                          <AnswerText selected={isSelected}>
-                            {`${answer.id.toUpperCase()}. ${answer.text}`}
-                          </AnswerText>
-                        </TouchableOpacity>
-                      );
-                    })}
+                        } else {
+                          backgroundColor = isSelected ? theme.colors.primary : "gray";
+                        }
+
+                        const uniqueKey = `${questionData.id}-${answer.id}`;
+                        
+                        return (
+                          <>
+                            <TouchableOpacity
+                              key={uniqueKey}
+                              onPress={() => handleSelectAnswer(questionData.id, answer.id)}
+                              style={{
+                                padding: 10,
+                                marginVertical: 5,
+                                backgroundColor,
+                                opacity: isReviewMode ? 0.6 : 1,
+                                borderRadius: 10,
+                              }}
+                              disabled={isReviewMode}
+                            >
+                              <AnswerText selected={isSelected}>
+                                {`${answer.id.toUpperCase()}. ${answer.text}`}
+                              </AnswerText>
+                              {/* <ReviewButton/> */}
+                            </TouchableOpacity>
+                          </>
+                        );
+                      })}
+
+                    <ReviewButton />
                   </QuizAnac>
                 ))}
               </ScrollView>
