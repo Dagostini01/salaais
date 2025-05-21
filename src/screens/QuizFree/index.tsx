@@ -577,65 +577,62 @@ export function QuizFree() {
                 contentContainerStyle={ScrollContainer}
                 showsVerticalScrollIndicator={false}
               >
-                {filteredQuestions.map((questionData, index) => (
-                  <QuizAnac key={questionData.id}>
-                    <Bloco>
-                      {/* BL {questionData.bloco} - (
-                      {questionData.materia.toUpperCase()}) */}
-                    </Bloco>
+                {filteredQuestions.map((questionData, questionIndex) => (
+                  <QuizAnac key={`questao-${questionData.id}-${questionIndex}`}>
+                    <Bloco />
                     <Question
                       style={{
                         padding: 10,
                         marginHorizontal: 5,
                       }}
-                    >{`${index + 1}. ${questionData.question}`}</Question>
-                    {
-                      questionData.answers.map((answer) => {
-                        const selectedAnswerId = selectedAnswers[String(questionData.id)];
-                        const isSelected = selectedAnswerId === answer.id;
-                        const isCorrect = answer.correct;
+                    >
+                      {`${questionIndex + 1}. ${questionData.question}`}
+                    </Question>
 
-                        let backgroundColor = "gray";
+                    {questionData.answers.map((answer, answerIndex) => {
+                      const selectedAnswerId = selectedAnswers[String(questionData.id)];
+                      const isSelected = selectedAnswerId === answer.id;
+                      const isCorrect = answer.correct;
 
-                        if (isReviewMode) {
-                          if (isSelected && isCorrect) {
-                            backgroundColor = theme.colors.primary; // Acertou - resposta marcada
-                          } else if (isSelected && !isCorrect) {
-                            backgroundColor = theme.colors.primary; // Errou - resposta marcada
-                          } else if (!isSelected && isCorrect) {
-                            backgroundColor = theme.colors.succes; // Mostra a correta (verde)
-                          }
-                        } else {
-                          backgroundColor = isSelected ? theme.colors.primary : "gray";
+                      let backgroundColor = "gray";
+
+                      if (isReviewMode) {
+                        if (isSelected && isCorrect) {
+                          backgroundColor = theme.colors.primary; // acertou a selecionada
+                        } else if (isSelected && !isCorrect) {
+                          backgroundColor = theme.colors.primary; // errou, ainda aparece marcada
+                        } else if (!isSelected && isCorrect) {
+                          backgroundColor = theme.colors.succes; // correta não marcada
                         }
+                      } else {
+                        backgroundColor = isSelected ? theme.colors.primary : "gray";
+                      }
 
-                        const uniqueKey = `${questionData.id}-${answer.id}`;
+                      return (
+                        <TouchableOpacity
+                          key={`resposta-${questionData.id}-${answer.id}-${answerIndex}`}
+                          onPress={() => handleSelectAnswer(questionData.id, answer.id)}
+                          style={{
+                            padding: 10,
+                            marginVertical: 5,
+                            backgroundColor,
+                            opacity: isReviewMode ? 0.6 : 1,
+                            borderRadius: 10,
+                          }}
+                          disabled={isReviewMode}
+                        >
+                          <AnswerText selected={isSelected}>
+                            {`${answer.id.toUpperCase()}. ${answer.text}`}
+                          </AnswerText>
+                        </TouchableOpacity>
+                      );
+                    })}
 
-                        return (
-                          <>
-                            <TouchableOpacity
-                              key={uniqueKey}
-                              onPress={() => handleSelectAnswer(questionData.id, answer.id)}
-                              style={{
-                                padding: 10,
-                                marginVertical: 5,
-                                backgroundColor,
-                                opacity: isReviewMode ? 0.6 : 1,
-                                borderRadius: 10,
-                              }}
-                              disabled={isReviewMode}
-                            >
-                              <AnswerText selected={isSelected}>
-                                {`${answer.id.toUpperCase()}. ${answer.text}`}
-                              </AnswerText>
-                            </TouchableOpacity>
-                          </>
-                        );
-                      })}
-
+                    {/* Justificativa da questão (se disponível) */}
                     {isReviewMode && (
                       <>
                         <Text
+                          key={`justificativa-${questionData.id}`}
                           style={{
                             marginTop: 10,
                             color: theme.colors.text,
@@ -650,19 +647,20 @@ export function QuizFree() {
                         </Text>
 
                         <ReviewButton
+                          key={`revisao-${questionData.id}`}
                           questaoKey={`CMS-${questionData.id}`}
                           alternativaAssinalada={selectedAnswers[String(questionData.id)] ?? ""}
                           acertouQuestao={
-                            questionData.answers.find((a) => a.correct)?.id === selectedAnswers[String(questionData.id)]
+                            questionData.answers.find((a) => a.correct)?.id ===
+                            selectedAnswers[String(questionData.id)]
                           }
                           token={user?.accessToken ?? ""}
                         />
-
                       </>
                     )}
-
                   </QuizAnac>
                 ))}
+
               </ScrollView>
 
               {!isReviewMode ? (
