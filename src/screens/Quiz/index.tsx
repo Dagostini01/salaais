@@ -37,6 +37,7 @@ import {
 } from "./styles";
 import type { Question as QuizQuestion } from "./types";
 import { ProgressStatusBar } from "../../components/ProgressStatusBar";
+import { ReviewButton } from "../../components/ReviewButton";
 
 type BottomTabParamList = {
   Principal: undefined;
@@ -530,6 +531,7 @@ export function Quiz() {
                       );
                     })
                     }
+                    {isReviewMode ? <ReviewButton /> : null}
                   </QuizAnac>
                 ))}
               </ScrollView>

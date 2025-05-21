@@ -1,10 +1,11 @@
-const API_URL = process.env.EXPO_PUBLIC_IS_DEV === 'true'
-  ? "https://api-ahrf.onrender.com"
-  : "https://api-lfo8.onrender.com";
+const API_URL =
+  process.env.EXPO_PUBLIC_IS_DEV === "true"
+    ? "https://api-ahrf.onrender.com"
+    : "https://api-lfo8.onrender.com";
 
 export const paymentSheetParams = async (
   accessToken: string,
-  productKey: string,
+  productKey: string
 ) => {
   try {
     const response = await fetch(
@@ -15,7 +16,7 @@ export const paymentSheetParams = async (
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-      },
+      }
     );
 
     const data = await response.json();
@@ -94,7 +95,7 @@ type ProvaNormalPayload = {
 
 export async function gerarProvaAleatoria(
   token: string,
-  payload: ProvaAleatoriaPayload,
+  payload: ProvaAleatoriaPayload
 ) {
   try {
     const response = await fetch(`${API_URL}/questao/gerar-prova/aleatoria`, {
@@ -119,7 +120,7 @@ export async function gerarProvaAleatoria(
 
 export async function gerarProvaPorMateria(
   token: string,
-  payload: ProvaMateriaPayload,
+  payload: ProvaMateriaPayload
 ) {
   try {
     const response = await fetch(
@@ -132,7 +133,7 @@ export async function gerarProvaPorMateria(
           accept: "*/*",
         },
         body: JSON.stringify(payload),
-      },
+      }
     );
     if (!response.ok) {
       throw new Error(`Erro ao gerar prova: ${response.statusText}`);
@@ -147,7 +148,7 @@ export async function gerarProvaPorMateria(
 
 export async function gerarProvaNormal(
   token: string,
-  payload: ProvaNormalPayload,
+  payload: ProvaNormalPayload
 ) {
   try {
     const response = await fetch(`${API_URL}/questao/gerar-prova/normal`, {
@@ -186,3 +187,62 @@ export const deleteUser = async (token: string, id: number) => {
     throw new Error("Erro ao excluir usuário", error);
   }
 };
+
+export async function buscarRevisaoUsuario(token: string) {
+  try {
+    const response = await fetch(`${API_URL}/questao/revisao/usuario`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const text = await response.text();
+
+    if (!response.ok) {
+      console.log("Erro da API:", text);
+      throw new Error("Erro ao buscar revisões");
+    }
+
+    return JSON.parse(text);
+  } catch (error: any) {
+    console.error("Erro detalhado:", error.message);
+    throw new Error("Erro ao buscar revisões");
+  }
+}
+
+export async function enviarRevisaoQuestao(
+  token: string,
+  body: {
+    questao_key: string;
+    texto: string;
+    alternativa_assinalada: string;
+    descricao: string;
+    acertou_questao: boolean;
+  }
+) {
+  try {
+    const response = await fetch(`${API_URL}/questao/revisao`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.log("Erro API revisão:", err);
+      throw new Error("Erro ao enviar revisão");
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error("Erro ao enviar revisão:", error.message);
+    throw error;
+  }
+}

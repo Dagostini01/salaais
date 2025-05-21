@@ -18,5 +18,7 @@ export default {
     text_dark: "#000000",
 
     background: "#F0F2F5",
+
+    dark: "#000"
   },
 };

@@ -38,6 +38,7 @@ import {
 import type { Question as QuizQuestion } from "./types";
 import { ProgressStatusBar } from "../../components/ProgressStatusBar";
 import { ReviewButton } from "../../components/ReviewButton";
+import { buscarRevisaoUsuario } from "../../services/services";
 
 type BottomTabParamList = {
   Principal: undefined;
@@ -64,6 +65,9 @@ export function QuizFree() {
   const [finish, setFinish] = useState(false);
   const [selectedResultBlock, setSelectedResultBlock] = useState(1);
   const [scoreByBlock, setScoreByBlock] = useState<Record<number, number>>({});
+  const [revisoes, setRevisoes] = useState<
+    { questao_key: string; descricao: string }[]
+  >([]);
   const { top } = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProps>();
 
@@ -338,6 +342,23 @@ export function QuizFree() {
         .slice(0, 20)
       : [];
 
+  useEffect(() => {
+    async function carregarRevisoes() {
+      if (!user?.accessToken) return;
+      try {
+        const data = await buscarRevisaoUsuario(user.accessToken);
+        setRevisoes(data);
+      } catch (error) {
+        console.error("Erro ao buscar revisões:", error);
+      }
+    }
+
+    if (isReviewMode) {
+      carregarRevisoes();
+    }
+  }, [isReviewMode]);
+
+
   return (
     <View
       style={{
@@ -589,7 +610,7 @@ export function QuizFree() {
                         }
 
                         const uniqueKey = `${questionData.id}-${answer.id}`;
-                        
+
                         return (
                           <>
                             <TouchableOpacity
@@ -607,13 +628,39 @@ export function QuizFree() {
                               <AnswerText selected={isSelected}>
                                 {`${answer.id.toUpperCase()}. ${answer.text}`}
                               </AnswerText>
-                              {/* <ReviewButton/> */}
                             </TouchableOpacity>
                           </>
                         );
                       })}
 
-                    <ReviewButton />
+                    {isReviewMode && (
+                      <>
+                        <Text
+                          style={{
+                            marginTop: 10,
+                            color: theme.colors.text,
+                            fontStyle: "italic",
+                            fontSize: 14,
+                          }}
+                        >
+                          {
+                            revisoes.find((r) => r.questao_key === `CMS-${questionData.id}`)?.descricao ??
+                            "Nenhuma justificativa disponível."
+                          }
+                        </Text>
+
+                        <ReviewButton
+                          questaoKey={`CMS-${questionData.id}`}
+                          alternativaAssinalada={selectedAnswers[String(questionData.id)] ?? ""}
+                          acertouQuestao={
+                            questionData.answers.find((a) => a.correct)?.id === selectedAnswers[String(questionData.id)]
+                          }
+                          token={user?.accessToken ?? ""}
+                        />
+
+                      </>
+                    )}
+
                   </QuizAnac>
                 ))}
               </ScrollView>
