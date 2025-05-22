@@ -85,6 +85,7 @@ export function Quiz() {
             question: question.questao_texto,
             bloco: question.bloco,
             materia: question.materia,
+            descricao: question.descricao,
             answers: [
               {
                 id: "a",
@@ -513,7 +514,7 @@ export function Quiz() {
 
                       return (
                         <TouchableOpacity
-                          key={answer.id}
+                          key={`${questionData.id}-${answer.id}`}
                           onPress={() => handleSelectAnswer(questionData.id, answer.id)}
                           style={{
                             padding: 10,
@@ -531,7 +532,33 @@ export function Quiz() {
                       );
                     })
                     }
-                    {isReviewMode ? <ReviewButton /> : null}
+                    {isReviewMode && (
+                      <>
+                        <Text
+                          key={`justificativa-${questionData.id}`}
+                          style={{
+                            marginTop: 10,
+                            color: theme.colors.text,
+                            fontStyle: "italic",
+                            fontSize: 14,
+                          }}
+                        >
+                          {questionData.descricao || "Nenhuma justificativa disponível."}
+                        </Text>
+
+                        <ReviewButton
+                          key={`revisao-${questionData.id}`}
+                          questaoKey={`CMS-${questionData.id}`}
+                          alternativaAssinalada={selectedAnswers[String(questionData.id)] ?? ""}
+                          acertouQuestao={
+                            questionData.answers.find((a) => a.correct)?.id ===
+                            selectedAnswers[String(questionData.id)]
+                          }
+                          token={user?.accessToken ?? ""}
+                        />
+                      </>
+                    )}
+
                   </QuizAnac>
                 ))}
               </ScrollView>

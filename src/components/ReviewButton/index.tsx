@@ -38,6 +38,7 @@ export function ReviewButton({
         alternativa_assinalada: alternativaAssinalada,
         descricao,
         acertou_questao: acertouQuestao,
+        resposta_equipe: "",
       });
 
       await enviarRevisaoQuestao(token, {
@@ -46,6 +47,7 @@ export function ReviewButton({
         alternativa_assinalada: alternativaAssinalada,
         descricao,
         acertou_questao: acertouQuestao,
+        resposta_equipe: "",
       });
 
       Alert.alert("Sucesso", "Sua revisão foi enviada.");

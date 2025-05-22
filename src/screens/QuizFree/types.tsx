@@ -9,6 +9,7 @@ export interface Question {
   question: string;
   bloco: number;
   materia: string;
+  descricao: string;
   answers: Answer[];
 }
 

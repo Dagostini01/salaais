@@ -22,6 +22,7 @@ import {
   UserInfo,
   UserName,
 } from "./styles";
+import { CirclePercentage } from "../../components/CirclePercentage";
 
 // Define os tipos de navegação
 type BottomTabParamList = {
@@ -110,7 +111,7 @@ export function Principal() {
         </HighlightCards>
       </CardsTest>
       <LastTest>
-        {/* <CirclePercentage /> */}
+        <CirclePercentage />
         <TestAnac>
           <NameTest>Simulado ANAC</NameTest>
           <LastNameTest>Último Simulado ANAC</LastNameTest>

@@ -111,7 +111,7 @@ export async function gerarProvaAleatoria(
       throw new Error("Erro ao gerar a prova");
     }
     const data = await response.json();
-    console.log("DATA", data);
+    // console.log("DATA:", data);
     return data;
   } catch (error: any) {
     throw new Error("Erro ao gerar prova aleatória", error);
@@ -164,7 +164,7 @@ export async function gerarProvaNormal(
       throw new Error("Erro ao gerar a prova normal");
     }
     const data = await response.json();
-    console.log("DATA", data);
+    // console.log("DATA", data);
     return data;
   } catch (error: any) {
     throw new Error("Erro ao gerar prova normal", error);
@@ -188,31 +188,6 @@ export const deleteUser = async (token: string, id: number) => {
   }
 };
 
-export async function buscarRevisaoUsuario(token: string) {
-  try {
-    const response = await fetch(`${API_URL}/questao/revisao/usuario`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const text = await response.text();
-
-    if (!response.ok) {
-      console.log("Erro da API:", text);
-      throw new Error("Erro ao buscar revisões");
-    }
-
-    return JSON.parse(text);
-  } catch (error: any) {
-    console.error("Erro detalhado:", error.message);
-    throw new Error("Erro ao buscar revisões");
-  }
-}
-
 export async function enviarRevisaoQuestao(
   token: string,
   body: {
@@ -221,6 +196,7 @@ export async function enviarRevisaoQuestao(
     alternativa_assinalada: string;
     descricao: string;
     acertou_questao: boolean;
+    resposta_equipe: string;
   }
 ) {
   try {
