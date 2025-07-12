@@ -124,7 +124,7 @@ export async function gerarProvaPorMateria(
 ) {
   try {
     const response = await fetch(
-      "https://api-ahrf.onrender.com/questao/gerar-prova/materia",
+      "${API_URL}/questao/gerar-prova/materia",
       {
         method: "POST",
         headers: {
