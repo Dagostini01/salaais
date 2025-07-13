@@ -1,7 +1,4 @@
-const API_URL =
-  process.env.EXPO_PUBLIC_IS_DEV === "true"
-    ? "https://api-ahrf.onrender.com"
-    : "https://api-lfo8.onrender.com";
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const paymentSheetParams = async (
   accessToken: string,
@@ -123,18 +120,15 @@ export async function gerarProvaPorMateria(
   payload: ProvaMateriaPayload
 ) {
   try {
-    const response = await fetch(
-      "${API_URL}/questao/gerar-prova/materia",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          accept: "*/*",
-        },
-        body: JSON.stringify(payload),
-      }
-    );
+    const response = await fetch(`${API_URL}/questao/gerar-prova/materia`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        accept: "*/*",
+      },
+      body: JSON.stringify(payload),
+    });
     if (!response.ok) {
       throw new Error(`Erro ao gerar prova: ${response.statusText}`);
     }
