@@ -3,7 +3,7 @@
     "name": "Sala AIS",
     "slug": "salaais",
     "sheme:": "salaais",
-    "version": "1.0.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./src/assets/logo-amarelo.jpg",
     "userInterfaceStyle": "light",
@@ -13,7 +13,7 @@
       "backgroundColor": "#fbd434"
     },
     "ios": {
-      "buildNumber": "1.0.0",
+      "buildNumber": "1.1.1",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "bundleIdentifier": "com.sala.ais",
@@ -22,7 +22,7 @@
       }
     },
     "android": {
-      "versionCode": 5,
+      "versionCode": 7,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/logo-amarelo-removebg.png",
         "backgroundColor": "#fbcb04"
@@ -39,13 +39,7 @@
     },
     "plugins": [
       "expo-apple-authentication",
-      "expo-secure-store",
-      [
-        "@stripe/stripe-react-native",
-        {
-          "merchantIdentifier": "merchant.com.salaais"
-        }
-      ]
+      "expo-secure-store"
     ]
   }
 }

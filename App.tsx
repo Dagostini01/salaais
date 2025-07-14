@@ -19,17 +19,15 @@ const linking = {
   },
 };
 
-const key = process.env.EXPO_PUBLIC_IS_DEV === 'true'
-  ?(process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST as string)
-  : (process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY_PUBLISH as string);
+const key =
+  process.env.EXPO_PUBLIC_IS_DEV === "true"
+    ? (process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY_TEST as string)
+    : (process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY_PUBLISH as string);
 
 export default function App() {
   return (
     <GestureHandlerRootView>
-      <StripeProvider
-        publishableKey={key}
-        merchantIdentifier={`${process.env.EXPO_PUBLIC_MERCHANT}`}
-      >
+      <StripeProvider publishableKey={key}>
         <ThemeProvider theme={theme}>
           <NavigationContainer linking={linking}>
             <AuthProvider>

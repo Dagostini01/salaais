@@ -19,12 +19,12 @@ export function Planos() {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const initializePaymentSheet = async (
-    plan: "BRONZE" | "PRATA" | "OURO" | "PREMIUM",
+    plan: "BRONZE" | "PRATA" | "OURO" | "PREMIUM"
   ) => {
     setLoading(true);
     const { customer, ephemeralKey, paymentIntent } = await paymentSheetParams(
       user?.accessToken ?? "",
-      plan,
+      plan
     );
 
     const { error } = await initPaymentSheet({
@@ -32,10 +32,6 @@ export function Planos() {
       customerId: customer,
       customerEphemeralKeySecret: ephemeralKey,
       paymentIntentClientSecret: paymentIntent,
-      applePay: {
-        merchantCountryCode: "br",
-        buttonType: 7,
-      },
     });
     setLoading(false);
     await openPaymentSheet();
