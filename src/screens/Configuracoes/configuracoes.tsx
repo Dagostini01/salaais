@@ -14,11 +14,20 @@ import { Container, styles } from "./styles";
 export const Configuracoes = () => {
   const { user, signOut } = useContext(AuthContext);
   const url = `https://salaais.vercel.app/settings?token=${user?.accessToken}`;
+  const url2 = `https://sandwiche.me/canalsalaais`;
 
   const handlePressLinking = useCallback(async () => {
     const supported = await Linking.canOpenURL(url);
     if (supported) {
       await Linking.openURL(url);
+    } else {
+      Alert.alert("Erro", "Não é possível abrir o link");
+    }
+  }, [url]);
+  const handlePressLinking2 = useCallback(async () => {
+    const supported = await Linking.canOpenURL(url2);
+    if (supported) {
+      await Linking.openURL(url2);
     } else {
       Alert.alert("Erro", "Não é possível abrir o link");
     }
@@ -30,6 +39,12 @@ export const Configuracoes = () => {
       colorText: "#000000",
       color: "#fbd434",
       onPress: handlePressLinking,
+    },
+    {
+      text: "Suporte",
+      colorText: "#000000",
+      color: "#fbd434",
+      onPress: handlePressLinking2,
     },
     {
       text: "Sair",
