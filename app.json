@@ -3,7 +3,7 @@
     "name": "Sala AIS",
     "slug": "salaais",
     "sheme:": "salaais",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./src/assets/logo-amarelo.jpg",
     "userInterfaceStyle": "light",
@@ -13,7 +13,7 @@
       "backgroundColor": "#fbd434"
     },
     "ios": {
-      "buildNumber": "1.1.1",
+      "buildNumber": "1.2.0",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "bundleIdentifier": "com.sala.ais",
@@ -22,7 +22,7 @@
       }
     },
     "android": {
-      "versionCode": 7,
+      "versionCode": 8,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/logo-amarelo-removebg.png",
         "backgroundColor": "#fbcb04"
