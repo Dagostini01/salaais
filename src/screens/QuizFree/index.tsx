@@ -398,27 +398,38 @@ export function QuizFree() {
                   marginBottom: 20,
                 }}
               >
-                {[1, 2, 3, 4].map((bloco) => (
-                  <TouchableOpacity
-                    key={bloco}
-                    style={{
-                      backgroundColor:
-                        selectedResultBlock === bloco
-                          ? theme.colors.primary
-                          : "gray",
-                      paddingVertical: 10,
-                      paddingHorizontal: 15,
-                      borderRadius: 8,
-                      marginHorizontal: 5,
-                      marginBottom: 5,
-                    }}
-                    onPress={() => setSelectedResultBlock(bloco)}
-                  >
-                    <Text style={{ color: "white", fontWeight: "bold" }}>
-                      Bloco {bloco}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                {[1, 2, 3, 4].map((bloco) => {
+                  const nota = scoreByBlock[bloco] ?? 0;
+                  let blocoColor = theme.colors.attention; // vermelho por padrão
+
+                  if (nota >= 70) {
+                    blocoColor = theme.colors.succes;
+                  } else if (nota >= 30 && nota < 70) {
+                    blocoColor = theme.colors.primary;
+                  }
+
+                  return (
+                    <TouchableOpacity
+                      key={bloco}
+                      style={{
+                        backgroundColor: blocoColor,
+                        paddingVertical: 10,
+                        paddingHorizontal: 15,
+                        borderRadius: 8,
+                        marginHorizontal: 5,
+                        marginBottom: 5,
+                        borderWidth: selectedResultBlock === bloco ? 2 : 0,
+                        borderColor: selectedResultBlock === bloco ? "#000" : "transparent",
+                      }}
+                      onPress={() => setSelectedResultBlock(bloco)}
+                    >
+                      <Text style={{ color: "white", fontWeight: "bold" }}>
+                        Bloco {bloco}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+
                 <ProgressStatusBar scoreByBlock={scoreByBlock} />
               </View>
 
