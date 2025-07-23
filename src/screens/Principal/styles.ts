@@ -111,3 +111,23 @@ export const HighlightCards = styled.ScrollView.attrs({
   position: absolute;
   margin-top: ${RFPercentage(13)}px;
 `;
+
+
+
+export const ViewPlano = styled.View`
+  width: 90%;
+  height: ${RFValue(120)}px;
+  padding: 16px 18px;
+  background-color: ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.colors.text_dark};
+  border-radius: 5px;
+  margin-top: 10px;
+  align-self: center;
+`;
+export const TitleViewPlano = styled.Text`
+  text-align: center;
+  font-weight: bold;
+`;
+export const TextViewPlano = styled.Text`
+  text-align: center;
+`;

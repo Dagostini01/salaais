@@ -35,6 +35,7 @@ import {
   TimerText,
 } from "./styles";
 import type { Question as QuizQuestion } from "./types";
+import { ReviewButton } from "../../components/ReviewButton";
 
 type BottomTabParamList = {
   Principal: undefined;
@@ -185,7 +186,7 @@ export function Blocos() {
     Alert.alert(
       "Informações do Simulado",
       `Você acertou ${scorePercentage.toFixed(2)}% das perguntas.\n` +
-        `Tempo total: ${formatTime(finalTime)}`,
+      `Tempo total: ${formatTime(finalTime)}`,
     );
   };
 
@@ -213,8 +214,8 @@ export function Blocos() {
   const filteredQuestions =
     selectedBlock !== null
       ? questions
-          .filter((question) => question.bloco === selectedBlock)
-          .slice(0, 20)
+        .filter((question) => question.bloco === selectedBlock)
+        .slice(0, 20)
       : [];
 
   return (
@@ -387,20 +388,32 @@ export function Blocos() {
                       }}
                     >{`${index + 1}. ${questionData.question}`}</Question>
                     {questionData.answers.map((answer) => {
-                      const isSelected =
-                        selectedAnswers[String(questionData.id)] === answer.id;
+                      const selectedAnswerId = selectedAnswers[String(questionData.id)];
+                      const isSelected = selectedAnswerId === answer.id;
+                      const isCorrect = answer.correct;
+
+                      let backgroundColor = "gray";
+
+                      if (isReviewMode) {
+                        if (isSelected && isCorrect) {
+                          backgroundColor = theme.colors.primary; // Selecionada e correta
+                        } else if (isSelected && !isCorrect) {
+                          backgroundColor = theme.colors.primary; // Selecionada mas errada
+                        } else if (!isSelected && isCorrect) {
+                          backgroundColor = theme.colors.succes; // Correta não selecionada
+                        }
+                      } else {
+                        backgroundColor = isSelected ? theme.colors.primary : "gray";
+                      }
+
                       return (
                         <TouchableOpacity
-                          key={answer.id}
-                          onPress={() =>
-                            handleSelectAnswer(questionData.id, answer.id)
-                          }
+                          key={`${questionData.id}-${answer.id}`}
+                          onPress={() => handleSelectAnswer(questionData.id, answer.id)}
                           style={{
                             padding: 10,
                             marginVertical: 5,
-                            backgroundColor: isSelected
-                              ? theme.colors.primary
-                              : "gray",
+                            backgroundColor,
                             opacity: isReviewMode ? 0.6 : 1,
                             borderRadius: 10,
                           }}
@@ -412,6 +425,21 @@ export function Blocos() {
                         </TouchableOpacity>
                       );
                     })}
+
+                    {isReviewMode && (
+                      <ReviewButton
+                        key={`revisao-${questionData.id}`}
+                        questaoKey={`CMS-${questionData.id}`}
+                        alternativaAssinalada={selectedAnswers[String(questionData.id)] ?? ""}
+                        acertouQuestao={
+                          questionData.answers.find((a) => a.correct)?.id ===
+                          selectedAnswers[String(questionData.id)]
+                        }
+                        token={user?.accessToken ?? ""}
+                      />
+                    )}
+
+
                   </QuizAnac>
                 ))}
               </ScrollView>

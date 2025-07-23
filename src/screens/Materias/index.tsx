@@ -37,6 +37,7 @@ import {
   TimerText,
 } from "./styles";
 import { Answer, Question } from "./types"; // Importe os tipos do arquivo types.tsx
+import { ReviewButton } from "../../components/ReviewButton";
 
 export function Materias() {
   const initialTime = 0; // Tempo inicial
@@ -149,10 +150,10 @@ export function Materias() {
             const filteredQuestions =
               selectedMateria !== null
                 ? questions.filter(
-                    (question) =>
-                      question.materia ===
-                      selectedMateria?.trim().toLowerCase(),
-                  ) // Comparação com materia em minúsculas e sem espaços extras
+                  (question) =>
+                    question.materia ===
+                    selectedMateria?.trim().toLowerCase(),
+                ) // Comparação com materia em minúsculas e sem espaços extras
                 : [];
 
             const totalQuestions = filteredQuestions.length;
@@ -193,7 +194,7 @@ export function Materias() {
     Alert.alert(
       "Informações do Simulado",
       `Você acertou ${scorePercentage.toFixed(2)}% das perguntas.\n` +
-        `Tempo total: ${formatTime(finalTime)}`,
+      `Tempo total: ${formatTime(finalTime)}`,
     );
   };
 
@@ -221,9 +222,9 @@ export function Materias() {
   const filteredQuestions =
     selectedMateria !== null
       ? questions.filter(
-          (question) =>
-            question.materia === selectedMateria?.trim().toLowerCase(),
-        ) // Comparação em minúsculas e sem espaços extras
+        (question) =>
+          question.materia === selectedMateria?.trim().toLowerCase(),
+      ) // Comparação em minúsculas e sem espaços extras
       : [];
 
   return (
@@ -392,6 +393,7 @@ export function Materias() {
                 style={{
                   fontSize: 24,
                   color: "#000",
+                  width: "100%",
                   textAlign: "center",
                 }}
               >
@@ -467,9 +469,9 @@ export function Materias() {
       </Modal>
 
       {!modalVisible &&
-      selectedMateria &&
-      filteredQuestions.length > 0 &&
-      !isLoading ? (
+        selectedMateria &&
+        filteredQuestions.length > 0 &&
+        !isLoading ? (
         <HeaderQuiz>
           <FixedTimerContainer>
             <MaterialIcons name="access-time" size={24} color="white" />
@@ -496,6 +498,26 @@ export function Materias() {
                   questionData.answers.map((answer: Answer) => {
                     const isSelected =
                       selectedAnswers[String(questionData.id)] === answer.id;
+
+                    const correctAnswer = questionData.answers.find((a) => a.correct);
+
+                    const isCorrect = correctAnswer?.id === answer.id;
+                    const isReviewAnswer = isReviewMode;
+
+                    let backgroundColor = "gray";
+
+                    if (isReviewMode) {
+                      if (isSelected && isCorrect) {
+                        backgroundColor = theme.colors.primary; // Selecionada e correta
+                      } else if (isSelected && !isCorrect) {
+                        backgroundColor = theme.colors.primary; // Selecionada mas errada
+                      } else if (!isSelected && isCorrect) {
+                        backgroundColor = theme.colors.succes; // Correta não selecionada
+                      }
+                    } else {
+                      backgroundColor = isSelected ? theme.colors.primary : "gray";
+                    }
+
                     return (
                       <TouchableOpacity
                         key={answer.id}
@@ -505,19 +527,32 @@ export function Materias() {
                         style={{
                           padding: 10,
                           marginVertical: 5,
-                          backgroundColor: isSelected
-                            ? theme.colors.primary
-                            : "gray",
-                          opacity: isReviewMode ? 0.6 : 1,
+                          backgroundColor,
                           borderRadius: 10,
+                          opacity: isReviewMode ? 0.7 : 1,
                         }}
+                        disabled={isReviewMode}
                       >
-                        <AnswerText
-                          style={{ color: "white" }}
-                        >{`${answer.id.toUpperCase()}. ${answer.text}`}</AnswerText>
+                        <AnswerText style={{ color: "white" }} selected>
+                          {`${answer.id.toUpperCase()}. ${answer.text}`}
+                        </AnswerText>
                       </TouchableOpacity>
                     );
                   })}
+
+                {isReviewMode && (
+                  <ReviewButton
+                    key={`revisao-${questionData.id}`}
+                    questaoKey={`CMS-${questionData.id}`}
+                    alternativaAssinalada={selectedAnswers[String(questionData.id)] ?? ""}
+                    acertouQuestao={
+                      questionData.answers.find((a) => a.correct)?.id ===
+                      selectedAnswers[String(questionData.id)]
+                    }
+                    token={user?.accessToken ?? ""}
+                  />
+                )}
+
               </QuizAnac>
             ))}
           </ScrollView>

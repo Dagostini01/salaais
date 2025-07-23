@@ -1,7 +1,7 @@
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useContext, useEffect } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View, Text } from "react-native";
 import { Card } from "../../components/Card";
 import { CardImage } from "../../components/CardImage";
 import { AuthContext } from "../../contexts/auth";
@@ -17,10 +17,13 @@ import {
   NameTest,
   Photo,
   TestAnac,
+  TextViewPlano,
+  TitleViewPlano,
   User,
   UserGreeting,
   UserInfo,
   UserName,
+  ViewPlano,
 } from "./styles";
 import { CirclePercentage } from "../../components/CirclePercentage";
 
@@ -117,6 +120,12 @@ export function Principal() {
           <LastNameTest>Último Simulado ANAC</LastNameTest>
         </TestAnac>
       </LastTest>
+      {user.permission === "COMUM" && (
+        <ViewPlano>
+            <TitleViewPlano>Você está na versão de demonstração.</TitleViewPlano>
+            <TextViewPlano>Com ela, você pode realizar uma prova modelo gratuitamente. Para liberar todos os recursos e se preparar com eficiência para a ANAC, adquira um plano de estudos clicando no ícone de configurações e veja sua conta.</TextViewPlano>
+        </ViewPlano>
+      )}
     </Container>
   );
 }

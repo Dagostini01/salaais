@@ -16,4 +16,7 @@ export const ProgressBar = styled.View<{ status: "success" | "primary" | "attent
 export const ProgressText = styled.Text`
   color: white;
   font-weight: bold;
-`;
+  `;
+  //width: 100%;
+  //text-align: center;
+  //border: 1px;
