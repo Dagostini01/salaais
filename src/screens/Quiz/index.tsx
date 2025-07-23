@@ -331,6 +331,7 @@ export function Quiz() {
                     blocoColor = theme.colors.primary;
                   }
 
+                  {/* Botões para alternar entre os blocos */ }
                   return (
                     <TouchableOpacity
                       key={bloco}
@@ -341,14 +342,20 @@ export function Quiz() {
                         borderRadius: 8,
                         marginHorizontal: 5,
                         marginBottom: 5,
-                        borderWidth: selectedResultBlock === bloco ? 2 : 0,
+                        borderWidth: selectedResultBlock === bloco ? 1 : 0,
                         borderColor: selectedResultBlock === bloco ? "#000" : "transparent",
                       }}
                       onPress={() => setSelectedResultBlock(bloco)}
                     >
-                      <Text style={{ color: "white", fontWeight: "bold" }}>
-                        Bloco {bloco}
-                      </Text>
+                      <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Text style={{ color: "white", fontWeight: "bold", fontSize: 14 }}>
+                          Bloco&nbsp;
+                        </Text>
+                        <Text style={{ color: "white", fontWeight: "bold", fontSize: 14 }}>
+                          {bloco}
+                        </Text>
+                      </View>
+
                     </TouchableOpacity>
                   );
                 })}
@@ -448,7 +455,6 @@ export function Quiz() {
                 {!isReviewMode && <TimerText numberOfLines={1} ellipsizeMode="tail">{formatTime(timeLeft)}</TimerText>}
               </FixedTimerContainer>
 
-              {/* Botões para alternar entre os blocos */}
               <View
                 style={{
                   flexDirection: "row",
@@ -456,6 +462,7 @@ export function Quiz() {
                   marginBottom: 20,
                 }}
               >
+                {/* Botões para alternar entre os blocos */}
                 {[1, 2, 3, 4].map((blockNumber) => (
                   <TouchableOpacity
                     key={blockNumber}
