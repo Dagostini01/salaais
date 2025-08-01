@@ -1,11 +1,15 @@
-import { StatusBar } from "expo-status-bar";
 import { useContext, useState } from "react";
 import { AuthContext } from "../../contexts/auth";
+
 import { Button, ButtonText, Container, Input } from "./styles";
-import LogoSvg from "../../assets/logo-amarelo.svg";
 import { RFValue } from "react-native-responsive-fontsize";
+import { StatusBar } from "expo-status-bar";
+
+import LogoSvg from "../../assets/logo-amarelo.svg";
+
 
 export const CompleteProfile = () => {
+
   const { signInWithAppleComplete } = useContext(AuthContext);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

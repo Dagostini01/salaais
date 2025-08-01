@@ -1,5 +1,15 @@
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
+type ProvaAleatoriaPayload = {
+  curso: string;
+  blocos: Number[];
+  questoes_por_bloco: number;
+};
+
+type ProvaNormalPayload = {
+  keys: string[];
+};
+
 export const paymentSheetParams = async (
   accessToken: string,
   productKey: string
@@ -80,15 +90,57 @@ export const dataUser = async (token: string) => {
   }
 };
 
-type ProvaAleatoriaPayload = {
-  curso: string;
-  blocos: Number[];
-  questoes_por_bloco: number;
+export const deleteUser = async (token: string, id: number) => {
+  try {
+    const response = await fetch(`${API_URL}/usuario/${id}`, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Erro ao excluir usuário");
+    }
+  } catch (error: any) {
+    throw new Error("Erro ao excluir usuário", error);
+  }
 };
 
-type ProvaNormalPayload = {
-  keys: string[];
-};
+export async function enviarRevisaoQuestao(
+  token: string,
+  body: {
+    questao_key: string;
+    texto: string;
+    alternativa_assinalada: string;
+    descricao: string;
+    acertou_questao: boolean;
+    resposta_equipe: string;
+  }
+) {
+  try {
+    const response = await fetch(`${API_URL}/questao/revisao`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.log("Erro API revisão:", err);
+      throw new Error("Erro ao enviar revisão");
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error("Erro ao enviar revisão:", error.message);
+    throw error;
+  }
+}
 
 export async function gerarProvaAleatoria(
   token: string,
@@ -162,57 +214,5 @@ export async function gerarProvaNormal(
     return data;
   } catch (error: any) {
     throw new Error("Erro ao gerar prova normal", error);
-  }
-}
-
-export const deleteUser = async (token: string, id: number) => {
-  try {
-    const response = await fetch(`${API_URL}/usuario/${id}`, {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!response.ok) {
-      throw new Error("Erro ao excluir usuário");
-    }
-  } catch (error: any) {
-    throw new Error("Erro ao excluir usuário", error);
-  }
-};
-
-export async function enviarRevisaoQuestao(
-  token: string,
-  body: {
-    questao_key: string;
-    texto: string;
-    alternativa_assinalada: string;
-    descricao: string;
-    acertou_questao: boolean;
-    resposta_equipe: string;
-  }
-) {
-  try {
-    const response = await fetch(`${API_URL}/questao/revisao`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      console.log("Erro API revisão:", err);
-      throw new Error("Erro ao enviar revisão");
-    }
-
-    return await response.json();
-  } catch (error: any) {
-    console.error("Erro ao enviar revisão:", error.message);
-    throw error;
   }
 }

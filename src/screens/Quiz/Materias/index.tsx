@@ -15,10 +15,10 @@ import {
 import { CircularProgress } from "react-native-circular-progress";
 import { RFValue } from "react-native-responsive-fontsize";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AuthContext } from "../../contexts/auth";
-import { Materia } from "../../enum/enum";
-import theme from "../../global/global/theme";
-import { gerarProvaPorMateria } from "../../services";
+import { AuthContext } from "../../../contexts/auth";
+import { Materia } from "../../../enum/enum";
+import theme from "../../../global/global/theme";
+import { gerarProvaPorMateria } from "../../../services";
 import {
   AnswerText,
   Bloco,
@@ -37,7 +37,7 @@ import {
   TimerText,
 } from "./styles";
 import { Answer, Question } from "./types"; // Importe os tipos do arquivo types.tsx
-import { ReviewButton } from "../../components/ReviewButton";
+import { ReviewButton } from "../../../components/ReviewButton";
 
 export function Materias() {
   const initialTime = 0; // Tempo inicial

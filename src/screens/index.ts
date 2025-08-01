@@ -1,11 +1,12 @@
-import { Blocos } from "./Blocos";
+import { AnacFree } from "./Quiz/AnacFree";
 import { CompleteProfile } from "./CompleteProfile/completeProfile";
 import { Configuracoes } from "./Configuracoes/configuracoes";
-import { Materias } from "./Materias";
+import { Materias } from "./Quiz/Materias";
 import { Planos } from "./Planos";
-import { Principal } from "./Principal";
-import { Quiz } from "./Quiz";
-import { SignIn } from "./SignIn";
+import { Principal } from "./Home";
+import { SignIn } from "./Login";
+import { Anac } from "./Quiz/Anac";
+import { Blocos } from "./Quiz/Blocos";
 
 export {
   Blocos,
@@ -14,6 +15,7 @@ export {
   Materias,
   Planos,
   Principal,
-  Quiz,
+  Anac,
   SignIn,
+  AnacFree
 };

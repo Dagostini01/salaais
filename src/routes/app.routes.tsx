@@ -7,7 +7,6 @@ import { SignInRoutes } from "./signin.routes";
 export const AppRoutes = () => {
   const { signed, getToken, loading } = useContext(AuthContext);
 
-  // "signed" nas dependências para que a verificação do token aconteça quando mudar o estado de "signed"
   useEffect(() => {
     getToken();
   }, [signed]);

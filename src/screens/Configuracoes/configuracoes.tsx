@@ -1,17 +1,13 @@
 import React, { useCallback, useContext } from "react";
-import {
-  Alert,
-  Linking,
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { AuthContext } from "../../contexts/auth";
-import { deleteUser } from "../../services";
+
+import { Alert, Linking, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import { Container, styles } from "./styles";
 
+import { AuthContext } from "../../contexts/auth";
+import { deleteUser } from "../../services";
+
 export const Configuracoes = () => {
+  
   const { user, signOut } = useContext(AuthContext);
   const url = `https://salaais.vercel.app/settings?token=${user?.accessToken}`;
   const url2 = `https://sandwiche.me/canalsalaais`;
@@ -24,6 +20,7 @@ export const Configuracoes = () => {
       Alert.alert("Erro", "Não é possível abrir o link");
     }
   }, [url]);
+
   const handlePressLinking2 = useCallback(async () => {
     const supported = await Linking.canOpenURL(url2);
     if (supported) {

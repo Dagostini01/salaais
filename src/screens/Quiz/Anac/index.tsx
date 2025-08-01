@@ -14,9 +14,7 @@ import {
 } from "react-native";
 import { CircularProgress } from "react-native-circular-progress";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AuthContext } from "../../contexts/auth";
-import theme from "../../global/global/theme";
-import { gerarProvaNormal } from "../../services";
+
 import {
   AnswerText,
   Bloco,
@@ -36,8 +34,12 @@ import {
   TimerText,
 } from "./styles";
 import type { Question as QuizQuestion } from "./types";
-import { ProgressStatusBar } from "../../components/ProgressStatusBar";
-import { ReviewButton } from "../../components/ReviewButton";
+import { gerarProvaAleatoria } from "../../../services";
+import theme from "../../../global/global/theme";
+import { ProgressStatusBar } from "../../../components/ProgressStatusBar";
+import { ReviewButton } from "../../../components/ReviewButton";
+import { AuthContext } from "../../../contexts/auth";
+
 
 type BottomTabParamList = {
   Principal: undefined;
@@ -47,7 +49,7 @@ type BottomTabParamList = {
 
 type NavigationProps = BottomTabNavigationProp<BottomTabParamList, "Principal">;
 
-export function QuizFree() {
+export function Anac() {
   const { user } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(true);
   const [finishModalVisible, setFinishModalVisible] = useState(false);
@@ -64,7 +66,6 @@ export function QuizFree() {
   const [finish, setFinish] = useState(false);
   const [selectedResultBlock, setSelectedResultBlock] = useState(1);
   const [scoreByBlock, setScoreByBlock] = useState<Record<number, number>>({});
-  const { top } = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProps>();
 
   const initialTime = 7200;
@@ -72,90 +73,14 @@ export function QuizFree() {
   useEffect(() => {
     async function fetchQuestions() {
       try {
-        const quizData = await gerarProvaNormal(user?.accessToken as string, {
-          keys: [
-            "cms-159",
-            "cms-340",
-            "cms-252",
-            "cms-391",
-            "cms-107",
-            "cms-31",
-            "cms-148",
-            "cms-244",
-            "cms-79",
-            "cms-175",
-            "cms-39",
-            "cms-68",
-            "cms-206",
-            "cms-230",
-            "cms-103",
-            "cms-25",
-            "cms-144",
-            "cms-333",
-            "cms-327",
-            "cms-318",
-            "cms-567",
-            "cms-764",
-            "cms-790",
-            "cms-586",
-            "cms-718",
-            "cms-516",
-            "cms-697",
-            "cms-487",
-            "cms-645",
-            "cms-576",
-            "cms-471",
-            "cms-797",
-            "cms-655",
-            "cms-782",
-            "cms-628",
-            "cms-489",
-            "cms-442",
-            "cms-733",
-            "cms-722",
-            "cms-681",
-            "cms-1555",
-            "cms-1532",
-            "cms-1528",
-            "cms-1268",
-            "cms-1259",
-            "cms-1247",
-            "cms-1223",
-            "cms-1231",
-            "cms-1216",
-            "cms-1408",
-            "cms-1527",
-            "cms-1224",
-            "cms-1354",
-            "cms-1542",
-            "cms-1305",
-            "cms-1480",
-            "cms-1341",
-            "cms-1479",
-            "cms-1525",
-            "cms-1309",
-            "cms-951",
-            "cms-1162",
-            "cms-925",
-            "cms-1166",
-            "cms-868",
-            "cms-888",
-            "cms-914",
-            "cms-1069",
-            "cms-829",
-            "cms-863",
-            "cms-1142",
-            "cms-1138",
-            "cms-827",
-            "cms-942",
-            "cms-906",
-            "cms-1157",
-            "cms-969",
-            "cms-850",
-            "cms-959",
-            "cms-939",
-          ],
-        });
+        const quizData = await gerarProvaAleatoria(
+          user?.accessToken as string,
+          {
+            curso: "cms",
+            blocos: [1, 2, 3, 4],
+            questoes_por_bloco: 20,
+          },
+        );
         const formattedQuestions: QuizQuestion[] = quizData.data.map(
           (question: any) => ({
             id: question.id,
@@ -211,10 +136,10 @@ export function QuizFree() {
     }
   };
 
-  const handleFinishQuiz = () => {
+  const handleFinishQuiz = async () => {
     Alert.alert(
       "Finalizar Prova",
-      "Tem certeza que deseja finalizar a prova?",
+      "Tem certeza que deseja finalizar Prova ANAC?",
       [
         {
           text: "Cancelar",
@@ -223,56 +148,54 @@ export function QuizFree() {
         {
           text: "Finalizar",
           onPress: async () => {
+            const totalQuestions = questions.length;
+            const correctAnswers = questions.filter((question) => {
+              const selectedAnswerId = selectedAnswers[String(question.id)];
+              const correctAnswer = question.answers.find(
+                (answer) => answer.correct,
+              );
+              return selectedAnswerId === correctAnswer?.id;
+            }).length;
+
+            const calculatedScorePercentage =
+              (correctAnswers / totalQuestions) * 100;
+            setScorePercentage(calculatedScorePercentage);
+
             try {
-              const totalQuestions = questions.length;
-              const correctAnswers = questions.filter((question) => {
-                const selectedAnswerId = selectedAnswers[String(question.id)];
-                const correctAnswer = question.answers.find(
-                  (answer) => answer.correct,
-                );
-                return selectedAnswerId === correctAnswer?.id;
-              }).length;
-
-              const calculatedScorePercentage =
-                (correctAnswers / totalQuestions) * 100;
-              setScorePercentage(calculatedScorePercentage);
-
-              // Salvar o resultado geral
               await AsyncStorage.setItem(
                 "lastQuizResult",
                 JSON.stringify(calculatedScorePercentage),
               );
-
-              // Cálculo por bloco
-              const blocosUnicos = [...new Set(questions.map((q) => q.bloco))];
-              const resultadosPorBloco: Record<number, number> = {};
-
-              blocosUnicos.forEach((bloco) => {
-                const questoesDoBloco = questions.filter((q) => q.bloco === bloco);
-                const acertosDoBloco = questoesDoBloco.filter((q) => {
-                  const respostaUsuario = selectedAnswers[String(q.id)];
-                  const correta = q.answers.find((a) => a.correct);
-                  return respostaUsuario === correta?.id;
-                }).length;
-
-                const percentual = (acertosDoBloco / questoesDoBloco.length) * 100;
-                resultadosPorBloco[bloco] = percentual;
-              });
-
-              setScoreByBlock(resultadosPorBloco);
-              setSelectedResultBlock(1); // Começa com bloco 1
-              setFinalTime(timeLeft);
-              setFinishModalVisible(true);
-              setFinish(true);
             } catch (error) {
               console.error("Erro ao salvar o resultado do quiz:", error);
             }
+
+            // Novo: cálculo por bloco
+            const blocosUnicos = [...new Set(questions.map((q) => q.bloco))];
+            const resultadosPorBloco: Record<number, number> = {};
+
+            blocosUnicos.forEach((bloco) => {
+              const questoesDoBloco = questions.filter((q) => q.bloco === bloco);
+              const acertosDoBloco = questoesDoBloco.filter((q) => {
+                const respostaUsuario = selectedAnswers[String(q.id)];
+                const correta = q.answers.find((a) => a.correct);
+                return respostaUsuario === correta?.id;
+              }).length;
+
+              const percentual = (acertosDoBloco / questoesDoBloco.length) * 100;
+              resultadosPorBloco[bloco] = percentual;
+            });
+
+            setScoreByBlock(resultadosPorBloco);
+            setSelectedResultBlock(1);
+            setFinalTime(timeLeft);
+            setFinishModalVisible(true);
+            setFinish(true);
           },
         },
       ],
     );
   };
-
 
   const handleRestartQuiz = () => {
     setSelectedAnswers({});
@@ -338,6 +261,8 @@ export function QuizFree() {
         .filter((question) => question.bloco === selectedBlock)
         .slice(0, 20)
       : [];
+
+  const { top } = useSafeAreaInsets();
 
   return (
     <View
@@ -408,6 +333,7 @@ export function QuizFree() {
                     blocoColor = theme.colors.primary;
                   }
 
+                  {/* Botões para alternar entre os blocos */ }
                   return (
                     <TouchableOpacity
                       key={bloco}
@@ -418,14 +344,20 @@ export function QuizFree() {
                         borderRadius: 8,
                         marginHorizontal: 5,
                         marginBottom: 5,
-                        borderWidth: selectedResultBlock === bloco ? 2 : 0,
+                        borderWidth: selectedResultBlock === bloco ? 1 : 0,
                         borderColor: selectedResultBlock === bloco ? "#000" : "transparent",
                       }}
                       onPress={() => setSelectedResultBlock(bloco)}
                     >
-                      <Text style={{ color: "white", fontWeight: "bold" }}>
-                        Bloco {bloco}
-                      </Text>
+                      <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Text style={{ color: "white", fontWeight: "bold", fontSize: 14 }}>
+                          Bloco&nbsp;
+                        </Text>
+                        <Text style={{ color: "white", fontWeight: "bold", fontSize: 14 }}>
+                          {bloco}
+                        </Text>
+                      </View>
+
                     </TouchableOpacity>
                   );
                 })}
@@ -516,7 +448,6 @@ export function QuizFree() {
                 </ModalButton>
               </View>
             </ModalContainer>
-
           </Modal>
 
           {!modalVisible && (
@@ -525,7 +456,7 @@ export function QuizFree() {
                 <MaterialIcons name="access-time" size={24} color="white" />
                 {!isReviewMode && <TimerText numberOfLines={1} ellipsizeMode="tail">{formatTime(timeLeft)}</TimerText>}
               </FixedTimerContainer>
-              {/* Botões para alternar entre os blocos */}
+
               <View
                 style={{
                   flexDirection: "row",
@@ -533,6 +464,7 @@ export function QuizFree() {
                   marginBottom: 20,
                 }}
               >
+                {/* Botões para alternar entre os blocos */}
                 {[1, 2, 3, 4].map((blockNumber) => (
                   <TouchableOpacity
                     key={blockNumber}
@@ -568,19 +500,20 @@ export function QuizFree() {
                 contentContainerStyle={ScrollContainer}
                 showsVerticalScrollIndicator={false}
               >
-                {filteredQuestions.map((questionData, questionIndex) => (
-                  <QuizAnac key={`questao-${questionData.id}-${questionIndex}`}>
-                    <Bloco />
+                {filteredQuestions.map((questionData, index) => (
+                  <QuizAnac key={questionData.id}>
+                    <Bloco>
+                      {/* BL {questionData.bloco} - (
+                      {questionData.materia.toUpperCase()}) */}
+                    </Bloco>
                     <Question
                       style={{
                         padding: 10,
                         marginHorizontal: 5,
                       }}
-                    >
-                      {`${questionIndex + 1}. ${questionData.question}`}
-                    </Question>
+                    >{`${index + 1}. ${questionData.question}`}</Question>
 
-                    {questionData.answers.map((answer, answerIndex) => {
+                    {questionData.answers.map((answer) => {
                       const selectedAnswerId = selectedAnswers[String(questionData.id)];
                       const isSelected = selectedAnswerId === answer.id;
                       const isCorrect = answer.correct;
@@ -589,11 +522,11 @@ export function QuizFree() {
 
                       if (isReviewMode) {
                         if (isSelected && isCorrect) {
-                          backgroundColor = theme.colors.primary; // acertou a selecionada
+                          backgroundColor = theme.colors.primary; // amarelo (selecionada e correta)
                         } else if (isSelected && !isCorrect) {
-                          backgroundColor = theme.colors.primary; // errou, ainda aparece marcada
+                          backgroundColor = theme.colors.primary; // selecionada errada (ainda em amarelo)
                         } else if (!isSelected && isCorrect) {
-                          backgroundColor = theme.colors.succes; // correta não marcada
+                          backgroundColor = theme.colors.succes; // resposta correta (verde)
                         }
                       } else {
                         backgroundColor = isSelected ? theme.colors.primary : "gray";
@@ -601,7 +534,7 @@ export function QuizFree() {
 
                       return (
                         <TouchableOpacity
-                          key={`resposta-${questionData.id}-${answer.id}-${answerIndex}`}
+                          key={`${questionData.id}-${answer.id}`}
                           onPress={() => handleSelectAnswer(questionData.id, answer.id)}
                           style={{
                             padding: 10,
@@ -617,8 +550,8 @@ export function QuizFree() {
                           </AnswerText>
                         </TouchableOpacity>
                       );
-                    })}
-
+                    })
+                    }
                     {isReviewMode && (
                       <>
                         <Text
@@ -648,7 +581,6 @@ export function QuizFree() {
 
                   </QuizAnac>
                 ))}
-
               </ScrollView>
 
               {!isReviewMode ? (

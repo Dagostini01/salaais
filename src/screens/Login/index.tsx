@@ -1,11 +1,15 @@
 import React, { useContext } from "react";
+
 import { ActivityIndicator, Platform } from "react-native";
-import { RFValue } from "react-native-responsive-fontsize";
+
 import AppleSvg from "../../assets/apple.svg";
 import GoogleSvg from "../../assets/google.svg";
 import LogoSvg from "../../assets/logo-amarelo.svg";
+
+import { RFValue } from "react-native-responsive-fontsize";
 import { SignInSocialButton } from "../../components/SignInSocialButton";
 import { AuthContext } from "../../contexts/auth";
+
 import {
   Container,
   Footer,
@@ -17,22 +21,27 @@ import {
 } from "./styles";
 
 export function SignIn() {
+
   const { signInWithGoogle, signInWithApple, loading } =
     useContext(AuthContext);
 
   return (
     <Container>
+
       {loading && (
         <LoadingContainer>
           <ActivityIndicator size="large" color="#fff" />
         </LoadingContainer>
       )}
+
       <Header>
         <TitleWrapper>
           <LogoSvg width={RFValue(160)} height={RFValue(98)} />
         </TitleWrapper>
+
         <SignInTitle>Faça seu login com uma das contas abaixo</SignInTitle>
       </Header>
+
       <Footer>
         <FooterWrapper>
           <SignInSocialButton
@@ -49,6 +58,7 @@ export function SignIn() {
           )}
         </FooterWrapper>
       </Footer>
+      
     </Container>
   );
 }
