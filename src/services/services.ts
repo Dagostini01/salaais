@@ -184,8 +184,11 @@ export async function gerarProvaPorMateria(
     if (!response.ok) {
       throw new Error(`Erro ao gerar prova: ${response.statusText}`);
     }
-    const { data } = await response.json();
+    const responseJson = await response.json();
+    console.log("QUESTÕES RECEBIDAS:", responseJson.data);
+    const { data } = responseJson;
     return data;
+
   } catch (error) {
     console.error("Erro ao gerar prova por todas as matérias:", error);
     throw new Error("Erro ao gerar prova. Tente novamente mais tarde.");

@@ -84,6 +84,7 @@ export function Materias() {
         id: question.id,
         question: question.questao_texto,
         materia: question.materia,
+        descricao: question.descricao,
         answers: [
           {
             id: "a",
@@ -108,6 +109,7 @@ export function Materias() {
         ],
       }));
       setQuestions(formattedQuestions);
+      console.log("QUESTÕES FORMATADAS:", formattedQuestions);
     } catch (error) {
       Alert.alert("Erro ao carregar as questões:");
     } finally {
@@ -541,17 +543,32 @@ export function Materias() {
                   })}
 
                 {isReviewMode && (
-                  <ReviewButton
-                    key={`revisao-${questionData.id}`}
-                    questaoKey={`CMS-${questionData.id}`}
-                    alternativaAssinalada={selectedAnswers[String(questionData.id)] ?? ""}
-                    acertouQuestao={
-                      questionData.answers.find((a) => a.correct)?.id ===
-                      selectedAnswers[String(questionData.id)]
-                    }
-                    token={user?.accessToken ?? ""}
-                  />
+                  <>
+                    <Text
+                      key={`justificativa-${questionData.id}`}
+                      style={{
+                        marginTop: 10,
+                        color: theme.colors.text,
+                        fontStyle: "italic",
+                        fontSize: 14,
+                      }}
+                    >
+                      {questionData.descricao || "Nenhuma justificativa disponível."}
+                    </Text>
+
+                    <ReviewButton
+                      key={`revisao-${questionData.id}`}
+                      questaoKey={`CMS-${questionData.id}`}
+                      alternativaAssinalada={selectedAnswers[String(questionData.id)] ?? ""}
+                      acertouQuestao={
+                        questionData.answers.find((a) => a.correct)?.id ===
+                        selectedAnswers[String(questionData.id)]
+                      }
+                      token={user?.accessToken ?? ""}
+                    />
+                  </>
                 )}
+
 
               </QuizAnac>
             ))}

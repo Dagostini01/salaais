@@ -80,6 +80,7 @@ export function Blocos() {
           question: question.questao_texto,
           bloco: question.bloco,
           materia: question.materia,
+          descricao: question.descricao,
           answers: [
             {
               id: "a",
@@ -428,17 +429,32 @@ export function Blocos() {
                     })}
 
                     {isReviewMode && (
-                      <ReviewButton
-                        key={`revisao-${questionData.id}`}
-                        questaoKey={`CMS-${questionData.id}`}
-                        alternativaAssinalada={selectedAnswers[String(questionData.id)] ?? ""}
-                        acertouQuestao={
-                          questionData.answers.find((a) => a.correct)?.id ===
-                          selectedAnswers[String(questionData.id)]
-                        }
-                        token={user?.accessToken ?? ""}
-                      />
+                      <>
+                        <Text
+                          key={`justificativa-${questionData.id}`}
+                          style={{
+                            marginTop: 10,
+                            color: theme.colors.text,
+                            fontStyle: "italic",
+                            fontSize: 14,
+                          }}
+                        >
+                          {questionData.descricao || "Nenhuma justificativa disponível."}
+                        </Text>
+
+                        <ReviewButton
+                          key={`revisao-${questionData.id}`}
+                          questaoKey={`CMS-${questionData.id}`}
+                          alternativaAssinalada={selectedAnswers[String(questionData.id)] ?? ""}
+                          acertouQuestao={
+                            questionData.answers.find((a) => a.correct)?.id ===
+                            selectedAnswers[String(questionData.id)]
+                          }
+                          token={user?.accessToken ?? ""}
+                        />
+                      </>
                     )}
+
 
 
                   </QuizAnac>

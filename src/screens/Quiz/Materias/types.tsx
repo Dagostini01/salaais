@@ -10,4 +10,5 @@ export interface Question {
   question: string;
   materia: string;
   answers: Answer[];
+  descricao?: string;
 }

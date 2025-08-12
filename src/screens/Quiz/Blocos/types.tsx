@@ -10,6 +10,7 @@ export interface Question {
   bloco: number;
   materia: string;
   answers: Answer[];
+  descricao?: string; // Optional field for question description
 }
 
 export interface QuizData {
