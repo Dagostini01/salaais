@@ -2,10 +2,10 @@
   "expo": {
     "name": "Sala AIS",
     "slug": "salaais",
-    "sheme:": "salaais",
-    "version": "1.2.0",
+    "scheme": "salaais",
+    "version": "1.2.1",
     "orientation": "portrait",
-    "icon": "./src/assets/logo-amarelo.jpg",
+    "icon": "./src/assets/logo-amarelo.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./src/assets/logo-amarelo-removebg.png",
@@ -13,7 +13,7 @@
       "backgroundColor": "#fbd434"
     },
     "ios": {
-      "buildNumber": "1.2.0",
+      "buildNumber": "1.2.1",
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "bundleIdentifier": "com.sala.ais",
@@ -39,7 +39,18 @@
     },
     "plugins": [
       "expo-apple-authentication",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0"
+          }
+        }
+      ],
+      "expo-web-browser"
     ]
   }
 }
