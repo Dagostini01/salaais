@@ -11,7 +11,7 @@
     "format": "yarn biome format --write ./src ",
     "lint": "yarn biome lint --write ./src",
     "android:release": "npx react-native run-android --variant=release",
-    "aab": "npx react-native build-android --mode=release"
+    "aab": "cd android && ./gradlew bundleRelease"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.1.2",
