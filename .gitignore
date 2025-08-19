@@ -38,3 +38,6 @@ yarn-error.*
 .yarn/
 /android
 /ios
+
+# AAB
+*.aab
