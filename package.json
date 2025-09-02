@@ -10,7 +10,7 @@
     "web": "expo start --web",
     "format": "yarn biome format --write ./src ",
     "lint": "yarn biome lint --write ./src",
-    "android:release": "npx react-native run-android --variant=release",
+    "android:release": "expo run:android --variant release",
     "aab": "cd android && ./gradlew bundleRelease && cd .. && mv android/app/build/outputs/bundle/release/app-release.aab ./salaais-release.aab && echo '✅ AAB movido para raiz: salaais-release.aab'",
     "sha1": "keytool -list -v -keystore sala-ais.keystore -alias sala-ais -storepass salaais -keypass salaais"
   },
