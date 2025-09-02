@@ -1,5 +1,5 @@
 import * as Apple from "expo-apple-authentication";
-import * as Google from "expo-auth-session/providers/google";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -53,19 +53,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserType>(undefined);
   const [credentials, setCredentials] = useState<AppleCredentials>(undefined);
 
-  const config = {
-    webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
-    iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
-    androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
-  };
-  const [_, response, promptAsync] = Google.useAuthRequest(config);
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
+      iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
+      offlineAccess: true,
+      hostedDomain: "",
+      forceCodeForRefreshToken: true,
+    });
+  }, []);
 
   const getPermissionUser = async (token: string) => {
     const { permissoes } = await dataUser(token);
     const { key: permission } = permissoes.find(
       (item: any) =>
         item.ativo === true &&
-        ["BRONZE", "PRATA", "OURO", "PREMIUM"].includes(item.key),
+        ["BRONZE", "PRATA", "OURO", "PREMIUM"].includes(item.key)
     ) || { key: "COMUM" };
     return permission;
   };
@@ -128,7 +131,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (err) {
       console.error(
         "Error signing in with Apple in completeSignInWithApple",
-        err,
+        err
       );
     }
   };
@@ -153,7 +156,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const validateGoogleToken = async (token: string) => {
     try {
       const res = await fetch(
-        `https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`,
+        `https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`
       );
       if (res.ok) {
         const data = await res.json();
@@ -175,7 +178,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     async (
       token: string | undefined,
       accessToken: string,
-      permission: string,
+      permission: string
     ) => {
       if (!token) return;
       try {
@@ -197,40 +200,59 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(userItem);
         SecureStore.setItem("userGoogle", JSON.stringify(userItem));
       } catch (err) {
-        console.log("error", err);
+        console.error("error", err);
       } finally {
         setLoading(false);
       }
     },
-    [],
+    []
   );
-
-  const handleToken = useCallback(async () => {
-    if (response?.type === "success") {
-      setLoading(true);
-      const { authentication } = response;
-      const token = authentication?.accessToken;
-      if (token != null) {
-        const { access_token: accessToken } = await authLogin(token);
-        const permission = await getPermissionUser(accessToken);
-        await getUserProfile(token, accessToken, permission);
-      }
-      setLoading(false);
-    }
-  }, [getUserProfile, response, authLogin]);
-
-  // "response" nas dependência para que para verificação do token
-  useEffect(() => {
-    handleToken();
-  }, [response]);
 
   const signInWithGoogle = async () => {
     try {
-      await promptAsync();
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Erro ao fazer login com Google: ${error.message}`);
+      setLoading(true);
+
+      if (Platform.OS === "android") {
+        await GoogleSignin.hasPlayServices({
+          showPlayServicesUpdateDialog: true,
+        });
       }
+
+      const userInfo = await GoogleSignin.signIn();
+
+      if (userInfo.data) {
+        const tokens = await GoogleSignin.getTokens();
+        const accessToken = tokens.accessToken;
+
+        if (accessToken) {
+          const { access_token: backendAccessToken } = await authLogin(
+            accessToken
+          );
+          const permission = await getPermissionUser(backendAccessToken);
+          await getUserProfile(accessToken, backendAccessToken, permission);
+        }
+      }
+    } catch (error: any) {
+      console.error("Erro ao fazer login com Google:", error);
+
+      if (error.code === "SIGN_IN_CANCELLED") {
+        console.error("Usuário cancelou o login");
+        return;
+      } else if (error.code === "IN_PROGRESS") {
+        console.error("Login já está em progresso");
+        return;
+      } else if (error.code === "PLAY_SERVICES_NOT_AVAILABLE") {
+        console.error("Google Play Services não disponível");
+        return;
+      }
+
+      throw new Error(
+        `Erro ao fazer login com Google: ${
+          error.message || "Erro desconhecido"
+        }`
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -252,6 +274,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
+    try {
+      await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
+    } catch (error) {
+      console.error(
+        "Usuário não estava logado no Google ou erro no sign-out:",
+        error
+      );
+    }
+
     await SecureStore.deleteItemAsync("userGoogle");
     await SecureStore.deleteItemAsync("userApple");
     setUser(undefined);
