@@ -18,13 +18,6 @@ export const TitleWrapper = styled.View`
   align-items: center;
 `;
 
-export const Title = styled.Text`
-  color: ${({ theme }) => theme.colors.shape};
-  font-size: ${RFValue(30)}px;
-  text-align: center;
-  margin-top: 45px;
-`;
-
 export const SignInTitle = styled.Text`
   color: ${({ theme }) => theme.colors.shape};
   font-size: ${RFValue(16)}px;
