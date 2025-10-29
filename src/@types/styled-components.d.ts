@@ -17,6 +17,7 @@ declare module "styled-components/native" {
       text_dark: string;
       background: string;
       dark: string;
+      white: string;
     };
   }
 }
