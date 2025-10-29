@@ -1,15 +1,11 @@
-import React, { useCallback, useContext, useEffect } from "react";
-import { AuthContext } from "../../contexts/auth";
-
-import { useNavigation } from "@react-navigation/native";
-import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
-
-
+import React, { useCallback, useContext, useMemo } from "react";
 import { TouchableOpacity, View } from "react-native";
+import { AuthContext } from "../../contexts/auth";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { Card } from "../../components/Card";
 import { CardImage } from "../../components/CardImage";
 import { CirclePercentage } from "../../components/CirclePercentage";
-
 import {
   CardsTest,
   Container,
@@ -21,17 +17,17 @@ import {
   NameCardTest,
   NameTest,
   Photo,
-  TestAnac,
   TextViewPlano,
   TitleViewPlano,
-  User,
   UserGreeting,
   UserInfo,
   UserName,
   ViewPlano,
+  UserInfoContent,
 } from "./styles";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import ANAC_LOGO from "../../assets/anac-logo.png";
 
-// Define os tipos de navegação
 type BottomTabParamList = {
   Materias: undefined;
   SignIn: undefined;
@@ -45,81 +41,124 @@ type BottomTabParamList = {
 
 type NavigationProps = BottomTabNavigationProp<BottomTabParamList, "Principal">;
 
+const PERMISSION_COMUM = "COMUM";
+
 export function Principal() {
   const navigation = useNavigation<NavigationProps>();
   const { user, setUser, getPermissionUser } = useContext(AuthContext);
+  const { top, bottom } = useSafeAreaInsets();
 
-  const getUser = useCallback(async () => {
-    if (user?.accessToken !== undefined) {
-      const permission = await getPermissionUser(user.accessToken);
-      setUser({ ...user, permission });
-    }
-  }, []);
+  const isCommon = useMemo(
+    () => user?.permission === PERMISSION_COMUM,
+    [user?.permission]
+  );
 
-  useEffect(() => {
-    getUser();
-  }, []);
+  const navigateToSettings = useCallback(() => {
+    navigation.navigate("Configuracoes");
+  }, [navigation]);
+
+  const navigateToAnac = useCallback(() => {
+    navigation.navigate(isCommon ? "AnacFree" : "Anac");
+  }, [navigation, isCommon]);
+
+  const navigateToBlocos = useCallback(() => {
+    navigation.navigate("Blocos");
+  }, [navigation]);
+
+  const navigateToMaterias = useCallback(() => {
+    navigation.navigate("Materias");
+  }, [navigation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      const fetchPermission = async () => {
+        if (!user?.accessToken) return;
+        try {
+          const permission = await getPermissionUser(user.accessToken);
+          if (!active) return;
+          if (permission && permission !== user.permission) {
+            setUser({ ...user, permission });
+          }
+        } catch (err) {
+          console.error("error", err);
+        }
+      };
+      fetchPermission();
+      return () => {
+        active = false;
+      };
+    }, [user?.accessToken, user?.permission, getPermissionUser, setUser, user])
+  );
 
   if (user == null) return null;
 
   return (
-    <Container>
-
-      <Header>
+    <>
+      <Header style={{ paddingTop: top }}>
         <UserInfo>
-          <User>
-            <Photo source={user.photoUrl ? { uri: user.photoUrl } : require("../../assets/user.png")} />
-            <View style={{ flex: 1 }}>
+          <UserInfoContent>
+            <Photo
+              source={
+                user.photoUrl
+                  ? { uri: user.photoUrl }
+                  : require("../../assets/user.png")
+              }
+            />
+            <View>
               <UserGreeting>Olá {user.name}!</UserGreeting>
               <UserName>Pronto para decolar?</UserName>
             </View>
-          </User>
-
-          <TouchableOpacity onPress={() => navigation.navigate("Configuracoes")}>
+          </UserInfoContent>
+          <TouchableOpacity onPress={navigateToSettings}>
             <Icon name="settings" />
           </TouchableOpacity>
         </UserInfo>
       </Header>
+      <Container>
+        <CardsTest>
+          <NameCardTest>Realizar Simulado</NameCardTest>
+          <HighlightCards>
+            <CardImage onPress={navigateToAnac} imageUrl={ANAC_LOGO} />
+            {!isCommon && (
+              <>
+                <Card
+                  onPress={navigateToBlocos}
+                  title="Blocos"
+                  iconName="book"
+                />
+                <Card
+                  onPress={navigateToMaterias}
+                  title="Matérias"
+                  iconName="menu-book"
+                />
+              </>
+            )}
+          </HighlightCards>
+        </CardsTest>
 
-      <CardsTest>
-        <NameCardTest>Realizar Simulado</NameCardTest>
-        <HighlightCards>
-          <CardImage onPress={() => user.permission === "COMUM" ? navigation.navigate("AnacFree") : navigation.navigate("Anac")}imageUrl={require("../../assets/anac-logo.png")}/>
-          
-          {user.permission !== "COMUM" && (
-            <>
-              <Card
-                onPress={() => navigation.navigate("Blocos")}
-                title="Blocos"
-                iconName="book"
-              />
-              <Card
-                onPress={() => navigation.navigate("Materias")}
-                title="Matérias"
-                iconName="menu-book"
-              />
-            </>
-          )}
-          
-        </HighlightCards>
-      </CardsTest>
+        <LastTest>
+          <CirclePercentage />
+          <View>
+            <NameTest>Simulado ANAC</NameTest>
+            <LastNameTest>Último Simulado ANAC</LastNameTest>
+          </View>
+        </LastTest>
 
-      <LastTest>
-        <CirclePercentage />
-        <TestAnac>
-          <NameTest>Simulado ANAC</NameTest>
-          <LastNameTest>Último Simulado ANAC</LastNameTest>
-        </TestAnac>
-      </LastTest>
-
-      {user.permission === "COMUM" && (
-        <ViewPlano>
-          <TitleViewPlano>Você está na versão de demonstração.</TitleViewPlano>
-          <TextViewPlano>Com ela, você pode realizar uma prova modelo gratuitamente. Para liberar todos os recursos e se preparar com eficiência para a ANAC, adquira um plano de estudos clicando no ícone de configurações e veja sua conta.</TextViewPlano>
-        </ViewPlano>
-      )}
-
-    </Container>
-
+        {isCommon && (
+          <ViewPlano style={{ marginBottom: bottom }}>
+            <TitleViewPlano>
+              Você está na versão de demonstração.
+            </TitleViewPlano>
+            <TextViewPlano>
+              Com ela, você pode realizar uma prova modelo gratuitamente. Para
+              liberar todos os recursos e se preparar com eficiência para a
+              ANAC, adquira um plano de estudos clicando no ícone de
+              configurações e veja sua conta.
+            </TextViewPlano>
+          </ViewPlano>
+        )}
+      </Container>
+    </>
   );
 }
