@@ -24,6 +24,9 @@ import {
   UserName,
   ViewPlano,
   UserInfoContent,
+  SubscriptionInfo,
+  SubscriptionInfoText,
+  SubscriptionInfoTextTime,
 } from "./styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ANAC_LOGO from "../../assets/anac-logo.png";
@@ -114,6 +117,12 @@ export function Principal() {
             <Icon name="settings" />
           </TouchableOpacity>
         </UserInfo>
+        <SubscriptionInfo>
+          <SubscriptionInfoText>CMS {user.permission}</SubscriptionInfoText>
+          <SubscriptionInfoTextTime>
+            Seu acesso encerra em {`${12}`} dias
+          </SubscriptionInfoTextTime>
+        </SubscriptionInfo>
       </Header>
       <Container>
         <CardsTest>

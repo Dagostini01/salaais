@@ -27,6 +27,23 @@ export const UserInfoContent = styled.View`
   gap: 12px;
 `;
 
+export const SubscriptionInfo = styled.View`
+  padding-horizontal: 16px;
+  margin-top: 16px;
+`;
+
+export const SubscriptionInfoText = styled.Text`
+  color: ${({ theme }) => theme.colors.text_dark};
+  font-size: ${Platform.OS === "ios" ? "20px" : "18px"};
+  font-weight: bold;
+`;
+
+export const SubscriptionInfoTextTime = styled.Text`
+  color: ${({ theme }) => theme.colors.text_dark};
+  font-size: ${Platform.OS === "ios" ? "14px" : "12px"};
+  font-weight: 300;
+`;
+
 export const Photo = styled.Image`
   align-self: center;
   width: 52px;
