@@ -11,61 +11,102 @@ export const Container = styled.View`
 export const Header = styled.View`
   background-color: ${({ theme }) => theme.colors.primary};
   justify-content: center;
-  padding-bottom: 16px;
+  padding-bottom: 20px;
 `;
 
 export const UserInfo = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding-horizontal: 16px;
+  padding-horizontal: 20px;
+  margin-bottom: 16px;
 `;
 
 export const UserInfoContent = styled.View`
   flex-direction: row;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  flex: 1;
 `;
 
 export const SubscriptionInfo = styled.View`
-  padding-horizontal: 16px;
-  margin-top: 16px;
+  margin-horizontal: 20px;
+  padding: 16px;
+  background-color: ${({ theme }) => theme.colors.shape};
+  border-radius: 12px;
+  shadow-color: ${({ theme }) => theme.colors.dark};
+  shadow-offset: 0px 2px;
+  shadow-opacity: 0.1;
+  shadow-radius: 4px;
+  elevation: 3;
+`;
+
+export const SubscriptionInfoRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const SubscriptionInfoLeft = styled.View`
+  flex: 1;
 `;
 
 export const SubscriptionInfoText = styled.Text`
   color: ${({ theme }) => theme.colors.text_dark};
-  font-size: ${Platform.OS === "ios" ? "20px" : "18px"};
-  font-weight: bold;
+  font-size: ${Platform.OS === "ios" ? "16px" : "14px"};
+  font-weight: 600;
+  letter-spacing: 0.3px;
 `;
 
 export const SubscriptionInfoTextTime = styled.Text`
-  color: ${({ theme }) => theme.colors.text_dark};
-  font-size: ${Platform.OS === "ios" ? "14px" : "12px"};
-  font-weight: 300;
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${Platform.OS === "ios" ? "13px" : "11px"};
+  font-weight: 400;
+  margin-top: 4px;
+`;
+
+export const SubscriptionBadge = styled.View`
+  background-color: ${({ theme }) => theme.colors.secondary_light};
+  padding-horizontal: 10px;
+  padding-vertical: 6px;
+  border-radius: 8px;
+`;
+
+export const SubscriptionBadgeText = styled.Text`
+  color: ${({ theme }) => theme.colors.secondary};
+  font-size: ${Platform.OS === "ios" ? "12px" : "10px"};
+  font-weight: 700;
+  letter-spacing: 0.5px;
 `;
 
 export const Photo = styled.Image`
   align-self: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 8px;
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  border-width: 2px;
+  border-color: ${({ theme }) => theme.colors.shape};
 `;
 
 export const UserGreeting = styled.Text`
   color: ${({ theme }) => theme.colors.text_dark};
-  font-weight: 500;
+  font-weight: 700;
   font-size: ${Platform.OS === "ios" ? "22px" : "20px"};
+  letter-spacing: 0.2px;
 `;
 
 export const UserName = styled.Text`
   color: ${({ theme }) => theme.colors.text_dark};
-  font-size: ${Platform.OS === "ios" ? "18px" : "16px"};
+  font-size: ${Platform.OS === "ios" ? "15px" : "13px"};
+  font-weight: 400;
+  opacity: 0.8;
+  margin-top: 2px;
 `;
 
 export const Icon = styled(Feather)`
-  color: ${({ theme }) => theme.colors.attention};
-  font-size: ${Platform.OS === "ios" ? "28px" : "24px"};
-  padding-right: 16px;
+  color: ${({ theme }) => theme.colors.text_dark};
+  font-size: ${Platform.OS === "ios" ? "26px" : "24px"};
+  opacity: 0.7;
 `;
 
 export const CardsTest = styled.View`

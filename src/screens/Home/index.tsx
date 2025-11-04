@@ -27,6 +27,10 @@ import {
   SubscriptionInfo,
   SubscriptionInfoText,
   SubscriptionInfoTextTime,
+  SubscriptionInfoRow,
+  SubscriptionInfoLeft,
+  SubscriptionBadge,
+  SubscriptionBadgeText,
 } from "./styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ANAC_LOGO from "../../assets/anac-logo.png";
@@ -98,7 +102,7 @@ export function Principal() {
 
   return (
     <>
-      <Header style={{ paddingTop: top }}>
+      <Header style={{ paddingTop: top * 1.25 }}>
         <UserInfo>
           <UserInfoContent>
             <Photo
@@ -118,10 +122,19 @@ export function Principal() {
           </TouchableOpacity>
         </UserInfo>
         <SubscriptionInfo>
-          <SubscriptionInfoText>CMS {user.permission}</SubscriptionInfoText>
-          <SubscriptionInfoTextTime>
-            Seu acesso encerra em {`${12}`} dias
-          </SubscriptionInfoTextTime>
+          <SubscriptionInfoRow>
+            <SubscriptionInfoLeft>
+              <SubscriptionInfoText>Plano Atual</SubscriptionInfoText>
+              <SubscriptionInfoTextTime>
+                Seu acesso encerra em {`${12}`} dias
+              </SubscriptionInfoTextTime>
+            </SubscriptionInfoLeft>
+            <SubscriptionBadge>
+              <SubscriptionBadgeText>
+                CMS {user.permission}
+              </SubscriptionBadgeText>
+            </SubscriptionBadge>
+          </SubscriptionInfoRow>
         </SubscriptionInfo>
       </Header>
       <Container>
