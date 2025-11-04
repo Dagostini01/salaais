@@ -6,6 +6,7 @@ import { PaymentBox } from "../../components/PaymentBox";
 import { AuthContext } from "../../contexts/auth";
 import theme from "../../global/global/theme";
 import { paymentSheetParams } from "../../services";
+import { PlanType } from "../../utils/enums";
 import {
   HighlightPayments,
   LoadingContainer,
@@ -18,9 +19,7 @@ export function Planos() {
   const [loading, setLoading] = useState(false);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
-  const initializePaymentSheet = async (
-    plan: "BRONZE" | "PRATA" | "OURO" | "PREMIUM"
-  ) => {
+  const initializePaymentSheet = async (plan: PlanType) => {
     setLoading(true);
     const { customer, ephemeralKey, paymentIntent } = await paymentSheetParams(
       user?.accessToken ?? "",
@@ -71,7 +70,7 @@ export function Planos() {
           <ButtonPayment
             icon="local-atm"
             text="R$93,90 - Contratar"
-            onPress={() => initializePaymentSheet("PREMIUM")}
+            onPress={() => initializePaymentSheet(PlanType.PREMIUM)}
           />
         </PaymentBox>
 
@@ -87,7 +86,7 @@ export function Planos() {
           <ButtonPayment
             icon="local-atm"
             text="R$73,90 - Contratar"
-            onPress={() => initializePaymentSheet("OURO")}
+            onPress={() => initializePaymentSheet(PlanType.OURO)}
           />
         </PaymentBox>
 
@@ -99,7 +98,7 @@ export function Planos() {
           <ButtonPayment
             icon="local-atm"
             text="R$53,90 - Contratar"
-            onPress={() => initializePaymentSheet("PRATA")}
+            onPress={() => initializePaymentSheet(PlanType.PRATA)}
           />
         </PaymentBox>
 
@@ -115,7 +114,7 @@ export function Planos() {
           <ButtonPayment
             icon="local-atm"
             text="R$33,50 - Contratar"
-            onPress={() => initializePaymentSheet("BRONZE")}
+            onPress={() => initializePaymentSheet(PlanType.BRONZE)}
           />
         </PaymentBox>
       </HighlightPayments>

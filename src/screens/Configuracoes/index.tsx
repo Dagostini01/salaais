@@ -9,6 +9,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { PermissionType } from "../../utils/enums";
 import {
   Avatar,
   Container,
@@ -135,7 +136,7 @@ export const Configuracoes = () => {
   ];
 
   const getPermissionLabel = (permission?: string) => {
-    if (!permission || permission === "COMUM") {
+    if (!permission || permission === PermissionType.COMUM) {
       return "Usuário Comum";
     }
     return `Plano ${permission}`;
