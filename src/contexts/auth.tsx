@@ -12,6 +12,7 @@ import {
 import { Platform } from "react-native";
 import { authLogin } from "../services/";
 import { dataUser, loginApple } from "../services/services";
+import { PlanType, PermissionType } from "../utils/enums";
 
 type UserType =
   | {
@@ -65,11 +66,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const getPermissionUser = async (token: string) => {
     const { permissoes } = await dataUser(token);
+    const validPlans = [
+      PlanType.BRONZE,
+      PlanType.PRATA,
+      PlanType.OURO,
+      PlanType.PREMIUM,
+    ];
     const { key: permission } = permissoes.find(
-      (item: any) =>
-        item.ativo === true &&
-        ["BRONZE", "PRATA", "OURO", "PREMIUM"].includes(item.key)
-    ) || { key: "COMUM" };
+      (item: { ativo: boolean; key: string }) =>
+        item.ativo === true && validPlans.includes(item.key as PlanType)
+    ) || { key: PermissionType.COMUM };
     return permission;
   };
 
@@ -93,7 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const permission = await getPermissionUser(user.token);
       setUser({
         id: user.id_usuario ?? 0,
-        token: credential.user ?? "",
+        token: user.token ?? "",
         email: user?.email,
         name: user.nome,
         photoUrl: undefined,
@@ -274,15 +280,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    try {
-      await GoogleSignin.revokeAccess();
-      await GoogleSignin.signOut();
-    } catch (error) {
-      console.error(
-        "Usuário não estava logado no Google ou erro no sign-out:",
-        error
-      );
-    }
+    GoogleSignin.revokeAccess().catch(() => {});
+    GoogleSignin.signOut().catch(() => {});
 
     await SecureStore.deleteItemAsync("userGoogle");
     await SecureStore.deleteItemAsync("userApple");
