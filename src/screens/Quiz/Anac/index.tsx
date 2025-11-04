@@ -3,37 +3,52 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 import React, { useContext, useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, Alert, Modal, ScrollView } from "react-native";
 import { CircularProgress } from "react-native-circular-progress";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 import {
+  AnswerButton,
+  AnswersContainer,
   AnswerText,
-  Bloco,
+  BlockButton,
+  BlockButtonText,
+  BlocksContainer,
+  CircularProgressContainer,
+  CircularProgressText,
   FinishButton,
   FinishButtonText,
   FixedTimerContainer,
   HeaderQuiz,
+  JustificationContainer,
+  JustificationText,
   LoadingContainer,
   LoadingContent,
   LoadingSubtext,
   LoadingText,
   ModalButton,
   ModalButtonCancel,
+  ModalButtonsContainer,
   ModalButtonText,
   ModalButtonTextCancel,
+  ModalCard,
   ModalContainer,
   ModalText,
+  ProgressBarContainer,
   Question,
+  QuestionContainer,
   QuizAnac,
+  ResultActionButton,
+  ResultActionButtonText,
+  ResultActionsContainer,
+  ResultBlockButton,
+  ResultBlockText,
+  ResultBlocksContainer,
+  ResultModalCard,
+  ResultModalContainer,
+  ResultModalContent,
+  ResultModalScroll,
+  ResultModalTitle,
+  ScreenContainer,
   ScrollContainer,
   TimerText,
 } from "./styles";
@@ -71,13 +86,13 @@ export function Anac() {
   const [finish, setFinish] = useState(false);
   const [selectedResultBlock, setSelectedResultBlock] = useState(1);
   const [scoreByBlock, setScoreByBlock] = useState<Record<number, number>>({});
+  const [quizStarted, setQuizStarted] = useState(false);
   const navigation = useNavigation<NavigationProps>();
 
   const initialTime = 7200;
   const isCommon = user?.permission === PermissionType.COMUM;
 
   useEffect(() => {
-    console.log("isCommons", isCommon);
     async function fetchQuestions() {
       try {
         let quizData: {
@@ -151,7 +166,9 @@ export function Anac() {
 
   const handleStartQuiz = () => {
     setModalVisible(false);
-    setSelectedBlock(1); // Inicia o quiz no Bloco 1
+    setSelectedBlock(1);
+    setQuizStarted(true);
+    setTimeLeft(initialTime);
   };
 
   const handleSelectAnswer = (questionId: number, answerId: string) => {
@@ -197,7 +214,6 @@ export function Anac() {
               console.error("Erro ao salvar o resultado do quiz:", error);
             }
 
-            // Novo: cálculo por bloco
             const blocosUnicos = [...new Set(questions.map((q) => q.bloco))];
             const resultadosPorBloco: Record<number, number> = {};
 
@@ -232,8 +248,10 @@ export function Anac() {
     setTimeLeft(initialTime);
     setFinishModalVisible(false);
     setIsReviewMode(false);
-    setSelectedBlock(1); // Reinicia no Bloco 1
+    setSelectedBlock(1);
     setFinish(false);
+    setQuizStarted(false);
+    setModalVisible(true);
   };
 
   const handleReviewQuiz = () => {
@@ -269,13 +287,15 @@ export function Anac() {
 
   useEffect(() => {
     if (isReviewMode) return;
+    if (!quizStarted) return;
+    if (modalVisible) return;
     if (!finish) {
       const timer = setInterval(() => {
         setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [isReviewMode, finish]);
+  }, [isReviewMode, finish, modalVisible, quizStarted]);
 
   useEffect(() => {
     if (timeLeft === 0 && !isReviewMode) {
@@ -298,14 +318,7 @@ export function Anac() {
   const { top } = useSafeAreaInsets();
 
   return (
-    <View
-      style={{
-        flex: 1,
-        paddingVertical: top,
-        paddingHorizontal: 20,
-        backgroundColor: theme.colors.background,
-      }}
-    >
+    <ScreenContainer paddingTop={top}>
       {isLoading ? (
         <LoadingContainer>
           <LoadingContent>
@@ -316,167 +329,106 @@ export function Anac() {
         </LoadingContainer>
       ) : (
         <>
-          <Modal
-            visible={modalVisible}
-            animationType="slide"
-            transparent={true}
-          >
+          <Modal visible={modalVisible} animationType="fade" transparent={true}>
             <ModalContainer>
-              <ModalText>Deseja iniciar o simulado ANAC?</ModalText>
-              <ModalButton onPress={handleStartQuiz}>
-                <ModalButtonText>Sim</ModalButtonText>
-              </ModalButton>
-              <ModalButtonCancel onPress={handleCancelQuiz}>
-                <ModalButtonTextCancel>Não</ModalButtonTextCancel>
-              </ModalButtonCancel>
+              <ModalCard>
+                <ModalText>Deseja iniciar o simulado ANAC?</ModalText>
+                <ModalButtonsContainer>
+                  <ModalButton onPress={handleStartQuiz}>
+                    <ModalButtonText>Sim</ModalButtonText>
+                  </ModalButton>
+                  <ModalButtonCancel onPress={handleCancelQuiz}>
+                    <ModalButtonTextCancel>Não</ModalButtonTextCancel>
+                  </ModalButtonCancel>
+                </ModalButtonsContainer>
+              </ModalCard>
             </ModalContainer>
           </Modal>
 
           <Modal
             visible={finishModalVisible}
-            animationType="slide"
+            animationType="fade"
             transparent={true}
           >
-            <ModalContainer style={{ alignItems: "center" }}>
-              <Text
-                style={{
-                  fontSize: 16,
-                  marginBottom: 10,
-                  width: "100%",
-                  textAlign: "center",
-                }}
-              >
-                Resultado por bloco:
-              </Text>
+            <ResultModalContainer>
+              <ResultModalCard>
+                <ResultModalScroll>
+                  <ResultModalContent>
+                    <ResultModalTitle>Resultado por Bloco</ResultModalTitle>
+                    <ResultBlocksContainer>
+                      {[1, 2, 3, 4].map((bloco) => {
+                        const nota = scoreByBlock[bloco] ?? 0;
+                        let blocoColor = theme.colors.attention;
 
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  flexWrap: "wrap",
-                  marginBottom: 20,
-                }}
-              >
-                {[1, 2, 3, 4].map((bloco) => {
-                  const nota = scoreByBlock[bloco] ?? 0;
-                  let blocoColor = theme.colors.attention; // vermelho por padrão
+                        if (nota >= 70) {
+                          blocoColor = theme.colors.succes;
+                        } else if (nota >= 30 && nota < 70) {
+                          blocoColor = theme.colors.primary;
+                        }
 
-                  if (nota >= 70) {
-                    blocoColor = theme.colors.succes;
-                  } else if (nota >= 30 && nota < 70) {
-                    blocoColor = theme.colors.primary;
-                  }
-
-                  return (
-                    <TouchableOpacity
-                      key={bloco}
-                      style={{
-                        backgroundColor: blocoColor,
-                        paddingVertical: 10,
-                        paddingHorizontal: 15,
-                        borderRadius: 8,
-                        marginHorizontal: 5,
-                        marginBottom: 5,
-                        borderWidth: selectedResultBlock === bloco ? 2 : 0,
-                        borderColor:
-                          selectedResultBlock === bloco
-                            ? "#000"
-                            : "transparent",
-                      }}
-                      onPress={() => setSelectedResultBlock(bloco)}
-                    >
-                      <Text style={{ color: "white", fontWeight: "bold" }}>
-                        Bloco {bloco}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-
-                <ProgressStatusBar scoreByBlock={scoreByBlock} />
-              </View>
-
-              <CircularProgress
-                size={120}
-                width={15}
-                fill={scoreByBlock[selectedResultBlock] ?? 0}
-                tintColor="#00e0ff"
-                backgroundColor="#3d5875"
-              >
-                {() => (
-                  <Text
-                    style={{
-                      fontSize: 24,
-                      color: "#000",
-                      width: "100%",
-                      textAlign: "center",
-                    }}
-                  >
-                    {`${(scoreByBlock[selectedResultBlock] ?? 0).toFixed(0)}%`}
-                  </Text>
-                )}
-              </CircularProgress>
-
-              <View
-                style={{
-                  flexDirection: "column",
-                  marginTop: 30,
-                  justifyContent: "space-between",
-                }}
-              >
-                <ModalButton
-                  onPress={handleRestartQuiz}
-                  style={{ flexDirection: "row", alignItems: "center" }}
-                >
-                  <MaterialIcons
-                    name="refresh"
-                    size={24}
-                    color="gray"
-                    style={{ marginRight: 8 }}
-                  />
-                  <ModalButtonText>Refazer</ModalButtonText>
-                </ModalButton>
-                <ModalButton
-                  onPress={handleReviewQuiz}
-                  style={{ flexDirection: "row", alignItems: "center" }}
-                >
-                  <MaterialIcons
-                    name="assignment"
-                    size={24}
-                    color="gray"
-                    style={{ marginRight: 8 }}
-                  />
-                  <ModalButtonText>Revisão</ModalButtonText>
-                </ModalButton>
-                <ModalButton
-                  onPress={handleShowInfo}
-                  style={{ flexDirection: "row", alignItems: "center" }}
-                >
-                  <MaterialIcons
-                    name="info"
-                    size={24}
-                    color="gray"
-                    style={{ marginRight: 8 }}
-                  />
-                  <ModalButtonText>Info</ModalButtonText>
-                </ModalButton>
-                <ModalButton
-                  onPress={handleCancelQuiz}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    backgroundColor: theme.colors.attention,
-                  }}
-                >
-                  <MaterialIcons
-                    name="cancel"
-                    size={24}
-                    color="white"
-                    style={{ marginRight: 8 }}
-                  />
-                  <ModalButtonText>Cancelar</ModalButtonText>
-                </ModalButton>
-              </View>
-            </ModalContainer>
+                        return (
+                          <ResultBlockButton
+                            key={bloco}
+                            backgroundColor={blocoColor}
+                            isSelected={selectedResultBlock === bloco}
+                            onPress={() => setSelectedResultBlock(bloco)}
+                          >
+                            <ResultBlockText>Bloco {bloco}</ResultBlockText>
+                          </ResultBlockButton>
+                        );
+                      })}
+                    </ResultBlocksContainer>
+                    <ProgressBarContainer>
+                      <ProgressStatusBar scoreByBlock={scoreByBlock} />
+                    </ProgressBarContainer>
+                    <CircularProgressContainer>
+                      <CircularProgress
+                        size={120}
+                        width={16}
+                        fill={scoreByBlock[selectedResultBlock] ?? 0}
+                        tintColor={theme.colors.primary}
+                        backgroundColor="#E0E0E0"
+                      >
+                        {() => (
+                          <CircularProgressText>
+                            {`${(
+                              scoreByBlock[selectedResultBlock] ?? 0
+                            ).toFixed(0)}%`}
+                          </CircularProgressText>
+                        )}
+                      </CircularProgress>
+                    </CircularProgressContainer>
+                    <ResultActionsContainer>
+                      <ResultActionButton onPress={handleRestartQuiz}>
+                        <MaterialIcons name="refresh" size={20} color="gray" />
+                        <ResultActionButtonText>Refazer</ResultActionButtonText>
+                      </ResultActionButton>
+                      <ResultActionButton onPress={handleReviewQuiz}>
+                        <MaterialIcons
+                          name="assignment"
+                          size={20}
+                          color="gray"
+                        />
+                        <ResultActionButtonText>Revisão</ResultActionButtonText>
+                      </ResultActionButton>
+                      <ResultActionButton onPress={handleShowInfo}>
+                        <MaterialIcons name="info" size={20} color="gray" />
+                        <ResultActionButtonText>Info</ResultActionButtonText>
+                      </ResultActionButton>
+                      <ResultActionButton
+                        onPress={handleCancelQuiz}
+                        variant="danger"
+                      >
+                        <MaterialIcons name="cancel" size={20} color="white" />
+                        <ResultActionButtonText variant="danger">
+                          Cancelar
+                        </ResultActionButtonText>
+                      </ResultActionButton>
+                    </ResultActionsContainer>
+                  </ResultModalContent>
+                </ResultModalScroll>
+              </ResultModalCard>
+            </ResultModalContainer>
           </Modal>
 
           {!modalVisible && (
@@ -490,136 +442,99 @@ export function Anac() {
                 )}
               </FixedTimerContainer>
 
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-around",
-                  marginBottom: 20,
-                }}
-              >
-                {/* Botões para alternar entre os blocos */}
+              <BlocksContainer>
                 {[1, 2, 3, 4].map((blockNumber) => (
-                  <TouchableOpacity
+                  <BlockButton
                     key={blockNumber}
+                    isSelected={selectedBlock === blockNumber}
                     onPress={() => handleSelectBlock(blockNumber)}
-                    style={{
-                      padding: 10,
-                      backgroundColor:
-                        selectedBlock === blockNumber
-                          ? theme.colors.primary
-                          : "gray",
-                      borderRadius: 10,
-                      flex: 1,
-                      alignItems: "center",
-                      marginHorizontal: 5,
-                      marginTop: 5,
-                    }}
                   >
-                    <Text
-                      style={{
-                        color: "white",
-                        fontSize: 15,
-                        width: "100%",
-                        textAlign: "center",
-                      }}
-                    >
-                      Bloco {blockNumber}
-                    </Text>
-                  </TouchableOpacity>
+                    <BlockButtonText>Bloco {blockNumber}</BlockButtonText>
+                  </BlockButton>
                 ))}
-              </View>
+              </BlocksContainer>
 
               <ScrollView
                 contentContainerStyle={ScrollContainer}
                 showsVerticalScrollIndicator={false}
               >
-                {filteredQuestions.map((questionData, index) => (
-                  <QuizAnac key={questionData.id}>
-                    <Bloco>
-                      {/* BL {questionData.bloco} - (
-                      {questionData.materia.toUpperCase()}) */}
-                    </Bloco>
-                    <Question
-                      style={{
-                        padding: 10,
-                        marginHorizontal: 5,
-                      }}
-                    >{`${index + 1}. ${questionData.question}`}</Question>
+                {filteredQuestions.map((questionData, index) => {
+                  const selectedAnswerId =
+                    selectedAnswers[String(questionData.id)];
 
-                    {questionData.answers.map((answer) => {
-                      const selectedAnswerId =
-                        selectedAnswers[String(questionData.id)];
-                      const isSelected = selectedAnswerId === answer.id;
-                      const isCorrect = answer.correct;
+                  return (
+                    <QuizAnac key={questionData.id}>
+                      <QuestionContainer>
+                        <Question>{`${index + 1}. ${
+                          questionData.question
+                        }`}</Question>
+                      </QuestionContainer>
 
-                      let backgroundColor = "gray";
+                      <AnswersContainer>
+                        {questionData.answers.map((answer) => {
+                          const isSelected = selectedAnswerId === answer.id;
+                          const isCorrect = answer.correct;
 
-                      if (isReviewMode) {
-                        if (isSelected && isCorrect) {
-                          backgroundColor = theme.colors.primary; // amarelo (selecionada e correta)
-                        } else if (isSelected && !isCorrect) {
-                          backgroundColor = theme.colors.primary; // selecionada errada (ainda em amarelo)
-                        } else if (!isSelected && isCorrect) {
-                          backgroundColor = theme.colors.succes; // resposta correta (verde)
-                        }
-                      } else {
-                        backgroundColor = isSelected
-                          ? theme.colors.primary
-                          : "gray";
-                      }
+                          let backgroundColor = "gray";
 
-                      return (
-                        <TouchableOpacity
-                          key={`${questionData.id}-${answer.id}`}
-                          onPress={() =>
-                            handleSelectAnswer(questionData.id, answer.id)
+                          if (isReviewMode) {
+                            if (isSelected && isCorrect) {
+                              backgroundColor = theme.colors.primary;
+                            } else if (isSelected && !isCorrect) {
+                              backgroundColor = theme.colors.primary;
+                            } else if (!isSelected && isCorrect) {
+                              backgroundColor = theme.colors.succes;
+                            }
+                          } else {
+                            backgroundColor = isSelected
+                              ? theme.colors.primary
+                              : "gray";
                           }
-                          style={{
-                            padding: 10,
-                            marginVertical: 5,
-                            backgroundColor,
-                            opacity: isReviewMode ? 0.6 : 1,
-                            borderRadius: 10,
-                          }}
-                          disabled={isReviewMode}
-                        >
-                          <AnswerText selected={isSelected}>
-                            {`${answer.id.toUpperCase()}. ${answer.text}`}
-                          </AnswerText>
-                        </TouchableOpacity>
-                      );
-                    })}
-                    {isReviewMode && (
-                      <>
-                        <Text
-                          key={`justificativa-${questionData.id}`}
-                          style={{
-                            marginTop: 10,
-                            color: theme.colors.text,
-                            fontStyle: "italic",
-                            fontSize: 14,
-                          }}
-                        >
-                          {questionData.descricao ||
-                            "Nenhuma justificativa disponível."}
-                        </Text>
 
-                        <ReviewButton
-                          key={`revisao-${questionData.id}`}
-                          questaoKey={`CMS-${questionData.id}`}
-                          alternativaAssinalada={
-                            selectedAnswers[String(questionData.id)] ?? ""
-                          }
-                          acertouQuestao={
-                            questionData.answers.find((a) => a.correct)?.id ===
-                            selectedAnswers[String(questionData.id)]
-                          }
-                          token={user?.accessToken ?? ""}
-                        />
-                      </>
-                    )}
-                  </QuizAnac>
-                ))}
+                          return (
+                            <AnswerButton
+                              key={`${questionData.id}-${answer.id}`}
+                              backgroundColor={backgroundColor}
+                              isReviewMode={isReviewMode}
+                              onPress={() =>
+                                handleSelectAnswer(questionData.id, answer.id)
+                              }
+                              disabled={isReviewMode}
+                            >
+                              <AnswerText selected={isSelected}>
+                                {`${answer.id.toUpperCase()}. ${answer.text}`}
+                              </AnswerText>
+                            </AnswerButton>
+                          );
+                        })}
+                      </AnswersContainer>
+
+                      {isReviewMode && (
+                        <>
+                          <JustificationContainer>
+                            <JustificationText>
+                              {questionData.descricao ||
+                                "Nenhuma justificativa disponível."}
+                            </JustificationText>
+                          </JustificationContainer>
+
+                          <ReviewButton
+                            questaoKey={`CMS-${questionData.id}`}
+                            alternativaAssinalada={
+                              selectedAnswers[String(questionData.id)] ?? ""
+                            }
+                            acertouQuestao={
+                              questionData.answers.find((a) => a.correct)
+                                ?.id ===
+                              selectedAnswers[String(questionData.id)]
+                            }
+                            token={user?.accessToken ?? ""}
+                          />
+                        </>
+                      )}
+                    </QuizAnac>
+                  );
+                })}
               </ScrollView>
 
               {!isReviewMode ? (
@@ -635,6 +550,6 @@ export function Anac() {
           )}
         </>
       )}
-    </View>
+    </ScreenContainer>
   );
 }
