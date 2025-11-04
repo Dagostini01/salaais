@@ -22,6 +22,10 @@ import {
   FinishButtonText,
   FixedTimerContainer,
   HeaderQuiz,
+  LoadingContainer,
+  LoadingContent,
+  LoadingSubtext,
+  LoadingText,
   ModalButton,
   ModalButtonCancel,
   ModalButtonText,
@@ -34,12 +38,13 @@ import {
   TimerText,
 } from "./styles";
 import type { Question as QuizQuestion } from "./types";
-import { gerarProvaAleatoria } from "../../../services";
+import { gerarProvaAleatoria, gerarProvaNormal } from "../../../services";
 import theme from "../../../global/global/theme";
 import { ProgressStatusBar } from "../../../components/ProgressStatusBar";
 import { ReviewButton } from "../../../components/ReviewButton";
 import { AuthContext } from "../../../contexts/auth";
-
+import { FREE_QUESTIONS_KEYS } from "../../../utils/quizConstants";
+import { PermissionType } from "../../../utils/enums";
 
 type BottomTabParamList = {
   Principal: undefined;
@@ -62,27 +67,47 @@ export function Anac() {
   const [finalTime, setFinalTime] = useState(7200);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedBlock, setSelectedBlock] = useState<number | null>(null); // Novo estado para o bloco selecionado
+  const [selectedBlock, setSelectedBlock] = useState<number | null>(null);
   const [finish, setFinish] = useState(false);
   const [selectedResultBlock, setSelectedResultBlock] = useState(1);
   const [scoreByBlock, setScoreByBlock] = useState<Record<number, number>>({});
   const navigation = useNavigation<NavigationProps>();
 
   const initialTime = 7200;
+  const isCommon = user?.permission === PermissionType.COMUM;
 
   useEffect(() => {
+    console.log("isCommons", isCommon);
     async function fetchQuestions() {
       try {
-        const quizData = await gerarProvaAleatoria(
-          user?.accessToken as string,
-          {
+        let quizData: {
+          data: Array<{
+            id: number;
+            questao_texto: string;
+            bloco: number;
+            materia: string;
+            descricao: string;
+            questao_a: string;
+            questao_b: string;
+            questao_c: string;
+            questao_d: string;
+            alternativa_correta: string;
+          }>;
+        };
+
+        if (isCommon) {
+          quizData = await gerarProvaNormal(user?.accessToken as string, {
+            keys: FREE_QUESTIONS_KEYS,
+          });
+        } else {
+          quizData = await gerarProvaAleatoria(user?.accessToken as string, {
             curso: "cms",
             blocos: [1, 2, 3, 4],
             questoes_por_bloco: 20,
-          },
-        );
+          });
+        }
         const formattedQuestions: QuizQuestion[] = quizData.data.map(
-          (question: any) => ({
+          (question) => ({
             id: question.id,
             question: question.questao_texto,
             bloco: question.bloco,
@@ -110,7 +135,7 @@ export function Anac() {
                 correct: question.alternativa_correta === "d",
               },
             ],
-          }),
+          })
         );
         setQuestions(formattedQuestions);
       } catch (error) {
@@ -119,8 +144,10 @@ export function Anac() {
         setIsLoading(false);
       }
     }
-    fetchQuestions();
-  }, []);
+    if (user?.accessToken) {
+      fetchQuestions();
+    }
+  }, [user?.accessToken, isCommon]);
 
   const handleStartQuiz = () => {
     setModalVisible(false);
@@ -152,7 +179,7 @@ export function Anac() {
             const correctAnswers = questions.filter((question) => {
               const selectedAnswerId = selectedAnswers[String(question.id)];
               const correctAnswer = question.answers.find(
-                (answer) => answer.correct,
+                (answer) => answer.correct
               );
               return selectedAnswerId === correctAnswer?.id;
             }).length;
@@ -164,7 +191,7 @@ export function Anac() {
             try {
               await AsyncStorage.setItem(
                 "lastQuizResult",
-                JSON.stringify(calculatedScorePercentage),
+                JSON.stringify(calculatedScorePercentage)
               );
             } catch (error) {
               console.error("Erro ao salvar o resultado do quiz:", error);
@@ -174,17 +201,20 @@ export function Anac() {
             const blocosUnicos = [...new Set(questions.map((q) => q.bloco))];
             const resultadosPorBloco: Record<number, number> = {};
 
-            blocosUnicos.forEach((bloco) => {
-              const questoesDoBloco = questions.filter((q) => q.bloco === bloco);
+            for (const bloco of blocosUnicos) {
+              const questoesDoBloco = questions.filter(
+                (q) => q.bloco === bloco
+              );
               const acertosDoBloco = questoesDoBloco.filter((q) => {
                 const respostaUsuario = selectedAnswers[String(q.id)];
                 const correta = q.answers.find((a) => a.correct);
                 return respostaUsuario === correta?.id;
               }).length;
 
-              const percentual = (acertosDoBloco / questoesDoBloco.length) * 100;
+              const percentual =
+                (acertosDoBloco / questoesDoBloco.length) * 100;
               resultadosPorBloco[bloco] = percentual;
-            });
+            }
 
             setScoreByBlock(resultadosPorBloco);
             setSelectedResultBlock(1);
@@ -193,7 +223,7 @@ export function Anac() {
             setFinish(true);
           },
         },
-      ],
+      ]
     );
   };
 
@@ -215,7 +245,7 @@ export function Anac() {
     Alert.alert(
       "Informações do Simulado",
       `Você acertou ${scorePercentage.toFixed(2)}% das perguntas.\n` +
-      `Tempo total: ${formatTime(finalTime)}`,
+        `Tempo total: ${formatTime(finalTime)}`
     );
   };
 
@@ -232,7 +262,9 @@ export function Anac() {
     const remainingSeconds = seconds % 60;
     const minutes = Math.floor((seconds % 3600) / 60);
     const hour = Math.floor(seconds / 3600);
-    return `${hour}:${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+    return `${hour}:${minutes}:${
+      remainingSeconds < 10 ? "0" : ""
+    }${remainingSeconds}`;
   };
 
   useEffect(() => {
@@ -243,13 +275,14 @@ export function Anac() {
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [isReviewMode, finish]),
-    useEffect(() => {
-      if (timeLeft === 0 && !isReviewMode) {
-        Alert.alert("Tempo esgotado!", "O tempo para o quiz acabou.");
-        navigation.navigate("Principal");
-      }
-    }, [timeLeft, isReviewMode, navigation]);
+  }, [isReviewMode, finish]);
+
+  useEffect(() => {
+    if (timeLeft === 0 && !isReviewMode) {
+      Alert.alert("Tempo esgotado!", "O tempo para o quiz acabou.");
+      navigation.navigate("Principal");
+    }
+  }, [timeLeft, isReviewMode, navigation]);
 
   const handleSelectBlock = (blockNumber: number) => {
     setSelectedBlock(blockNumber);
@@ -258,8 +291,8 @@ export function Anac() {
   const filteredQuestions =
     selectedBlock !== null
       ? questions
-        .filter((question) => question.bloco === selectedBlock)
-        .slice(0, 20)
+          .filter((question) => question.bloco === selectedBlock)
+          .slice(0, 20)
       : [];
 
   const { top } = useSafeAreaInsets();
@@ -274,12 +307,13 @@ export function Anac() {
       }}
     >
       {isLoading ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <ActivityIndicator size="large" color="#0000ff" />
-          <Text>Carregando...</Text>
-        </View>
+        <LoadingContainer>
+          <LoadingContent>
+            <ActivityIndicator size="large" color={theme.colors.primary} />
+            <LoadingText>Carregando questões...</LoadingText>
+            <LoadingSubtext>Preparando seu simulado ANAC</LoadingSubtext>
+          </LoadingContent>
+        </LoadingContainer>
       ) : (
         <>
           <Modal
@@ -333,7 +367,6 @@ export function Anac() {
                     blocoColor = theme.colors.primary;
                   }
 
-                  {/* Botões para alternar entre os blocos */ }
                   return (
                     <TouchableOpacity
                       key={bloco}
@@ -344,27 +377,23 @@ export function Anac() {
                         borderRadius: 8,
                         marginHorizontal: 5,
                         marginBottom: 5,
-                        borderWidth: selectedResultBlock === bloco ? 1 : 0,
-                        borderColor: selectedResultBlock === bloco ? "#000" : "transparent",
+                        borderWidth: selectedResultBlock === bloco ? 2 : 0,
+                        borderColor:
+                          selectedResultBlock === bloco
+                            ? "#000"
+                            : "transparent",
                       }}
                       onPress={() => setSelectedResultBlock(bloco)}
                     >
-                      <View style={{ flexDirection: "row", alignItems: "center" }}>
-                        <Text style={{ color: "white", fontWeight: "bold", fontSize: 14 }}>
-                          Bloco&nbsp;
-                        </Text>
-                        <Text style={{ color: "white", fontWeight: "bold", fontSize: 14 }}>
-                          {bloco}
-                        </Text>
-                      </View>
-
+                      <Text style={{ color: "white", fontWeight: "bold" }}>
+                        Bloco {bloco}
+                      </Text>
                     </TouchableOpacity>
                   );
                 })}
 
                 <ProgressStatusBar scoreByBlock={scoreByBlock} />
               </View>
-
 
               <CircularProgress
                 size={120}
@@ -454,7 +483,11 @@ export function Anac() {
             <HeaderQuiz>
               <FixedTimerContainer>
                 <MaterialIcons name="access-time" size={24} color="white" />
-                {!isReviewMode && <TimerText numberOfLines={1} ellipsizeMode="tail">{formatTime(timeLeft)}</TimerText>}
+                {!isReviewMode && (
+                  <TimerText numberOfLines={1} ellipsizeMode="tail">
+                    {formatTime(timeLeft)}
+                  </TimerText>
+                )}
               </FixedTimerContainer>
 
               <View
@@ -514,7 +547,8 @@ export function Anac() {
                     >{`${index + 1}. ${questionData.question}`}</Question>
 
                     {questionData.answers.map((answer) => {
-                      const selectedAnswerId = selectedAnswers[String(questionData.id)];
+                      const selectedAnswerId =
+                        selectedAnswers[String(questionData.id)];
                       const isSelected = selectedAnswerId === answer.id;
                       const isCorrect = answer.correct;
 
@@ -529,13 +563,17 @@ export function Anac() {
                           backgroundColor = theme.colors.succes; // resposta correta (verde)
                         }
                       } else {
-                        backgroundColor = isSelected ? theme.colors.primary : "gray";
+                        backgroundColor = isSelected
+                          ? theme.colors.primary
+                          : "gray";
                       }
 
                       return (
                         <TouchableOpacity
                           key={`${questionData.id}-${answer.id}`}
-                          onPress={() => handleSelectAnswer(questionData.id, answer.id)}
+                          onPress={() =>
+                            handleSelectAnswer(questionData.id, answer.id)
+                          }
                           style={{
                             padding: 10,
                             marginVertical: 5,
@@ -550,8 +588,7 @@ export function Anac() {
                           </AnswerText>
                         </TouchableOpacity>
                       );
-                    })
-                    }
+                    })}
                     {isReviewMode && (
                       <>
                         <Text
@@ -563,13 +600,16 @@ export function Anac() {
                             fontSize: 14,
                           }}
                         >
-                          {questionData.descricao || "Nenhuma justificativa disponível."}
+                          {questionData.descricao ||
+                            "Nenhuma justificativa disponível."}
                         </Text>
 
                         <ReviewButton
                           key={`revisao-${questionData.id}`}
                           questaoKey={`CMS-${questionData.id}`}
-                          alternativaAssinalada={selectedAnswers[String(questionData.id)] ?? ""}
+                          alternativaAssinalada={
+                            selectedAnswers[String(questionData.id)] ?? ""
+                          }
                           acertouQuestao={
                             questionData.answers.find((a) => a.correct)?.id ===
                             selectedAnswers[String(questionData.id)]
@@ -578,7 +618,6 @@ export function Anac() {
                         />
                       </>
                     )}
-
                   </QuizAnac>
                 ))}
               </ScrollView>

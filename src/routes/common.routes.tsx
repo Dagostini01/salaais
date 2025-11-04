@@ -2,7 +2,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
 import {
   Anac,
-  AnacFree,
   Blocos,
   Configuracoes,
   Materias,
@@ -21,7 +20,6 @@ export const CommomRoutes = () => {
       <Stack.Screen name="Planos" component={Planos} />
       <Stack.Screen name="Blocos" component={Blocos} />
       <Stack.Screen name="Materias" component={Materias} />
-      <Stack.Screen name="AnacFree" component={AnacFree} />
       <Stack.Screen name="Configuracoes" component={Configuracoes} />
     </Stack.Navigator>
   );

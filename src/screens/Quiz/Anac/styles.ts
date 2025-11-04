@@ -31,8 +31,8 @@ export const Answer = styled.TouchableOpacity<{
     selected
       ? theme.colors.shape
       : correct
-        ? theme.colors.success
-        : theme.colors.card};
+      ? theme.colors.success
+      : theme.colors.card};
   padding: ${RFValue(15)}px;
   border-radius: ${RFValue(8)}px;
   margin-bottom: ${RFValue(10)}px;
@@ -110,8 +110,6 @@ export const TimerText = styled.Text`
   text-align: center; /* Mantém o texto alinhado */
 `;
 
-
-
 export const HeaderQuiz = styled.View`
   flex: 1;
 `;
@@ -122,7 +120,7 @@ export const FinishButton = styled.TouchableOpacity`
   border-radius: ${RFValue(8)}px;
   align-items: center;
   margin-top: ${RFValue(20)}px;
-  margin-bottom: ${Platform.OS === 'android' ? '10px' : '0px'};
+  margin-bottom: ${Platform.OS === "android" ? "10px" : "0px"};
 `;
 
 export const FinishButtonText = styled.Text`
@@ -136,3 +134,32 @@ export const FinishButtonText = styled.Text`
 export const ScrollContainer = {
   paddingBottom: RFValue(20), // Adicione um padding se necessário
 };
+
+export const LoadingContainer = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  background-color: ${({ theme }) => theme.colors.background};
+`;
+
+export const LoadingContent = styled.View`
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+`;
+
+export const LoadingText = styled.Text`
+  font-size: ${RFValue(18)}px;
+  color: ${({ theme }) => theme.colors.title};
+  font-weight: 700;
+  margin-top: 16px;
+  letter-spacing: 0.5px;
+`;
+
+export const LoadingSubtext = styled.Text`
+  font-size: ${RFValue(14)}px;
+  color: ${({ theme }) => theme.colors.text};
+  font-weight: 500;
+  text-align: center;
+  margin-top: 4px;
+`;

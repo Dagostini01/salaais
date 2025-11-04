@@ -1,6 +1,5 @@
-import { AnacFree } from "./Quiz/AnacFree";
 import { CompleteProfile } from "./CompleteProfile/completeProfile";
-import { Configuracoes } from "./Configuracoes/configuracoes";
+import { Configuracoes } from "./Configuracoes";
 import { Materias } from "./Quiz/Materias";
 import { Planos } from "./Planos";
 import { Principal } from "./Home";
@@ -17,5 +16,4 @@ export {
   Principal,
   Anac,
   SignIn,
-  AnacFree
 };
