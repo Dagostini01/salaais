@@ -110,40 +110,55 @@ export const Icon = styled(Feather)`
 `;
 
 export const CardsTest = styled.View`
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 20px;
+  margin-bottom: 24px;
 `;
 
 export const NameCardTest = styled.Text`
   color: ${({ theme }) => theme.colors.shape};
-  font-size: ${Platform.OS === "ios" ? "24px" : "22px"};
-  font-weight: bold;
+  font-size: ${Platform.OS === "ios" ? "26px" : "24px"};
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
 `;
 
 export const HighlightCards = styled.ScrollView.attrs({
   horizontal: true,
   showsHorizontalScrollIndicator: false,
-  contentContainerStyle: { gap: 16 },
+  contentContainerStyle: { gap: 16, paddingRight: 4 },
 })``;
 
 export const LastTest = styled.View`
   width: 100%;
-  padding: 16px;
+  padding: 20px;
   background-color: ${({ theme }) => theme.colors.shape};
-  border-radius: 8px;
+  border-radius: 12px;
   flex-direction: row;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  shadow-color: ${({ theme }) => theme.colors.dark};
+  shadow-offset: 0px 2px;
+  shadow-opacity: 0.1;
+  shadow-radius: 4px;
+  elevation: 3;
+`;
+
+export const LastTestContent = styled.View`
+  flex: 1;
+  gap: 4px;
 `;
 
 export const NameTest = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => theme.colors.title};
   font-size: ${Platform.OS === "ios" ? "20px" : "18px"};
+  font-weight: 700;
+  letter-spacing: 0.2px;
 `;
 
 export const LastNameTest = styled.Text`
-  color: ${({ theme }) => theme.colors.text_light};
-  font-size: ${Platform.OS === "ios" ? "18px" : "16spx"};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${Platform.OS === "ios" ? "15px" : "13px"};
+  font-weight: 400;
 `;
 
 export const ViewPlano = styled.View`

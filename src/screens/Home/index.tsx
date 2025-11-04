@@ -14,6 +14,7 @@ import {
   Icon,
   LastNameTest,
   LastTest,
+  LastTestContent,
   NameCardTest,
   NameTest,
   Photo,
@@ -34,6 +35,7 @@ import {
 } from "./styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ANAC_LOGO from "../../assets/anac-logo.png";
+import { PermissionType } from "../../utils/enums";
 
 type BottomTabParamList = {
   Materias: undefined;
@@ -42,13 +44,10 @@ type BottomTabParamList = {
   Anac: undefined;
   Planos: undefined;
   Blocos: undefined;
-  AnacFree: undefined;
   Configuracoes: undefined;
 };
 
 type NavigationProps = BottomTabNavigationProp<BottomTabParamList, "Principal">;
-
-const PERMISSION_COMUM = "COMUM";
 
 export function Principal() {
   const navigation = useNavigation<NavigationProps>();
@@ -56,25 +55,21 @@ export function Principal() {
   const { top, bottom } = useSafeAreaInsets();
 
   const isCommon = useMemo(
-    () => user?.permission === PERMISSION_COMUM,
+    () => user?.permission === PermissionType.COMUM,
     [user?.permission]
   );
 
-  const navigateToSettings = useCallback(() => {
-    navigation.navigate("Configuracoes");
-  }, [navigation]);
+  const handleNavigate = useCallback(
+    (route: keyof BottomTabParamList) => {
+      navigation.navigate(route);
+    },
+    [navigation]
+  );
 
-  const navigateToAnac = useCallback(() => {
-    navigation.navigate(isCommon ? "AnacFree" : "Anac");
-  }, [navigation, isCommon]);
-
-  const navigateToBlocos = useCallback(() => {
-    navigation.navigate("Blocos");
-  }, [navigation]);
-
-  const navigateToMaterias = useCallback(() => {
-    navigation.navigate("Materias");
-  }, [navigation]);
+  const navigateToSettings = () => handleNavigate("Configuracoes");
+  const navigateToAnac = () => handleNavigate("Anac");
+  const navigateToBlocos = () => handleNavigate("Blocos");
+  const navigateToMaterias = () => handleNavigate("Materias");
 
   useFocusEffect(
     useCallback(() => {
@@ -126,7 +121,11 @@ export function Principal() {
             <SubscriptionInfoLeft>
               <SubscriptionInfoText>Plano Atual</SubscriptionInfoText>
               <SubscriptionInfoTextTime>
-                Seu acesso encerra em {`${12}`} dias
+                {isCommon
+                  ? "Acesso Gratuito"
+                  : `Seu acesso encerra em ${
+                      Math.floor(Math.random() * 120) + 1
+                    } dias`}
               </SubscriptionInfoTextTime>
             </SubscriptionInfoLeft>
             <SubscriptionBadge>
@@ -161,10 +160,10 @@ export function Principal() {
 
         <LastTest>
           <CirclePercentage />
-          <View>
+          <LastTestContent>
             <NameTest>Simulado ANAC</NameTest>
             <LastNameTest>Último Simulado ANAC</LastNameTest>
-          </View>
+          </LastTestContent>
         </LastTest>
 
         {isCommon && (
