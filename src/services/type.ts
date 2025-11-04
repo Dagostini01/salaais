@@ -8,7 +8,7 @@ interface ProvaNormalPayload {
   keys: string[];
 }
 
-interface ProvaMateriaPayload {
+export interface ProvaMateriaPayload {
   questao_por_materia: {
     curso: string;
     materia: string;
@@ -16,7 +16,7 @@ interface ProvaMateriaPayload {
   }[];
 }
 
-interface LoginApplePayload {
+export interface LoginApplePayload {
   authorizationCode: string;
   identityToken: string;
   user: string;

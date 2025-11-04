@@ -1,8 +1,10 @@
+import type { LoginApplePayload, ProvaMateriaPayload } from "./type";
+
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 type ProvaAleatoriaPayload = {
   curso: string;
-  blocos: Number[];
+  blocos: number[];
   questoes_por_bloco: number;
 };
 
@@ -188,7 +190,6 @@ export async function gerarProvaPorMateria(
     console.log("QUESTÕES RECEBIDAS:", responseJson.data);
     const { data } = responseJson;
     return data;
-
   } catch (error) {
     console.error("Erro ao gerar prova por todas as matérias:", error);
     throw new Error("Erro ao gerar prova. Tente novamente mais tarde.");
