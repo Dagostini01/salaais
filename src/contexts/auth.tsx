@@ -23,6 +23,7 @@ type UserType =
       photoUrl?: string;
       accessToken: string;
       permission: string;
+      appleToken?: string;
     }
   | undefined;
 
@@ -31,6 +32,8 @@ type AppleCredentials =
       authorizationCode: string;
       identityToken: string;
       user: string;
+      email?: string;
+      name?: string;
     }
   | undefined;
 
@@ -95,18 +98,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         name: credential.fullName?.givenName ?? "",
         user: credential.user ?? "",
       };
-      const user = await loginApple(appleCredential);
-      const permission = await getPermissionUser(user.token);
-      setUser({
-        id: user.id_usuario ?? 0,
-        token: user.token ?? "",
-        email: user?.email,
-        name: user.nome,
+      setCredentials(appleCredential);
+      const userResponse = await loginApple(appleCredential);
+      const accessTokenApi = userResponse.access_token ?? "";
+      const permission = await getPermissionUser(accessTokenApi);
+      const userItem = {
+        id: userResponse.id_usuario ?? 0,
+        token: userResponse.token ?? "",
+        email: userResponse?.email,
+        name: userResponse.nome,
         photoUrl: undefined,
         permission,
-        accessToken: user.token,
-      });
-      await SecureStore.setItemAsync("userApple", JSON.stringify(user));
+        accessToken: accessTokenApi,
+        appleToken: appleCredential.identityToken ?? userResponse.token,
+      };
+      setUser(userItem);
+      await SecureStore.setItemAsync("userApple", JSON.stringify(userItem));
     } catch (err) {
       console.error("Error signing in with Apple", err);
     } finally {
@@ -116,24 +123,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithAppleComplete = async (name?: string, email?: string) => {
     try {
-      const user = await loginApple({
+      const userResponse = await loginApple({
         authorizationCode: credentials?.authorizationCode ?? "",
         identityToken: credentials?.identityToken ?? "",
         user: credentials?.user ?? "",
         email,
         name,
       });
-      const permission = await getPermissionUser(user.token);
-      setUser({
-        id: user.id_usuario ?? 0,
-        token: credentials?.user ?? "",
-        email: user?.email,
-        name: user.name,
+      const accessTokenApi = userResponse.access_token ?? "";
+      const permission = await getPermissionUser(accessTokenApi);
+      const userItem = {
+        id: userResponse.id_usuario ?? 0,
+        token: userResponse.token ?? "",
+        email: userResponse?.email,
+        name: userResponse.name,
         photoUrl: undefined,
         permission,
-        accessToken: user.token,
-      });
-      SecureStore.setItem("userApple", JSON.stringify(user));
+        accessToken: accessTokenApi,
+        appleToken: credentials?.identityToken ?? userResponse.token,
+      };
+      setUser(userItem);
+      await SecureStore.setItemAsync("userApple", JSON.stringify(userItem));
     } catch (err) {
       console.error(
         "Error signing in with Apple in completeSignInWithApple",
@@ -144,15 +154,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const validateAppleToken = async (token: string) => {
     try {
+      if (!token) {
+        return false;
+      }
       const decoded = jwtDecode(token);
       const clientId = process.env.EXPO_PUBLIC_PACKAGE_NAME;
-      if (decoded.iss !== "https://appleid.apple.com") {
+      if (
+        typeof decoded === "object" &&
+        decoded !== null &&
+        "iss" in decoded &&
+        decoded.iss === "https://appleid.apple.com"
+      ) {
+        if ("aud" in decoded && decoded.aud === clientId) {
+          return true;
+        }
         return false;
       }
-      if (decoded.aud !== clientId) {
-        return false;
+      if (
+        typeof decoded === "object" &&
+        decoded !== null &&
+        "type" in decoded &&
+        decoded.type === "access_token"
+      ) {
+        if ("exp" in decoded && typeof decoded.exp === "number") {
+          const nowInSeconds = Date.now() / 1000;
+          return decoded.exp > nowInSeconds;
+        }
+        return true;
       }
-      return true;
+      return false;
     } catch (err) {
       console.error("Erro ao decodificar o token", err);
       return false;
@@ -204,7 +234,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           permission,
         };
         setUser(userItem);
-        SecureStore.setItem("userGoogle", JSON.stringify(userItem));
+        await SecureStore.setItemAsync("userGoogle", JSON.stringify(userItem));
       } catch (err) {
         console.error("error", err);
       } finally {
@@ -238,23 +268,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           await getUserProfile(accessToken, backendAccessToken, permission);
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro ao fazer login com Google:", error);
 
-      if (error.code === "SIGN_IN_CANCELLED") {
+      if ((error as { code?: string }).code === "SIGN_IN_CANCELLED") {
         console.error("Usuário cancelou o login");
         return;
-      } else if (error.code === "IN_PROGRESS") {
+      }
+      if ((error as { code?: string }).code === "IN_PROGRESS") {
         console.error("Login já está em progresso");
         return;
-      } else if (error.code === "PLAY_SERVICES_NOT_AVAILABLE") {
+      }
+      if ((error as { code?: string }).code === "PLAY_SERVICES_NOT_AVAILABLE") {
         console.error("Google Play Services não disponível");
         return;
       }
 
       throw new Error(
         `Erro ao fazer login com Google: ${
-          error.message || "Erro desconhecido"
+          (error as { message?: string }).message || "Erro desconhecido"
         }`
       );
     } finally {
@@ -263,20 +295,64 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getToken = async () => {
-    const userGoogle = SecureStore.getItem("userGoogle");
-    const userApple = SecureStore.getItem("userApple");
+    try {
+      setLoading(true);
+      const [userAppleStored, userGoogleStored] = await Promise.all([
+        SecureStore.getItemAsync("userApple"),
+        SecureStore.getItemAsync("userGoogle"),
+      ]);
 
-    if (userApple != null) {
-      const user = JSON.parse(userApple);
-      const isValid = await validateAppleToken(user.token);
-      if (isValid) setUser(user);
+      if (userAppleStored) {
+        const userAppleParsed: UserType = JSON.parse(userAppleStored);
+        let hasRestored = false;
+
+        if (userAppleParsed?.accessToken) {
+          try {
+            const permission = await getPermissionUser(
+              userAppleParsed.accessToken
+            );
+            setUser({
+              ...userAppleParsed,
+              permission,
+            });
+            hasRestored = true;
+          } catch (permissionError) {
+            console.warn(
+              "Não foi possível validar permissões do usuário Apple armazenado",
+              permissionError
+            );
+          }
+        }
+
+        if (!hasRestored) {
+          const tokenToValidate =
+            userAppleParsed?.appleToken ?? userAppleParsed?.token ?? "";
+          const isIdentityValid = await validateAppleToken(tokenToValidate);
+          if (isIdentityValid) {
+            setUser(userAppleParsed);
+            hasRestored = true;
+          }
+        }
+
+        if (hasRestored) {
+          return;
+        }
+      }
+
+      if (userGoogleStored) {
+        const userGoogleParsed: UserType = JSON.parse(userGoogleStored);
+        if (userGoogleParsed?.token) {
+          const isValid = await validateGoogleToken(userGoogleParsed.token);
+          if (isValid) {
+            setUser(userGoogleParsed);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao recuperar token do usuário", err);
+    } finally {
+      setLoading(false);
     }
-    if (userGoogle != null) {
-      const user = JSON.parse(userGoogle);
-      const isValid = await validateGoogleToken(user.token);
-      if (isValid) setUser(user);
-    }
-    setLoading(false);
   };
 
   const signOut = async () => {

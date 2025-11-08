@@ -126,7 +126,7 @@ export const Configuracoes = () => {
             {
               text: "Excluir",
               onPress: () => {
-                deleteUser(user?.token ?? "", user?.id ?? 0);
+                deleteUser(user?.accessToken ?? "", user?.id ?? 0);
               },
               style: "destructive",
             },

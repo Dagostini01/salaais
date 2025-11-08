@@ -7,6 +7,7 @@ import { SignInRoutes } from "./signin.routes";
 export const AppRoutes = () => {
   const { signed, getToken, loading } = useContext(AuthContext);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     getToken();
   }, [signed]);
