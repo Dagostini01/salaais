@@ -1,34 +1,48 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
-import React, { useContext, useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { Alert, Modal, ScrollView } from "react-native";
 import { CircularProgress } from "react-native-circular-progress";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
+  AnswerButton,
   AnswerText,
+  AnswersContainer,
   Bloco,
+  BlockSelectionButton,
+  BlockSelectionButtonText,
+  BlockSelectionGrid,
+  CircularProgressContainer,
+  CircularProgressText,
   FinishButton,
   FinishButtonText,
   FixedTimerContainer,
   HeaderQuiz,
-  ModalButton,
+  JustificationContainer,
+  JustificationText,
+  LoadingContainer,
+  LoadingContent,
+  LoadingSubtext,
+  LoadingText,
   ModalButtonCancel,
-  ModalButtonText,
   ModalButtonTextCancel,
+  ModalButtonsContainer,
+  ModalCard,
   ModalContainer,
   ModalText,
   Question,
+  QuestionContainer,
   QuizAnac,
+  ResultActionButton,
+  ResultActionButtonText,
+  ResultActionsContainer,
+  ResultModalCard,
+  ResultModalContainer,
+  ResultModalContent,
+  ResultModalTitle,
+  ScreenContainer,
   ScrollContainer,
   TimerText,
 } from "./styles";
@@ -51,25 +65,24 @@ export function Blocos() {
   const { user } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(true);
   const [finishModalVisible, setFinishModalVisible] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(initialTime);
   const [selectedAnswers, setSelectedAnswers] = useState<{
     [key: string]: string | null;
   }>({});
   const [scorePercentage, setScorePercentage] = useState(0);
   const [isReviewMode, setIsReviewMode] = useState(false);
-  const [finalTime, setFinalTime] = useState(600);
+  const [finalTime, setFinalTime] = useState(0);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
-  const [statusLoading, setStatusLoading] = useState<
-    "loading" | "complete" | "idle"
-  >("idle");
-  const [selectedBlock, setSelectedBlock] = useState<number | null>(null); // Bloco selecionado no início
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedBlock, setSelectedBlock] = useState<number | null>(null);
   const navigation = useNavigation<NavigationProps>();
   const { top } = useSafeAreaInsets();
 
   const fetchQuestions = async (blockNumber: number) => {
     try {
-      setStatusLoading("loading");
-      const quizData = await gerarProvaAleatoria(user?.accessToken as string, {
+      if (!user?.accessToken) return;
+      setIsLoading(true);
+      const quizData = await gerarProvaAleatoria(user.accessToken, {
         curso: "cms",
         blocos: [blockNumber],
         questoes_por_bloco: 20,
@@ -103,20 +116,27 @@ export function Blocos() {
               correct: question.alternativa_correta === "d",
             },
           ],
-        }),
+        })
       );
       setQuestions(formattedQuestions);
     } catch (error) {
       console.error("Erro ao carregar as questões:", error);
+      Alert.alert(
+        "Erro",
+        "Não foi possível carregar as questões do bloco selecionado. Tente novamente."
+      );
     } finally {
-      setStatusLoading("complete");
+      setIsLoading(false);
     }
   };
 
   const handleStartQuiz = (blockNumber: number) => {
-    fetchQuestions(blockNumber);
-    setModalVisible(false);
     setSelectedBlock(blockNumber);
+    setSelectedAnswers({});
+    setIsReviewMode(false);
+    setTimeLeft(initialTime);
+    setModalVisible(false);
+    fetchQuestions(blockNumber);
   };
 
   const handleCancelQuiz = () => {
@@ -135,8 +155,8 @@ export function Blocos() {
 
   const handleFinishQuiz = () => {
     Alert.alert(
-      "Finalizar Bloco", // Título do alerta
-      "Tem certeza que deseja finalizar o Bloco?", // Mensagem do alerta
+      "Finalizar Bloco",
+      "Tem certeza que deseja finalizar o bloco?",
       [
         {
           text: "Cancelar",
@@ -146,27 +166,26 @@ export function Blocos() {
           text: "Finalizar",
           onPress: () => {
             const filteredQuestions = questions.filter(
-              (question) => question.bloco === selectedBlock,
+              (question) => question.bloco === selectedBlock
             );
             const totalQuestions = filteredQuestions.length;
             const correctAnswers = filteredQuestions.filter((question) => {
               const selectedAnswerId = selectedAnswers[String(question.id)];
               const correctAnswer = question.answers.find(
-                (answer) => answer.correct,
+                (answer) => answer.correct
               );
               return selectedAnswerId === correctAnswer?.id;
             }).length;
 
             const calculatedScorePercentage =
-              (correctAnswers / totalQuestions) * 100;
+              totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+
             setScorePercentage(calculatedScorePercentage);
-
             setFinalTime(timeLeft);
-
             setFinishModalVisible(true);
           },
         },
-      ],
+      ]
     );
   };
 
@@ -175,8 +194,9 @@ export function Blocos() {
     setTimeLeft(initialTime);
     setFinishModalVisible(false);
     setIsReviewMode(false);
-    setSelectedBlock(null); // Reinicia o bloco
-    setModalVisible(true); // Volta a mostrar a modal inicial
+    setSelectedBlock(null);
+    setModalVisible(true);
+    setQuestions([]);
   };
 
   const handleReviewQuiz = () => {
@@ -187,8 +207,9 @@ export function Blocos() {
   const handleShowInfo = () => {
     Alert.alert(
       "Informações do Simulado",
-      `Você acertou ${scorePercentage.toFixed(2)}% das perguntas.\n` +
-      `Tempo total: ${formatTime(finalTime)}`,
+      `Você acertou ${scorePercentage.toFixed(
+        2
+      )}% das perguntas.\nTempo total: ${formatTime(finalTime)}`
     );
   };
 
@@ -203,262 +224,219 @@ export function Blocos() {
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
 
-  useEffect(() => {
-    if (statusLoading === "complete") {
-      const timer = setInterval(() => {
-        if (isReviewMode) return;
-        setTimeLeft((prevTime) => prevTime + 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [isReviewMode, statusLoading]);
+  const quizStarted = useMemo(
+    () => selectedBlock !== null && !modalVisible,
+    [selectedBlock, modalVisible]
+  );
 
-  const filteredQuestions =
-    selectedBlock !== null
-      ? questions
-        .filter((question) => question.bloco === selectedBlock)
-        .slice(0, 20)
-      : [];
+  useEffect(() => {
+    if (!quizStarted || isReviewMode || isLoading || finishModalVisible) {
+      return;
+    }
+    const timer = setInterval(() => {
+      setTimeLeft((prevTime) => prevTime + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [quizStarted, isReviewMode, isLoading, finishModalVisible]);
+
+  const filteredQuestions = useMemo(() => {
+    if (selectedBlock == null) return [];
+    return questions
+      .filter((question) => question.bloco === selectedBlock)
+      .slice(0, 20);
+  }, [questions, selectedBlock]);
 
   return (
-    <View
-      style={{
-        flex: 1,
-        paddingVertical: top,
-        paddingHorizontal: 20,
-        backgroundColor: theme.colors.background,
-      }}
-    >
-      {statusLoading === "loading" ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <ActivityIndicator size="large" color="#0000ff" />
-          <Text>Carregando...</Text>
-        </View>
+    <ScreenContainer paddingTop={top}>
+      {isLoading ? (
+        <LoadingContainer>
+          <LoadingContent>
+            <CircularProgress
+              size={80}
+              width={10}
+              fill={60}
+              tintColor={theme.colors.primary}
+              backgroundColor="#E0E0E0"
+            />
+            <LoadingText>Carregando questões...</LoadingText>
+            <LoadingSubtext>Preparando o bloco selecionado</LoadingSubtext>
+          </LoadingContent>
+        </LoadingContainer>
       ) : (
         <>
-          <Modal
-            visible={modalVisible}
-            animationType="slide"
-            transparent={true}
-          >
+          <Modal visible={modalVisible} animationType="fade" transparent>
             <ModalContainer>
-              <ModalText>Escolha um Bloco para Iniciar:</ModalText>
-              {[1, 2, 3, 4].map((blockNumber) => (
-                <ModalButton
-                  key={blockNumber}
-                  onPress={() => handleStartQuiz(blockNumber)}
-                >
-                  <ModalButtonText>Bloco {blockNumber}</ModalButtonText>
-                </ModalButton>
-              ))}
-              <ModalButtonCancel onPress={handleCancelQuiz}>
-                <ModalButtonTextCancel>Cancelar</ModalButtonTextCancel>
-              </ModalButtonCancel>
+              <ModalCard>
+                <ModalText>Escolha um bloco para iniciar</ModalText>
+                <BlockSelectionGrid>
+                  {[1, 2, 3, 4].map((blockNumber) => (
+                    <BlockSelectionButton
+                      key={blockNumber}
+                      onPress={() => handleStartQuiz(blockNumber)}
+                    >
+                      <BlockSelectionButtonText>
+                        {`Bloco ${blockNumber}`}
+                      </BlockSelectionButtonText>
+                    </BlockSelectionButton>
+                  ))}
+                </BlockSelectionGrid>
+                <ModalButtonsContainer>
+                  <ModalButtonCancel onPress={handleCancelQuiz}>
+                    <ModalButtonTextCancel>Cancelar</ModalButtonTextCancel>
+                  </ModalButtonCancel>
+                </ModalButtonsContainer>
+              </ModalCard>
             </ModalContainer>
           </Modal>
 
-          <Modal
-            visible={finishModalVisible}
-            animationType="slide"
-            transparent={true}
-          >
-            <ModalContainer style={{ alignItems: "center" }}>
-              <Text
-                style={{
-                  fontSize: 16,
-                  marginBottom: 20,
-                  width: "100%",
-                  textAlign: "center",
-                }}
-              >
-                Resultado final Bloco {selectedBlock}:
-              </Text>
-              <CircularProgress
-                size={120}
-                width={15}
-                fill={scorePercentage}
-                tintColor="#00e0ff"
-                backgroundColor="#3d5875"
-              >
-                {() => (
-                  <Text
-                    style={{
-                      fontSize: 24,
-                      color: "#000",
-                      width: "100%",
-                      textAlign: "center",
-                    }}
-                  >
-                    {`${scorePercentage.toFixed(0)}%`}
-                  </Text>
-                )}
-              </CircularProgress>
-
-              <View
-                style={{
-                  flexDirection: "column",
-                  marginTop: 30,
-                  justifyContent: "space-between",
-                }}
-              >
-                <ModalButton
-                  onPress={handleRestartQuiz}
-                  style={{ flexDirection: "row", alignItems: "center" }}
-                >
-                  <MaterialIcons
-                    name="refresh"
-                    size={24}
-                    color="gray"
-                    style={{ marginRight: 8 }}
-                  />
-                  <ModalButtonText>Refazer</ModalButtonText>
-                </ModalButton>
-                <ModalButton
-                  onPress={handleReviewQuiz}
-                  style={{ flexDirection: "row", alignItems: "center" }}
-                >
-                  <MaterialIcons
-                    name="assignment"
-                    size={24}
-                    color="gray"
-                    style={{ marginRight: 8 }}
-                  />
-                  <ModalButtonText>Revisão</ModalButtonText>
-                </ModalButton>
-                <ModalButton
-                  onPress={handleShowInfo}
-                  style={{ flexDirection: "row", alignItems: "center" }}
-                >
-                  <MaterialIcons
-                    name="info"
-                    size={24}
-                    color="gray"
-                    style={{ marginRight: 8 }}
-                  />
-                  <ModalButtonText>Info</ModalButtonText>
-                </ModalButton>
-                <ModalButton
-                  onPress={handleCancelQuiz}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    backgroundColor: theme.colors.attention,
-                  }}
-                >
-                  <MaterialIcons
-                    name="cancel"
-                    size={24}
-                    color="white"
-                    style={{ marginRight: 8 }}
-                  />
-                  <ModalButtonText>Cancelar</ModalButtonText>
-                </ModalButton>
-              </View>
-            </ModalContainer>
+          <Modal visible={finishModalVisible} animationType="fade" transparent>
+            <ResultModalContainer>
+              <ResultModalCard>
+                <ResultModalContent>
+                  <ResultModalTitle>
+                    {`Resultado do Bloco ${selectedBlock ?? ""}`}
+                  </ResultModalTitle>
+                  <CircularProgressContainer>
+                    <CircularProgress
+                      size={120}
+                      width={16}
+                      fill={scorePercentage}
+                      tintColor={theme.colors.primary}
+                      backgroundColor="#E0E0E0"
+                    >
+                      {() => (
+                        <CircularProgressText>
+                          {`${scorePercentage.toFixed(0)}%`}
+                        </CircularProgressText>
+                      )}
+                    </CircularProgress>
+                  </CircularProgressContainer>
+                  <ResultActionsContainer>
+                    <ResultActionButton onPress={handleRestartQuiz}>
+                      <MaterialIcons name="refresh" size={20} color="gray" />
+                      <ResultActionButtonText>Refazer</ResultActionButtonText>
+                    </ResultActionButton>
+                    <ResultActionButton onPress={handleReviewQuiz}>
+                      <MaterialIcons name="assignment" size={20} color="gray" />
+                      <ResultActionButtonText>Revisão</ResultActionButtonText>
+                    </ResultActionButton>
+                    <ResultActionButton onPress={handleShowInfo}>
+                      <MaterialIcons name="info" size={20} color="gray" />
+                      <ResultActionButtonText>Info</ResultActionButtonText>
+                    </ResultActionButton>
+                    <ResultActionButton
+                      onPress={handleCancelQuiz}
+                      variant="danger"
+                    >
+                      <MaterialIcons name="cancel" size={20} color="white" />
+                      <ResultActionButtonText variant="danger">
+                        Cancelar
+                      </ResultActionButtonText>
+                    </ResultActionButton>
+                  </ResultActionsContainer>
+                </ResultModalContent>
+              </ResultModalCard>
+            </ResultModalContainer>
           </Modal>
 
-          {!modalVisible && (
+          {quizStarted && (
             <HeaderQuiz>
               <FixedTimerContainer>
                 <MaterialIcons name="access-time" size={24} color="white" />
-                {!isReviewMode && <TimerText numberOfLines={1} ellipsizeMode="tail">{formatTime(timeLeft)}</TimerText>}
+                {!isReviewMode && (
+                  <TimerText numberOfLines={1} ellipsizeMode="tail">
+                    {formatTime(timeLeft)}
+                  </TimerText>
+                )}
               </FixedTimerContainer>
 
               <ScrollView
                 contentContainerStyle={ScrollContainer}
                 showsVerticalScrollIndicator={false}
               >
-                {filteredQuestions.map((questionData, index) => (
-                  <QuizAnac key={questionData.id}>
-                    <Bloco
-                      style={{
-                        marginVertical: 5,
-                        marginHorizontal: 5,
-                        marginTop: 20,
-                      }}
-                    >
-                      BL {questionData.bloco} - (
-                      {questionData.materia.toUpperCase()})
-                    </Bloco>
-                    <Question
-                      style={{
-                        padding: 10,
-                        marginVertical: 5,
-                        marginHorizontal: 5,
-                      }}
-                    >{`${index + 1}. ${questionData.question}`}</Question>
-                    {questionData.answers.map((answer) => {
-                      const selectedAnswerId = selectedAnswers[String(questionData.id)];
-                      const isSelected = selectedAnswerId === answer.id;
-                      const isCorrect = answer.correct;
+                {filteredQuestions.map((questionData, index) => {
+                  const selectedAnswerId =
+                    selectedAnswers[String(questionData.id)];
 
-                      let backgroundColor = "gray";
+                  return (
+                    <QuizAnac key={questionData.id}>
+                      <QuestionContainer>
+                        <Bloco>
+                          {`Bloco ${
+                            questionData.bloco
+                          } · ${questionData.materia.toUpperCase()}`}
+                        </Bloco>
+                        <Question>{`${index + 1}. ${
+                          questionData.question
+                        }`}</Question>
+                      </QuestionContainer>
 
-                      if (isReviewMode) {
-                        if (isSelected && isCorrect) {
-                          backgroundColor = theme.colors.primary; // Selecionada e correta
-                        } else if (isSelected && !isCorrect) {
-                          backgroundColor = theme.colors.primary; // Selecionada mas errada
-                        } else if (!isSelected && isCorrect) {
-                          backgroundColor = theme.colors.succes; // Correta não selecionada
-                        }
-                      } else {
-                        backgroundColor = isSelected ? theme.colors.primary : "gray";
-                      }
+                      <AnswersContainer>
+                        {questionData.answers.map((answer) => {
+                          const isSelected = selectedAnswerId === answer.id;
+                          const isCorrect = answer.correct;
 
-                      return (
-                        <TouchableOpacity
-                          key={`${questionData.id}-${answer.id}`}
-                          onPress={() => handleSelectAnswer(questionData.id, answer.id)}
-                          style={{
-                            padding: 10,
-                            marginVertical: 5,
-                            backgroundColor,
-                            opacity: isReviewMode ? 0.6 : 1,
-                            borderRadius: 10,
-                          }}
-                          disabled={isReviewMode}
-                        >
-                          <AnswerText selected={isSelected}>
-                            {`${answer.id.toUpperCase()}. ${answer.text}`}
-                          </AnswerText>
-                        </TouchableOpacity>
-                      );
-                    })}
+                          let backgroundColor = theme.colors.text;
 
-                    {isReviewMode && (
-                      <>
-                        <Text
-                          key={`justificativa-${questionData.id}`}
-                          style={{
-                            marginTop: 10,
-                            color: theme.colors.text,
-                            fontStyle: "italic",
-                            fontSize: 14,
-                          }}
-                        >
-                          {questionData.descricao || "Nenhuma justificativa disponível."}
-                        </Text>
-
-                        <ReviewButton
-                          key={`revisao-${questionData.id}`}
-                          questaoKey={`CMS-${questionData.id}`}
-                          alternativaAssinalada={selectedAnswers[String(questionData.id)] ?? ""}
-                          acertouQuestao={
-                            questionData.answers.find((a) => a.correct)?.id ===
-                            selectedAnswers[String(questionData.id)]
+                          if (isReviewMode) {
+                            if (isSelected && isCorrect) {
+                              backgroundColor = theme.colors.primary;
+                            } else if (isSelected && !isCorrect) {
+                              backgroundColor = theme.colors.attention;
+                            } else if (!isSelected && isCorrect) {
+                              backgroundColor = theme.colors.succes;
+                            } else {
+                              backgroundColor = theme.colors.text;
+                            }
+                          } else if (isSelected) {
+                            backgroundColor = theme.colors.primary;
                           }
-                          token={user?.accessToken ?? ""}
-                        />
-                      </>
-                    )}
 
+                          return (
+                            <AnswerButton
+                              key={`${questionData.id}-${answer.id}`}
+                              backgroundColor={backgroundColor}
+                              isReviewMode={isReviewMode}
+                              onPress={() =>
+                                handleSelectAnswer(questionData.id, answer.id)
+                              }
+                              disabled={isReviewMode}
+                            >
+                              <AnswerText selected={isSelected}>
+                                {`${answer.id.toUpperCase()}. ${answer.text}`}
+                              </AnswerText>
+                            </AnswerButton>
+                          );
+                        })}
+                      </AnswersContainer>
 
+                      {isReviewMode && (
+                        <>
+                          <JustificationContainer>
+                            <JustificationText>
+                              {questionData.descricao ||
+                                "Nenhuma justificativa disponível."}
+                            </JustificationText>
+                          </JustificationContainer>
 
-                  </QuizAnac>
-                ))}
+                          <ReviewButton
+                            questaoKey={`CMS-${questionData.id}`}
+                            alternativaAssinalada={
+                              selectedAnswers[String(questionData.id)] ?? ""
+                            }
+                            acertouQuestao={
+                              questionData.answers.find((a) => a.correct)
+                                ?.id ===
+                              selectedAnswers[String(questionData.id)]
+                            }
+                            token={user?.accessToken ?? ""}
+                          />
+                        </>
+                      )}
+                    </QuizAnac>
+                  );
+                })}
               </ScrollView>
 
               {!isReviewMode ? (
@@ -474,6 +452,6 @@ export function Blocos() {
           )}
         </>
       )}
-    </View>
+    </ScreenContainer>
   );
 }

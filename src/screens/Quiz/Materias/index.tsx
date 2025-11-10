@@ -1,76 +1,96 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
-import React, { useContext, useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { Alert, Modal, ScrollView } from "react-native";
 import { CircularProgress } from "react-native-circular-progress";
-import { RFValue } from "react-native-responsive-fontsize";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AuthContext } from "../../../contexts/auth";
-import { Materia } from "../../../enum/enum";
-import theme from "../../../global/global/theme";
-import { gerarProvaPorMateria } from "../../../services";
+
 import {
+  AnswerButton,
   AnswerText,
+  AnswersContainer,
   Bloco,
+  CircularProgressContainer,
+  CircularProgressText,
   FinishButton,
   FinishButtonText,
   FixedTimerContainer,
   HeaderQuiz,
-  ModalButton,
+  JustificationContainer,
+  JustificationText,
+  LoadingContainer,
+  LoadingContent,
+  LoadingSubtext,
+  LoadingText,
   ModalButtonCancel,
-  ModalButtonText,
   ModalButtonTextCancel,
+  ModalButtonsContainer,
+  ModalCard,
   ModalContainer,
+  ModalOptionButton,
+  ModalOptionButtonText,
+  ModalOptionsContainer,
+  ModalSectionTitle,
   ModalText,
+  Question,
+  QuestionContainer,
   QuizAnac,
+  ResultActionButton,
+  ResultActionButtonText,
+  ResultActionsContainer,
+  ResultModalCard,
+  ResultModalContainer,
+  ResultModalContent,
+  ResultModalTitle,
+  ScreenContainer,
   ScrollContainer,
   TimerText,
 } from "./styles";
-import { Answer, Question } from "./types"; // Importe os tipos do arquivo types.tsx
+import type { Answer, Question as QuizQuestion } from "./types";
+import { AuthContext } from "../../../contexts/auth";
+import { Materia } from "../../../enum/enum";
+import theme from "../../../global/global/theme";
+import { gerarProvaPorMateria } from "../../../services";
 import { ReviewButton } from "../../../components/ReviewButton";
 
+type BottomTabParamList = {
+  Principal: undefined;
+  Quiz: undefined;
+  Revisao: undefined;
+};
+
+type NavigationProps = BottomTabNavigationProp<BottomTabParamList, "Principal">;
+
+const materiasPorBloco: Record<string, Materia[]> = {
+  "Bloco 1": [Materia.EME, Materia.SBV],
+  "Bloco 2": [Materia.FHU, Materia.SAC, Materia.RAC, Materia.RPA, Materia.SVO],
+  "Bloco 3": [Materia.AFI, Materia.PSS],
+  "Bloco 4": [Materia.AER, Materia.NAV, Materia.MET],
+};
+
 export function Materias() {
-  const initialTime = 0; // Tempo inicial
+  const initialTime = 0;
   const { user } = useContext(AuthContext);
   const [modalVisible, setModalVisible] = useState(true);
   const [finishModalVisible, setFinishModalVisible] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(initialTime); // Tempo inicial (10 minutos)
+  const [timeLeft, setTimeLeft] = useState(initialTime);
   const [selectedAnswers, setSelectedAnswers] = useState<{
     [key: string]: string | null;
   }>({});
   const [scorePercentage, setScorePercentage] = useState(0);
   const [isReviewMode, setIsReviewMode] = useState(false);
-  const [finalTime, setFinalTime] = useState(600);
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [finalTime, setFinalTime] = useState(0);
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedMateria, setSelectedMateria] = useState<Materia | null>(null);
   const navigation = useNavigation<NavigationProps>();
   const { top } = useSafeAreaInsets();
 
-  type BottomTabParamList = {
-    Principal: undefined;
-    Quiz: undefined;
-    Revisao: undefined;
-  };
-
-  type NavigationProps = BottomTabNavigationProp<
-    BottomTabParamList,
-    "Principal"
-  >;
-
-  const fetchQuestions = async ({ materia }: { materia: Materia }) => {
+  const fetchQuestions = async (materia: Materia) => {
     try {
-      if (user == null) return;
+      if (!user?.accessToken) return;
+      setIsLoading(true);
       const questoes = await gerarProvaPorMateria(user.accessToken, {
         questao_por_materia: [
           {
@@ -80,47 +100,55 @@ export function Materias() {
           },
         ],
       });
-      const formattedQuestions = questoes.map((question: any) => ({
-        id: question.id,
-        question: question.questao_texto,
-        materia: question.materia,
-        descricao: question.descricao,
-        answers: [
-          {
-            id: "a",
-            text: question.questao_a,
-            correct: question.alternativa_correta === "a",
-          },
-          {
-            id: "b",
-            text: question.questao_b,
-            correct: question.alternativa_correta === "b",
-          },
-          {
-            id: "c",
-            text: question.questao_c,
-            correct: question.alternativa_correta === "c",
-          },
-          {
-            id: "d",
-            text: question.questao_d,
-            correct: question.alternativa_correta === "d",
-          },
-        ],
-      }));
+      const formattedQuestions: QuizQuestion[] = questoes.map(
+        (question: any) => ({
+          id: question.id,
+          question: question.questao_texto,
+          materia: question.materia,
+          descricao: question.descricao,
+          answers: [
+            {
+              id: "a",
+              text: question.questao_a,
+              correct: question.alternativa_correta === "a",
+            },
+            {
+              id: "b",
+              text: question.questao_b,
+              correct: question.alternativa_correta === "b",
+            },
+            {
+              id: "c",
+              text: question.questao_c,
+              correct: question.alternativa_correta === "c",
+            },
+            {
+              id: "d",
+              text: question.questao_d,
+              correct: question.alternativa_correta === "d",
+            },
+          ],
+        })
+      );
       setQuestions(formattedQuestions);
-      console.log("QUESTÕES FORMATADAS:", formattedQuestions);
     } catch (error) {
-      Alert.alert("Erro ao carregar as questões:");
+      console.error("Erro ao carregar as questões:", error);
+      Alert.alert(
+        "Erro",
+        "Não foi possível carregar as questões da matéria selecionada. Tente novamente."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleStartQuiz = (materia: Materia) => {
-    fetchQuestions({ materia });
+    setSelectedMateria(materia);
+    setSelectedAnswers({});
+    setIsReviewMode(false);
+    setTimeLeft(initialTime);
     setModalVisible(false);
-    setSelectedMateria(materia); // Sem conversão para string, mantém o tipo Materia
+    fetchQuestions(materia);
   };
 
   const handleSelectAnswer = (questionId: number, answerId: string) => {
@@ -140,7 +168,7 @@ export function Materias() {
   const handleFinishQuiz = () => {
     Alert.alert(
       "Finalizar Matéria",
-      "Tem certeza que deseja finalizar a Matéria?",
+      "Tem certeza que deseja finalizar a matéria?",
       [
         {
           text: "Cancelar",
@@ -152,29 +180,30 @@ export function Materias() {
             const filteredQuestions =
               selectedMateria !== null
                 ? questions.filter(
-                  (question) =>
-                    question.materia ===
-                    selectedMateria?.trim().toLowerCase(),
-                ) // Comparação com materia em minúsculas e sem espaços extras
+                    (question) =>
+                      question.materia?.trim().toLowerCase() ===
+                      selectedMateria.trim().toLowerCase()
+                  )
                 : [];
 
             const totalQuestions = filteredQuestions.length;
             const correctAnswers = filteredQuestions.filter((question) => {
               const selectedAnswerId = selectedAnswers[String(question.id)];
               const correctAnswer = question.answers.find(
-                (answer) => answer.correct,
+                (answer) => answer.correct
               );
               return selectedAnswerId === correctAnswer?.id;
             }).length;
 
             const calculatedScorePercentage =
-              (correctAnswers / totalQuestions) * 100;
+              totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+
             setScorePercentage(calculatedScorePercentage);
             setFinalTime(timeLeft);
             setFinishModalVisible(true);
           },
         },
-      ],
+      ]
     );
   };
 
@@ -183,8 +212,9 @@ export function Materias() {
     setTimeLeft(initialTime);
     setFinishModalVisible(false);
     setIsReviewMode(false);
-    setSelectedMateria(null); // Reinicia a matéria
-    setModalVisible(true); // Mostra o modal de seleção novamente
+    setSelectedMateria(null);
+    setModalVisible(true);
+    setQuestions([]);
   };
 
   const handleReviewQuiz = () => {
@@ -195,8 +225,9 @@ export function Materias() {
   const handleShowInfo = () => {
     Alert.alert(
       "Informações do Simulado",
-      `Você acertou ${scorePercentage.toFixed(2)}% das perguntas.\n` +
-      `Tempo total: ${formatTime(finalTime)}`,
+      `Você acertou ${scorePercentage.toFixed(
+        2
+      )}% das perguntas.\nTempo total: ${formatTime(finalTime)}`
     );
   };
 
@@ -211,387 +242,235 @@ export function Materias() {
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
 
-  useEffect(() => {
-    if (!isLoading) {
-      const timer = setInterval(() => {
-        if (isReviewMode) return;
-        setTimeLeft((prevTime) => prevTime + 1);
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [isReviewMode, isLoading]);
+  const quizStarted = useMemo(
+    () => selectedMateria !== null && !modalVisible,
+    [selectedMateria, modalVisible]
+  );
 
-  const filteredQuestions =
-    selectedMateria !== null
-      ? questions.filter(
-        (question) =>
-          question.materia === selectedMateria?.trim().toLowerCase(),
-      ) // Comparação em minúsculas e sem espaços extras
-      : [];
+  useEffect(() => {
+    if (!quizStarted || isReviewMode || isLoading || finishModalVisible) {
+      return;
+    }
+    const timer = setInterval(() => {
+      setTimeLeft((prevTime) => prevTime + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [quizStarted, isReviewMode, isLoading, finishModalVisible]);
+
+  const filteredQuestions = useMemo(() => {
+    if (selectedMateria == null) return [];
+    return questions.filter(
+      (question) =>
+        question.materia?.trim().toLowerCase() ===
+        selectedMateria.trim().toLowerCase()
+    );
+  }, [questions, selectedMateria]);
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        paddingVertical: top,
-        paddingHorizontal: 20,
-        backgroundColor: theme.colors.background,
-      }}
-    >
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
-        <SafeAreaView
-          style={{
-            flex: 1,
-            paddingVertical: top,
-            paddingHorizontal: 20,
-            backgroundColor: theme.colors.background,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: RFValue(18),
-              color: theme.colors.text,
-              width: "100%",
-              textAlign: "center",
-            }}
-          >
-            Escolha uma Matéria para Iniciar:
-          </Text>
-          <ScrollView>
-            <ModalContainer>
-              {/* Bloco 1 */}
-              <ModalText style={{ fontWeight: "bold", fontSize: 18 }}>
-                Bloco 1
-              </ModalText>
-              <View style={{ marginBottom: 10 }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                  }}
-                >
-                  {["EME", "SBV"].map((materia) => (
-                    <ModalButton
-                      key={materia}
-                      style={{ margin: 2 }} // Espaçamento entre botões
-                      onPress={() => handleStartQuiz(materia as Materia)}
-                    >
-                      <ModalButtonText>{materia}</ModalButtonText>
-                    </ModalButton>
-                  ))}
-                </View>
-              </View>
-
-              {/* Bloco 2 */}
-              <ModalText style={{ fontWeight: "bold", fontSize: 18 }}>
-                Bloco 2
-              </ModalText>
-              <View style={{ marginBottom: 10 }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                  }}
-                >
-                  {["FHU", "SAC", "RAC", "RPA", "SVO"].map((materia) => (
-                    <ModalButton
-                      key={materia}
-                      style={{ margin: 2 }} // Espaçamento entre botões
-                      onPress={() => handleStartQuiz(materia as Materia)}
-                    >
-                      <ModalButtonText>{materia}</ModalButtonText>
-                    </ModalButton>
-                  ))}
-                </View>
-              </View>
-
-              {/* Bloco 3 */}
-              <ModalText style={{ fontWeight: "bold", fontSize: 18 }}>
-                Bloco 3
-              </ModalText>
-              <View style={{ marginBottom: 10 }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                  }}
-                >
-                  {["AFI", "PSS"].map((materia) => (
-                    <ModalButton
-                      key={materia}
-                      style={{ margin: 2 }} // Espaçamento entre botões
-                      onPress={() => handleStartQuiz(materia as Materia)}
-                    >
-                      <ModalButtonText>{materia}</ModalButtonText>
-                    </ModalButton>
-                  ))}
-                </View>
-              </View>
-
-              {/* Bloco 4 */}
-              <ModalText style={{ fontWeight: "bold", fontSize: 18 }}>
-                Bloco 4
-              </ModalText>
-              <View style={{ marginBottom: 10 }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                  }}
-                >
-                  {["AER", "NAV", "MET"].map((materia) => (
-                    <ModalButton
-                      key={materia}
-                      style={{ margin: 2 }} // Espaçamento entre botões
-                      onPress={() => handleStartQuiz(materia as Materia)}
-                    >
-                      <ModalButtonText>{materia}</ModalButtonText>
-                    </ModalButton>
-                  ))}
-                </View>
-              </View>
-            </ModalContainer>
-          </ScrollView>
-          <ModalButtonCancel onPress={handleCancelQuiz}>
-            <ModalButtonTextCancel>Cancelar</ModalButtonTextCancel>
-          </ModalButtonCancel>
-        </SafeAreaView>
-      </Modal>
-
-      {/* Modal de finalização */}
-      <Modal
-        visible={finishModalVisible}
-        animationType="slide"
-        transparent={true}
-      >
-        <ModalContainer style={{ alignItems: "center" }}>
-          <Text
-            style={{
-              fontSize: 16,
-              marginBottom: 20,
-              width: "100%",
-              textAlign: "center",
-            }}
-          >
-            Resultado da Matéria: {selectedMateria?.toUpperCase()}
-          </Text>
-          <CircularProgress
-            size={120}
-            width={15}
-            fill={scorePercentage}
-            tintColor="#00e0ff"
-            backgroundColor="#3d5875"
-          >
-            {() => (
-              <Text
-                style={{
-                  fontSize: 24,
-                  color: "#000",
-                  width: "100%",
-                  textAlign: "center",
-                }}
-              >
-                {`${scorePercentage.toFixed(0)}%`}
-              </Text>
-            )}
-          </CircularProgress>
-
-          <View
-            style={{
-              flexDirection: "column",
-              marginTop: 30,
-              justifyContent: "space-between",
-            }}
-          >
-            <ModalButton
-              onPress={handleRestartQuiz}
-              style={{ flexDirection: "row", alignItems: "center" }}
-            >
-              <MaterialIcons
-                name="refresh"
-                size={24}
-                color="gray"
-                style={{ marginRight: 8 }}
-              />
-              <ModalButtonText>Refazer</ModalButtonText>
-            </ModalButton>
-
-            <ModalButton
-              onPress={handleReviewQuiz}
-              style={{ flexDirection: "row", alignItems: "center" }}
-            >
-              <MaterialIcons
-                name="assignment"
-                size={24}
-                color="gray"
-                style={{ marginRight: 8 }}
-              />
-              <ModalButtonText>Revisão</ModalButtonText>
-            </ModalButton>
-
-            <ModalButton
-              onPress={handleShowInfo}
-              style={{ flexDirection: "row", alignItems: "center" }}
-            >
-              <MaterialIcons
-                name="info"
-                size={24}
-                color="gray"
-                style={{ marginRight: 8 }}
-              />
-              <ModalButtonText>Info</ModalButtonText>
-            </ModalButton>
-
-            <ModalButton
-              onPress={handleCancelQuiz}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                backgroundColor: theme.colors.attention,
-              }}
-            >
-              <MaterialIcons
-                name="cancel"
-                size={24}
-                color="white"
-                style={{ marginRight: 8 }}
-              />
-              <ModalButtonText>Cancelar</ModalButtonText>
-            </ModalButton>
-          </View>
-        </ModalContainer>
-      </Modal>
-
-      {!modalVisible &&
-        selectedMateria &&
-        filteredQuestions.length > 0 &&
-        !isLoading ? (
-        <HeaderQuiz>
-          <FixedTimerContainer>
-            <MaterialIcons name="access-time" size={24} color="white" />
-            {!isReviewMode && <TimerText numberOfLines={1} ellipsizeMode="tail">{formatTime(timeLeft)}</TimerText>}
-          </FixedTimerContainer>
-
-          <ScrollView
-            contentContainerStyle={ScrollContainer}
-            showsVerticalScrollIndicator={false}
-          >
-            {filteredQuestions.map((questionData, index) => (
-              <QuizAnac key={questionData.id}>
-                <Bloco
-                  style={{
-                    marginVertical: 5,
-                    marginHorizontal: 5,
-                    marginTop: 20,
-                  }}
-                >
-                  Matéria: {questionData.materia.toUpperCase()}
-                </Bloco>
-                <Bloco>{`${index + 1}. ${questionData.question}`}</Bloco>
-                {questionData.answers &&
-                  questionData.answers.map((answer: Answer) => {
-                    const isSelected =
-                      selectedAnswers[String(questionData.id)] === answer.id;
-
-                    const correctAnswer = questionData.answers.find((a) => a.correct);
-
-                    const isCorrect = correctAnswer?.id === answer.id;
-                    const isReviewAnswer = isReviewMode;
-
-                    let backgroundColor = "gray";
-
-                    if (isReviewMode) {
-                      if (isSelected && isCorrect) {
-                        backgroundColor = theme.colors.primary; // Selecionada e correta
-                      } else if (isSelected && !isCorrect) {
-                        backgroundColor = theme.colors.primary; // Selecionada mas errada
-                      } else if (!isSelected && isCorrect) {
-                        backgroundColor = theme.colors.succes; // Correta não selecionada
-                      }
-                    } else {
-                      backgroundColor = isSelected ? theme.colors.primary : "gray";
-                    }
-
-                    return (
-                      <TouchableOpacity
-                        key={answer.id}
-                        onPress={() =>
-                          handleSelectAnswer(questionData.id, answer.id)
-                        }
-                        style={{
-                          padding: 10,
-                          marginVertical: 5,
-                          backgroundColor,
-                          borderRadius: 10,
-                          opacity: isReviewMode ? 0.7 : 1,
-                        }}
-                        disabled={isReviewMode}
-                      >
-                        <AnswerText style={{ color: "white" }} selected>
-                          {`${answer.id.toUpperCase()}. ${answer.text}`}
-                        </AnswerText>
-                      </TouchableOpacity>
-                    );
-                  })}
-
-                {isReviewMode && (
-                  <>
-                    <Text
-                      key={`justificativa-${questionData.id}`}
-                      style={{
-                        marginTop: 10,
-                        color: theme.colors.text,
-                        fontStyle: "italic",
-                        fontSize: 14,
-                      }}
-                    >
-                      {questionData.descricao || "Nenhuma justificativa disponível."}
-                    </Text>
-
-                    <ReviewButton
-                      key={`revisao-${questionData.id}`}
-                      questaoKey={`CMS-${questionData.id}`}
-                      alternativaAssinalada={selectedAnswers[String(questionData.id)] ?? ""}
-                      acertouQuestao={
-                        questionData.answers.find((a) => a.correct)?.id ===
-                        selectedAnswers[String(questionData.id)]
-                      }
-                      token={user?.accessToken ?? ""}
-                    />
-                  </>
-                )}
-
-
-              </QuizAnac>
-            ))}
-          </ScrollView>
-
-          {!isReviewMode ? (
-            <FinishButton onPress={handleFinishQuiz}>
-              <FinishButtonText>Finalizar</FinishButtonText>
-            </FinishButton>
-          ) : (
-            <FinishButton onPress={handleBackToResults}>
-              <FinishButtonText>Voltar ao Resultado</FinishButtonText>
-            </FinishButton>
-          )}
-        </HeaderQuiz>
+    <ScreenContainer paddingTop={top}>
+      {isLoading ? (
+        <LoadingContainer>
+          <LoadingContent>
+            <CircularProgress
+              size={80}
+              width={10}
+              fill={60}
+              tintColor={theme.colors.primary}
+              backgroundColor="#E0E0E0"
+            />
+            <LoadingText>Carregando questões...</LoadingText>
+            <LoadingSubtext>Preparando a matéria selecionada</LoadingSubtext>
+          </LoadingContent>
+        </LoadingContainer>
       ) : (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <ActivityIndicator size="large" color="#0000ff" />
-          <Text>Carregando...</Text>
-        </View>
+        <>
+          <Modal visible={modalVisible} animationType="fade" transparent>
+            <ModalContainer>
+              <ModalCard>
+                <ModalText>Escolha uma matéria para iniciar</ModalText>
+                {Object.entries(materiasPorBloco).map(
+                  ([titulo, materiasDoBloco]) => (
+                    <React.Fragment key={titulo}>
+                      <ModalSectionTitle>{titulo}</ModalSectionTitle>
+                      <ModalOptionsContainer>
+                        {materiasDoBloco.map((materia) => (
+                          <ModalOptionButton
+                            key={materia}
+                            onPress={() => handleStartQuiz(materia)}
+                          >
+                            <ModalOptionButtonText>
+                              {materia}
+                            </ModalOptionButtonText>
+                          </ModalOptionButton>
+                        ))}
+                      </ModalOptionsContainer>
+                    </React.Fragment>
+                  )
+                )}
+                <ModalButtonsContainer>
+                  <ModalButtonCancel onPress={handleCancelQuiz}>
+                    <ModalButtonTextCancel>Cancelar</ModalButtonTextCancel>
+                  </ModalButtonCancel>
+                </ModalButtonsContainer>
+              </ModalCard>
+            </ModalContainer>
+          </Modal>
+
+          <Modal visible={finishModalVisible} animationType="fade" transparent>
+            <ResultModalContainer>
+              <ResultModalCard>
+                <ResultModalContent>
+                  <ResultModalTitle>
+                    {`Resultado da Matéria ${selectedMateria ?? ""}`}
+                  </ResultModalTitle>
+                  <CircularProgressContainer>
+                    <CircularProgress
+                      size={120}
+                      width={16}
+                      fill={scorePercentage}
+                      tintColor={theme.colors.primary}
+                      backgroundColor="#E0E0E0"
+                    >
+                      {() => (
+                        <CircularProgressText>
+                          {`${scorePercentage.toFixed(0)}%`}
+                        </CircularProgressText>
+                      )}
+                    </CircularProgress>
+                  </CircularProgressContainer>
+                  <ResultActionsContainer>
+                    <ResultActionButton onPress={handleRestartQuiz}>
+                      <MaterialIcons name="refresh" size={20} color="gray" />
+                      <ResultActionButtonText>Refazer</ResultActionButtonText>
+                    </ResultActionButton>
+                    <ResultActionButton onPress={handleReviewQuiz}>
+                      <MaterialIcons name="assignment" size={20} color="gray" />
+                      <ResultActionButtonText>Revisão</ResultActionButtonText>
+                    </ResultActionButton>
+                    <ResultActionButton onPress={handleShowInfo}>
+                      <MaterialIcons name="info" size={20} color="gray" />
+                      <ResultActionButtonText>Info</ResultActionButtonText>
+                    </ResultActionButton>
+                    <ResultActionButton
+                      onPress={handleCancelQuiz}
+                      variant="danger"
+                    >
+                      <MaterialIcons name="cancel" size={20} color="white" />
+                      <ResultActionButtonText variant="danger">
+                        Cancelar
+                      </ResultActionButtonText>
+                    </ResultActionButton>
+                  </ResultActionsContainer>
+                </ResultModalContent>
+              </ResultModalCard>
+            </ResultModalContainer>
+          </Modal>
+
+          {quizStarted && filteredQuestions.length > 0 ? (
+            <HeaderQuiz>
+              <FixedTimerContainer>
+                <MaterialIcons name="access-time" size={24} color="white" />
+                {!isReviewMode && (
+                  <TimerText numberOfLines={1} ellipsizeMode="tail">
+                    {formatTime(timeLeft)}
+                  </TimerText>
+                )}
+              </FixedTimerContainer>
+
+              <ScrollView
+                contentContainerStyle={ScrollContainer}
+                showsVerticalScrollIndicator={false}
+              >
+                {filteredQuestions.map((questionData, index) => (
+                  <QuizAnac key={questionData.id}>
+                    <QuestionContainer>
+                      <Bloco>
+                        {`Matéria ${questionData.materia.toUpperCase()}`}
+                      </Bloco>
+                      <Question>{`${index + 1}. ${
+                        questionData.question
+                      }`}</Question>
+                    </QuestionContainer>
+
+                    <AnswersContainer>
+                      {questionData.answers.map((answer: Answer) => {
+                        const isSelected =
+                          selectedAnswers[String(questionData.id)] ===
+                          answer.id;
+                        const isCorrect = answer.correct;
+
+                        let backgroundColor = theme.colors.text;
+
+                        if (isReviewMode) {
+                          if (isSelected && isCorrect) {
+                            backgroundColor = theme.colors.primary;
+                          } else if (isSelected && !isCorrect) {
+                            backgroundColor = theme.colors.attention;
+                          } else if (!isSelected && isCorrect) {
+                            backgroundColor = theme.colors.succes;
+                          }
+                        } else if (isSelected) {
+                          backgroundColor = theme.colors.primary;
+                        }
+
+                        return (
+                          <AnswerButton
+                            key={answer.id}
+                            onPress={() =>
+                              handleSelectAnswer(questionData.id, answer.id)
+                            }
+                            backgroundColor={backgroundColor}
+                            isReviewMode={isReviewMode}
+                            disabled={isReviewMode}
+                          >
+                            <AnswerText selected={isSelected}>
+                              {`${answer.id.toUpperCase()}. ${answer.text}`}
+                            </AnswerText>
+                          </AnswerButton>
+                        );
+                      })}
+                    </AnswersContainer>
+
+                    {isReviewMode && (
+                      <>
+                        <JustificationContainer>
+                          <JustificationText>
+                            {questionData.descricao ||
+                              "Nenhuma justificativa disponível."}
+                          </JustificationText>
+                        </JustificationContainer>
+
+                        <ReviewButton
+                          questaoKey={`CMS-${questionData.id}`}
+                          alternativaAssinalada={
+                            selectedAnswers[String(questionData.id)] ?? ""
+                          }
+                          acertouQuestao={
+                            questionData.answers.find((a) => a.correct)?.id ===
+                            selectedAnswers[String(questionData.id)]
+                          }
+                          token={user?.accessToken ?? ""}
+                        />
+                      </>
+                    )}
+                  </QuizAnac>
+                ))}
+              </ScrollView>
+
+              {!isReviewMode ? (
+                <FinishButton onPress={handleFinishQuiz}>
+                  <FinishButtonText>Finalizar</FinishButtonText>
+                </FinishButton>
+              ) : (
+                <FinishButton onPress={handleBackToResults}>
+                  <FinishButtonText>Voltar ao Resultado</FinishButtonText>
+                </FinishButton>
+              )}
+            </HeaderQuiz>
+          ) : null}
+        </>
       )}
-    </SafeAreaView>
+    </ScreenContainer>
   );
 }
