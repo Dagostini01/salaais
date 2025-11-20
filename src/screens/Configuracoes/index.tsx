@@ -50,7 +50,7 @@ export const Configuracoes = () => {
   const navigation = useNavigation<NavigationProps>();
   const { user, signOut } = useContext(AuthContext);
   const { top, bottom } = useSafeAreaInsets();
-  const url = `${process.env.EXPO_PUBLIC_WEB_URL}/settings?token=${user?.accessToken}`;
+  const url = `${process.env.EXPO_PUBLIC_WEB_URL}/home/configuracoes?token=${user?.accessToken}`;
   const url2 = "https://sandwiche.me/canalsalaais";
 
   const handleGoHome = useCallback(() => {
