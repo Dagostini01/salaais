@@ -14,6 +14,16 @@ import { authLogin } from "../services/";
 import { dataUser, loginApple } from "../services/services";
 import { PlanType, PermissionType } from "../utils/enums";
 
+type Permissao = {
+  ativo: boolean;
+  data_criacao: string;
+  data_fim: string;
+  data_inicio: string | null;
+  id: number;
+  id_key: number;
+  key: string;
+};
+
 type UserType =
   | {
       id: number;
@@ -24,6 +34,7 @@ type UserType =
       accessToken: string;
       permission: string;
       appleToken?: string;
+      diasRestantes?: number;
     }
   | undefined;
 
@@ -41,6 +52,7 @@ type AuthContextType = {
   user: UserType;
   setUser: React.Dispatch<React.SetStateAction<UserType>>;
   getPermissionUser: (token: string) => Promise<string>;
+  getDiasRestantes: (token: string) => Promise<number>;
   signed: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
@@ -67,19 +79,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
+  const validPlans = [
+    PlanType.BRONZE,
+    PlanType.PRATA,
+    PlanType.OURO,
+    PlanType.PREMIUM,
+  ];
+
   const getPermissionUser = async (token: string) => {
-    const { permissoes } = await dataUser(token);
-    const validPlans = [
-      PlanType.BRONZE,
-      PlanType.PRATA,
-      PlanType.OURO,
-      PlanType.PREMIUM,
-    ];
+    const { permissoes }: { permissoes: Permissao[] } = await dataUser(token);
     const { key: permission } = permissoes.find(
       (item: { ativo: boolean; key: string }) =>
         item.ativo === true && validPlans.includes(item.key as PlanType)
     ) || { key: PermissionType.COMUM };
+    getDiasRestantes(token);
     return permission;
+  };
+
+  const getDiasRestantes = async (token: string) => {
+    const { permissoes }: { permissoes: Permissao[] } = await dataUser(token);
+    const dataFinal = permissoes.filter((itemLocal) => {
+      return validPlans.includes(itemLocal.key as PlanType);
+    });
+    const dataFim = dataFinal.length > 0 ? dataFinal[0].data_fim : null;
+    const diasRestantes = dataFim
+      ? Math.floor(
+          (new Date(dataFim).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+        )
+      : 0;
+    return diasRestantes;
   };
 
   const signInWithApple = async () => {
@@ -111,6 +139,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         permission,
         accessToken: accessTokenApi,
         appleToken: appleCredential.identityToken ?? userResponse.token,
+        diasRestantes: await getDiasRestantes(accessTokenApi),
       };
       setUser(userItem);
       await SecureStore.setItemAsync("userApple", JSON.stringify(userItem));
@@ -369,6 +398,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       value={{
         setUser,
         getPermissionUser,
+        getDiasRestantes,
         signed: Boolean(user),
         user,
         signInWithGoogle,

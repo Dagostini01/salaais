@@ -51,7 +51,8 @@ type NavigationProps = BottomTabNavigationProp<BottomTabParamList, "Principal">;
 
 export function Principal() {
   const navigation = useNavigation<NavigationProps>();
-  const { user, setUser, getPermissionUser } = useContext(AuthContext);
+  const { user, setUser, getPermissionUser, getDiasRestantes } =
+    useContext(AuthContext);
   const { top, bottom } = useSafeAreaInsets();
 
   const isCommon = useMemo(
@@ -78,9 +79,13 @@ export function Principal() {
         if (!user?.accessToken) return;
         try {
           const permission = await getPermissionUser(user.accessToken);
+          const dias = await getDiasRestantes(user.accessToken);
           if (!active) return;
           if (permission && permission !== user.permission) {
             setUser({ ...user, permission });
+          }
+          if (dias && dias !== user.diasRestantes) {
+            setUser({ ...user, diasRestantes: dias });
           }
         } catch (err) {
           console.error("error", err);
@@ -90,7 +95,14 @@ export function Principal() {
       return () => {
         active = false;
       };
-    }, [user?.accessToken, user?.permission, getPermissionUser, setUser, user])
+    }, [
+      user?.accessToken,
+      user?.permission,
+      getPermissionUser,
+      setUser,
+      user,
+      getDiasRestantes,
+    ])
   );
 
   if (user == null) return null;
@@ -123,9 +135,7 @@ export function Principal() {
               <SubscriptionInfoTextTime>
                 {isCommon
                   ? "Acesso Gratuito"
-                  : `Seu acesso encerra em ${
-                      Math.floor(Math.random() * 120) + 1
-                    } dias`}
+                  : `Seu acesso encerra em ${user.diasRestantes ?? 0} dias`}
               </SubscriptionInfoTextTime>
             </SubscriptionInfoLeft>
             <SubscriptionBadge>
