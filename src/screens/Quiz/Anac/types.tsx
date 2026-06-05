@@ -6,6 +6,7 @@ export interface Answer {
 
 export interface Question {
   id: number;
+  key: string;
   question: string;
   bloco: number;
   materia: string;

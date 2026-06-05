@@ -53,7 +53,11 @@ import {
   TimerText,
 } from "./styles";
 import type { Question as QuizQuestion } from "./types";
-import { gerarProvaAleatoria, gerarProvaNormal } from "../../../services";
+import {
+  finalizarSimuladoAnac,
+  gerarProvaAleatoria,
+  gerarProvaNormal,
+} from "../../../services";
 import theme from "../../../global/global/theme";
 import { ProgressStatusBar } from "../../../components/ProgressStatusBar";
 import { ReviewButton } from "../../../components/ReviewButton";
@@ -107,6 +111,7 @@ export function Anac() {
             questao_c: string;
             questao_d: string;
             alternativa_correta: string;
+            key?: string;
           }>;
         };
 
@@ -124,6 +129,7 @@ export function Anac() {
         const formattedQuestions: QuizQuestion[] = quizData.data.map(
           (question) => ({
             id: question.id,
+            key: question.key ?? `cms-${question.id}`,
             question: question.questao_texto,
             bloco: question.bloco,
             materia: question.materia,
@@ -205,13 +211,53 @@ export function Anac() {
               (correctAnswers / totalQuestions) * 100;
             setScorePercentage(calculatedScorePercentage);
 
-            try {
-              await AsyncStorage.setItem(
-                "lastQuizResult",
-                JSON.stringify(calculatedScorePercentage)
-              );
-            } catch (error) {
-              console.error("Erro ao salvar o resultado do quiz:", error);
+            const duracaoMinutos = Math.max(
+              1,
+              Math.round((initialTime - timeLeft) / 60),
+            );
+
+            const respostas = questions
+              .filter((q) => selectedAnswers[String(q.id)])
+              .map((q) => ({
+                key: q.key,
+                alternativa: selectedAnswers[String(q.id)] as string,
+              }));
+
+            if (user?.accessToken && respostas.length > 0) {
+              try {
+                const resultadoServidor = await finalizarSimuladoAnac(
+                  user.accessToken,
+                  {
+                    respostas,
+                    duracaoMinutos,
+                    realizadaEm: new Date().toISOString(),
+                  },
+                );
+                setScorePercentage(resultadoServidor.percentual);
+                await AsyncStorage.setItem(
+                  "lastQuizResult",
+                  JSON.stringify(resultadoServidor.percentual),
+                );
+              } catch (error) {
+                console.error("Erro ao persistir simulado ANAC:", error);
+                try {
+                  await AsyncStorage.setItem(
+                    "lastQuizResult",
+                    JSON.stringify(calculatedScorePercentage),
+                  );
+                } catch (storageError) {
+                  console.error("Erro ao salvar o resultado do quiz:", storageError);
+                }
+              }
+            } else {
+              try {
+                await AsyncStorage.setItem(
+                  "lastQuizResult",
+                  JSON.stringify(calculatedScorePercentage),
+                );
+              } catch (error) {
+                console.error("Erro ao salvar o resultado do quiz:", error);
+              }
             }
 
             const blocosUnicos = [...new Set(questions.map((q) => q.bloco))];
@@ -519,7 +565,7 @@ export function Anac() {
                           </JustificationContainer>
 
                           <ReviewButton
-                            questaoKey={`CMS-${questionData.id}`}
+                            questaoKey={questionData.key}
                             alternativaAssinalada={
                               selectedAnswers[String(questionData.id)] ?? ""
                             }

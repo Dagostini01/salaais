@@ -23,3 +23,21 @@ export interface LoginApplePayload {
   email?: string;
   name?: string;
 }
+
+export interface FinalizarSimuladoAnacResposta {
+  key: string;
+  alternativa: string;
+}
+
+export interface FinalizarSimuladoAnacPayload {
+  respostas: FinalizarSimuladoAnacResposta[];
+  duracaoMinutos: number;
+  realizadaEm?: string;
+}
+
+export interface FinalizarSimuladoAnacResponse {
+  id: string;
+  resultado: "APROVADO" | "REPROVADO" | "2ª ÉPOCA";
+  percentual: number;
+  realizadaEm: string;
+}

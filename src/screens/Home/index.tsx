@@ -1,22 +1,26 @@
-import React, { useCallback, useContext, useMemo } from "react";
-import { TouchableOpacity, View } from "react-native";
+import React, { useCallback, useContext, useMemo, useState } from "react";
+import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../../contexts/auth";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { Card } from "../../components/Card";
 import { CardImage } from "../../components/CardImage";
-import { CirclePercentage } from "../../components/CirclePercentage";
+import { PerformancePieChart } from "../../components/PerformancePieChart";
+import { RecentAnacExams } from "../../components/RecentAnacExams";
+import { getDashboardHome } from "../../services";
+import {
+  EMPTY_HOME_DASHBOARD,
+  type HomeDashboardPayload,
+} from "../../types/homeDashboard";
 import {
   CardsTest,
   Container,
+  DashboardLoading,
   Header,
   HighlightCards,
+  ScrollContent,
   Icon,
-  LastNameTest,
-  LastTest,
-  LastTestContent,
   NameCardTest,
-  NameTest,
   Photo,
   TextViewPlano,
   TitleViewPlano,
@@ -36,6 +40,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ANAC_LOGO from "../../assets/anac-logo.png";
 import { PermissionType } from "../../utils/enums";
+import theme from "../../global/global/theme";
 
 type BottomTabParamList = {
   Materias: undefined;
@@ -54,6 +59,9 @@ export function Principal() {
   const { user, setUser, getPermissionUser, getDiasRestantes } =
     useContext(AuthContext);
   const { top, bottom } = useSafeAreaInsets();
+  const [dashboard, setDashboard] =
+    useState<HomeDashboardPayload>(EMPTY_HOME_DASHBOARD);
+  const [isDashboardLoading, setIsDashboardLoading] = useState(true);
 
   const isCommon = useMemo(
     () => user?.permission === PermissionType.COMUM,
@@ -75,6 +83,21 @@ export function Principal() {
   useFocusEffect(
     useCallback(() => {
       let active = true;
+
+      const fetchDashboard = async () => {
+        if (!user?.accessToken) return;
+        setIsDashboardLoading(true);
+        try {
+          const data = await getDashboardHome(user.accessToken);
+          if (active) setDashboard(data);
+        } catch (err) {
+          console.error("Erro ao carregar dashboard:", err);
+          if (active) setDashboard(EMPTY_HOME_DASHBOARD);
+        } finally {
+          if (active) setIsDashboardLoading(false);
+        }
+      };
+
       const fetchPermission = async () => {
         if (!user?.accessToken) return;
         try {
@@ -91,6 +114,8 @@ export function Principal() {
           console.error("error", err);
         }
       };
+
+      fetchDashboard();
       fetchPermission();
       return () => {
         active = false;
@@ -102,7 +127,7 @@ export function Principal() {
       setUser,
       user,
       getDiasRestantes,
-    ])
+    ]),
   );
 
   if (user == null) return null;
@@ -147,48 +172,56 @@ export function Principal() {
         </SubscriptionInfo>
       </Header>
       <Container>
-        <CardsTest>
-          <NameCardTest>Realizar Simulado</NameCardTest>
-          <HighlightCards>
-            <CardImage onPress={navigateToAnac} imageUrl={ANAC_LOGO} />
-            {!isCommon && (
-              <>
-                <Card
-                  onPress={navigateToBlocos}
-                  title="Blocos"
-                  iconName="book"
-                />
-                <Card
-                  onPress={navigateToMaterias}
-                  title="Matérias"
-                  iconName="menu-book"
-                />
-              </>
-            )}
-          </HighlightCards>
-        </CardsTest>
+        <ScrollContent>
+          <CardsTest>
+            <NameCardTest>Realizar Simulado</NameCardTest>
+            <HighlightCards>
+              <CardImage onPress={navigateToAnac} imageUrl={ANAC_LOGO} />
+              {!isCommon && (
+                <>
+                  <Card
+                    onPress={navigateToBlocos}
+                    title="Blocos"
+                    iconName="book"
+                  />
+                  <Card
+                    onPress={navigateToMaterias}
+                    title="Matérias"
+                    iconName="menu-book"
+                  />
+                </>
+              )}
+            </HighlightCards>
+          </CardsTest>
 
-        <LastTest>
-          <CirclePercentage />
-          <LastTestContent>
-            <NameTest>Simulado ANAC</NameTest>
-            <LastNameTest>Último Simulado ANAC</LastNameTest>
-          </LastTestContent>
-        </LastTest>
+          {isDashboardLoading ? (
+            <DashboardLoading>
+              <ActivityIndicator
+                size="large"
+                color={theme.colors.primary}
+              />
+            </DashboardLoading>
+          ) : (
+            <>
+              <PerformancePieChart data={dashboard.mediaDesempenho} />
+              <RecentAnacExams exams={dashboard.ultimasProvasAnac} />
+            </>
+          )}
 
-        {isCommon && (
-          <ViewPlano style={{ marginBottom: bottom }}>
-            <TitleViewPlano>
-              Você está na versão de demonstração.
-            </TitleViewPlano>
-            <TextViewPlano>
-              Com ela, você pode realizar uma prova modelo gratuitamente. Para
-              liberar todos os recursos e se preparar com eficiência para a
-              ANAC, adquira um plano de estudos clicando no ícone de
-              configurações e veja sua conta.
-            </TextViewPlano>
-          </ViewPlano>
-        )}
+          {isCommon && (
+            <ViewPlano style={{ marginBottom: bottom }}>
+              <TitleViewPlano>
+                Você está na versão de demonstração.
+              </TitleViewPlano>
+              <TextViewPlano>
+                Com ela, você pode realizar uma prova modelo gratuitamente. Para
+                liberar todos os recursos e se preparar com eficiência para a
+                ANAC, adquira um plano de estudos clicando no ícone de
+                configurações e veja sua conta.
+              </TextViewPlano>
+            </ViewPlano>
+          )}
+        </ScrollContent>
       </Container>
     </>
   );

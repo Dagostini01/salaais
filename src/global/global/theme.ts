@@ -5,6 +5,9 @@ export default {
     secondary: "#FF872C",
     secondary_light: "rgba(255, 135, 44, 0.3)",
 
+    anac: "#005C92",
+    anac_light: "rgba(0, 92, 146, 0.2)",
+
     succes: "#12A454",
     succes_light: "rgba(18, 164, 84, 0.5)",
 
