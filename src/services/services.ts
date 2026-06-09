@@ -1,4 +1,10 @@
-import type { LoginApplePayload, ProvaMateriaPayload } from "./type";
+import type { HomeDashboardPayload } from "../types/homeDashboard";
+import type {
+  FinalizarSimuladoAnacPayload,
+  FinalizarSimuladoAnacResponse,
+  LoginApplePayload,
+  ProvaMateriaPayload,
+} from "./type";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 // const API_URL = "http://10.0.2.2:3001";
@@ -220,4 +226,46 @@ export async function gerarProvaNormal(
   } catch (error: any) {
     throw new Error("Erro ao gerar prova normal", error);
   }
+}
+
+export async function getDashboardHome(
+  token: string,
+): Promise<HomeDashboardPayload> {
+  const response = await fetch(`${API_URL}/usuario/dashboard-home`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Erro ao carregar dashboard: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function finalizarSimuladoAnac(
+  token: string,
+  payload: FinalizarSimuladoAnacPayload,
+): Promise<FinalizarSimuladoAnacResponse> {
+  const response = await fetch(`${API_URL}/questao/finalizar-simulado-anac`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    console.error("Erro ao finalizar simulado ANAC:", err);
+    throw new Error("Erro ao salvar resultado do simulado ANAC");
+  }
+
+  return response.json();
 }

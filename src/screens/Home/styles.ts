@@ -5,7 +5,23 @@ import styled from "styled-components/native";
 export const Container = styled.View`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.text};
-  padding: 16px;
+`;
+
+export const ScrollContent = styled.ScrollView.attrs({
+  showsVerticalScrollIndicator: false,
+  nestedScrollEnabled: true,
+  contentContainerStyle: {
+    padding: 16,
+    gap: 20,
+    flexGrow: 1,
+  },
+})``;
+
+export const DashboardLoading = styled.View`
+  width: 100%;
+  padding: 40px 0;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const Header = styled.View`
@@ -111,7 +127,6 @@ export const Icon = styled(Feather)`
 
 export const CardsTest = styled.View`
   gap: 20px;
-  margin-bottom: 24px;
 `;
 
 export const NameCardTest = styled.Text`

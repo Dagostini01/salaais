@@ -6,6 +6,8 @@ declare module "styled-components/native" {
       primary: string;
       secondary: string;
       secondary_light: string;
+      anac: string;
+      anac_light: string;
       succes: string;
       succes_light: string;
       attention: string;
