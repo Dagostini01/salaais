@@ -1,6 +1,7 @@
 import type { LoginApplePayload, ProvaMateriaPayload } from "./type";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
+// const API_URL = "http://10.0.2.2:3001";
 
 type ProvaAleatoriaPayload = {
   curso: string;
@@ -14,7 +15,7 @@ type ProvaNormalPayload = {
 
 export const paymentSheetParams = async (
   accessToken: string,
-  productKey: string
+  productKey: string,
 ) => {
   try {
     const response = await fetch(
@@ -25,7 +26,7 @@ export const paymentSheetParams = async (
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-      }
+      },
     );
 
     const data = await response.json();
@@ -118,7 +119,7 @@ export async function enviarRevisaoQuestao(
     descricao: string;
     acertou_questao: boolean;
     resposta_equipe: string;
-  }
+  },
 ) {
   try {
     const response = await fetch(`${API_URL}/questao/revisao`, {
@@ -146,7 +147,7 @@ export async function enviarRevisaoQuestao(
 
 export async function gerarProvaAleatoria(
   token: string,
-  payload: ProvaAleatoriaPayload
+  payload: ProvaAleatoriaPayload,
 ) {
   try {
     const response = await fetch(`${API_URL}/questao/gerar-prova/aleatoria`, {
@@ -171,7 +172,7 @@ export async function gerarProvaAleatoria(
 
 export async function gerarProvaPorMateria(
   token: string,
-  payload: ProvaMateriaPayload
+  payload: ProvaMateriaPayload,
 ) {
   try {
     const response = await fetch(`${API_URL}/questao/gerar-prova/materia`, {
@@ -198,7 +199,7 @@ export async function gerarProvaPorMateria(
 
 export async function gerarProvaNormal(
   token: string,
-  payload: ProvaNormalPayload
+  payload: ProvaNormalPayload,
 ) {
   try {
     const response = await fetch(`${API_URL}/questao/gerar-prova/normal`, {
