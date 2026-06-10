@@ -11,8 +11,9 @@
     "format": "yarn biome format --write ./src ",
     "lint": "yarn biome lint --write ./src",
     "android:release": "expo run:android --variant release",
-    "aab": "cd android && ./gradlew bundleRelease && cd .. && mv android/app/build/outputs/bundle/release/app-release.aab ./salaais-release.aab && echo '✅ AAB movido para raiz: salaais-release.aab'",
-    "sha1": "keytool -list -v -keystore sala-ais.keystore -alias sala-ais -storepass salaais -keypass salaais"
+    "aab": "cd android && ./gradlew bundleRelease && cd .. && mv android/app/build/outputs/bundle/release/app-release.aab ./salaais-release.aab && cp android/app/build/outputs/mapping/release/mapping.txt ./salaais-release-mapping.txt && echo '✅ AAB movido para raiz: salaais-release.aab' && echo '✅ Mapping de desofuscação: salaais-release-mapping.txt'",
+    "sha1": "keytool -list -v -keystore sala-ais.keystore -alias sala-ais -storepass salaais -keypass salaais",
+    "update:prod": "eas update --channel production"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.1.2",
@@ -27,6 +28,7 @@
     "expo-crypto": "~14.1.5",
     "expo-secure-store": "~14.2.3",
     "expo-status-bar": "~2.2.3",
+    "expo-updates": "~0.28.18",
     "jwt-decode": "^4.0.0",
     "react": "19.0.0",
     "react-native": "0.79.5",
