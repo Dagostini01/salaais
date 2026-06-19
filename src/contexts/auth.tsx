@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { Platform } from "react-native";
-import { authLogin } from "../services/";
+import { authLogin, deleteUser } from "../services/";
 import { dataUser, loginApple } from "../services/services";
 import { PlanType, PermissionType } from "../utils/enums";
 
@@ -57,7 +57,8 @@ type AuthContextType = {
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
   signInWithAppleComplete: (name?: string, email?: string) => Promise<void>;
-  signOut: () => void;
+  signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   getToken: () => Promise<void>;
   loading: boolean;
 };
@@ -393,6 +394,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(undefined);
   };
 
+  const deleteAccount = async () => {
+    if (!user?.accessToken || !user.id) {
+      throw new Error("Usuário não autenticado");
+    }
+
+    await deleteUser(user.accessToken, user.id);
+    await signOut();
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -403,6 +413,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         signInWithGoogle,
         signOut,
+        deleteAccount,
         loading,
         getToken,
         signInWithApple,

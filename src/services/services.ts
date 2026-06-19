@@ -100,19 +100,19 @@ export const dataUser = async (token: string) => {
 };
 
 export const deleteUser = async (token: string, id: number) => {
-  try {
-    const response = await fetch(`${API_URL}/usuario/${id}`, {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!response.ok) {
-      throw new Error("Erro ao excluir usuário");
-    }
-  } catch (error: any) {
-    throw new Error("Erro ao excluir usuário", error);
+  const response = await fetch(`${API_URL}/usuario/${id}`, {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text().catch(() => "");
+    throw new Error(
+      errorBody || `Erro ao excluir usuário (${response.status})`,
+    );
   }
 };
 
