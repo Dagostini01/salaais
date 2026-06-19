@@ -10,32 +10,43 @@ import { RecentAnacExams } from "../../components/RecentAnacExams";
 import { getDashboardHome } from "../../services";
 import {
   EMPTY_HOME_DASHBOARD,
+  hasHomeDashboardData,
   type HomeDashboardPayload,
 } from "../../types/homeDashboard";
 import {
   CardsTest,
   Container,
   DashboardLoading,
+  DashboardSection,
+  EmptyDashboardCard,
+  EmptyDashboardIcon,
+  EmptyDashboardIconWrapper,
+  EmptyDashboardText,
+  EmptyDashboardTitle,
   Header,
   HighlightCards,
-  ScrollContent,
   Icon,
+  LoadingText,
   NameCardTest,
   Photo,
+  ScrollContent,
+  ScreenWrapper,
+  SectionHeader,
+  SectionSubtitle,
+  SubscriptionBadge,
+  SubscriptionBadgeText,
+  SubscriptionInfo,
+  SubscriptionInfoLeft,
+  SubscriptionInfoRow,
+  SubscriptionInfoText,
+  SubscriptionInfoTextTime,
   TextViewPlano,
   TitleViewPlano,
   UserGreeting,
   UserInfo,
+  UserInfoContent,
   UserName,
   ViewPlano,
-  UserInfoContent,
-  SubscriptionInfo,
-  SubscriptionInfoText,
-  SubscriptionInfoTextTime,
-  SubscriptionInfoRow,
-  SubscriptionInfoLeft,
-  SubscriptionBadge,
-  SubscriptionBadgeText,
 } from "./styles";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ANAC_LOGO from "../../assets/anac-logo.png";
@@ -65,14 +76,19 @@ export function Principal() {
 
   const isCommon = useMemo(
     () => user?.permission === PermissionType.COMUM,
-    [user?.permission]
+    [user?.permission],
+  );
+
+  const hasDashboardData = useMemo(
+    () => hasHomeDashboardData(dashboard),
+    [dashboard],
   );
 
   const handleNavigate = useCallback(
     (route: keyof BottomTabParamList) => {
       navigation.navigate(route);
     },
-    [navigation]
+    [navigation],
   );
 
   const navigateToSettings = () => handleNavigate("Configuracoes");
@@ -133,7 +149,7 @@ export function Principal() {
   if (user == null) return null;
 
   return (
-    <>
+    <ScreenWrapper>
       <Header style={{ paddingTop: top * 1.25 }}>
         <UserInfo>
           <UserInfoContent>
@@ -165,16 +181,20 @@ export function Principal() {
             </SubscriptionInfoLeft>
             <SubscriptionBadge>
               <SubscriptionBadgeText>
-                CMS {user.permission}
+                {isCommon ? "Demonstração" : `CMS ${user.permission}`}
               </SubscriptionBadgeText>
             </SubscriptionBadge>
           </SubscriptionInfoRow>
         </SubscriptionInfo>
       </Header>
+
       <Container>
-        <ScrollContent>
+        <ScrollContent contentContainerStyle={{ paddingBottom: bottom + 20 }}>
           <CardsTest>
-            <NameCardTest>Realizar Simulado</NameCardTest>
+            <SectionHeader>
+              <NameCardTest>Realizar Simulado</NameCardTest>
+              <SectionSubtitle>Escolha como quer estudar</SectionSubtitle>
+            </SectionHeader>
             <HighlightCards>
               <CardImage onPress={navigateToAnac} imageUrl={ANAC_LOGO} />
               {!isCommon && (
@@ -196,20 +216,31 @@ export function Principal() {
 
           {isDashboardLoading ? (
             <DashboardLoading>
-              <ActivityIndicator
-                size="large"
-                color={theme.colors.primary}
-              />
+              <ActivityIndicator size="large" color={theme.colors.primary} />
+              <LoadingText>Carregando seu desempenho...</LoadingText>
             </DashboardLoading>
-          ) : (
-            <>
+          ) : hasDashboardData ? (
+            <DashboardSection>
               <PerformancePieChart data={dashboard.mediaDesempenho} />
               <RecentAnacExams exams={dashboard.ultimasProvasAnac} />
-            </>
+            </DashboardSection>
+          ) : (
+            <EmptyDashboardCard>
+              <EmptyDashboardIconWrapper>
+                <EmptyDashboardIcon name="bar-chart-2" />
+              </EmptyDashboardIconWrapper>
+              <EmptyDashboardTitle>
+                Nenhuma prova realizada ainda
+              </EmptyDashboardTitle>
+              <EmptyDashboardText>
+                Faça seu primeiro simulado ANAC para acompanhar sua média de
+                desempenho e ver o histórico das suas provas aqui.
+              </EmptyDashboardText>
+            </EmptyDashboardCard>
           )}
 
           {isCommon && (
-            <ViewPlano style={{ marginBottom: bottom }}>
+            <ViewPlano>
               <TitleViewPlano>
                 Você está na versão de demonstração.
               </TitleViewPlano>
@@ -221,8 +252,9 @@ export function Principal() {
               </TextViewPlano>
             </ViewPlano>
           )}
+
         </ScrollContent>
       </Container>
-    </>
+    </ScreenWrapper>
   );
 }

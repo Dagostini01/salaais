@@ -2,32 +2,130 @@ import Feather from "@expo/vector-icons/Feather";
 import { Platform } from "react-native";
 import styled from "styled-components/native";
 
+export const ScreenWrapper = styled.View`
+  flex: 1;
+  background-color: ${({ theme }) => theme.colors.primary};
+`;
+
 export const Container = styled.View`
   flex: 1;
   background-color: ${({ theme }) => theme.colors.text};
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+  margin-top: -10px;
+  padding-top: 12px;
+  overflow: hidden;
 `;
 
 export const ScrollContent = styled.ScrollView.attrs({
   showsVerticalScrollIndicator: false,
   nestedScrollEnabled: true,
   contentContainerStyle: {
-    padding: 16,
-    gap: 20,
+    paddingHorizontal: 20,
+    paddingTop: 28,
+    gap: 24,
     flexGrow: 1,
   },
 })``;
 
+export const ContentSection = styled.View`
+  gap: 16px;
+`;
+
+export const SectionHeader = styled.View`
+  gap: 4px;
+`;
+
+export const NameCardTest = styled.Text`
+  color: ${({ theme }) => theme.colors.shape};
+  font-size: ${Platform.OS === "ios" ? "24px" : "22px"};
+  font-weight: 700;
+  letter-spacing: 0.2px;
+`;
+
+export const SectionSubtitle = styled.Text`
+  color: ${({ theme }) => theme.colors.shape};
+  font-size: ${Platform.OS === "ios" ? "14px" : "13px"};
+  opacity: 0.75;
+`;
+
+export const HighlightCards = styled.ScrollView.attrs({
+  horizontal: true,
+  showsHorizontalScrollIndicator: false,
+  contentContainerStyle: { gap: 14, paddingRight: 4, paddingBottom: 4 },
+})``;
+
+export const DashboardSection = styled.View`
+  gap: 20px;
+`;
+
 export const DashboardLoading = styled.View`
   width: 100%;
-  padding: 40px 0;
+  padding: 36px 20px;
   align-items: center;
   justify-content: center;
+  gap: 14px;
+  background-color: ${({ theme }) => theme.colors.shape};
+  border-radius: 16px;
+  shadow-color: ${({ theme }) => theme.colors.dark};
+  shadow-offset: 0px 2px;
+  shadow-opacity: 0.08;
+  shadow-radius: 8px;
+  elevation: 3;
+`;
+
+export const LoadingText = styled.Text`
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${Platform.OS === "ios" ? "14px" : "13px"};
+  font-weight: 500;
+`;
+
+export const EmptyDashboardCard = styled.View`
+  width: 100%;
+  padding: 28px 24px;
+  align-items: center;
+  gap: 12px;
+  background-color: ${({ theme }) => theme.colors.shape};
+  border-radius: 16px;
+  shadow-color: ${({ theme }) => theme.colors.dark};
+  shadow-offset: 0px 3px;
+  shadow-opacity: 0.1;
+  shadow-radius: 8px;
+  elevation: 4;
+`;
+
+export const EmptyDashboardIconWrapper = styled.View`
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  background-color: rgba(251, 212, 52, 0.25);
+  align-items: center;
+  justify-content: center;
+`;
+
+export const EmptyDashboardIcon = styled(Feather)`
+  font-size: 26px;
+  color: ${({ theme }) => theme.colors.title};
+`;
+
+export const EmptyDashboardTitle = styled.Text`
+  color: ${({ theme }) => theme.colors.title};
+  font-size: ${Platform.OS === "ios" ? "18px" : "17px"};
+  font-weight: 700;
+  text-align: center;
+`;
+
+export const EmptyDashboardText = styled.Text`
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${Platform.OS === "ios" ? "14px" : "13px"};
+  text-align: center;
+  line-height: 20px;
 `;
 
 export const Header = styled.View`
   background-color: ${({ theme }) => theme.colors.primary};
   justify-content: center;
-  padding-bottom: 20px;
+  padding-bottom: 28px;
 `;
 
 export const UserInfo = styled.View`
@@ -125,65 +223,20 @@ export const Icon = styled(Feather)`
   opacity: 0.7;
 `;
 
-export const CardsTest = styled.View`
-  gap: 20px;
-`;
-
-export const NameCardTest = styled.Text`
-  color: ${({ theme }) => theme.colors.shape};
-  font-size: ${Platform.OS === "ios" ? "26px" : "24px"};
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  margin-bottom: 4px;
-`;
-
-export const HighlightCards = styled.ScrollView.attrs({
-  horizontal: true,
-  showsHorizontalScrollIndicator: false,
-  contentContainerStyle: { gap: 16, paddingRight: 4 },
-})``;
-
-export const LastTest = styled.View`
-  width: 100%;
-  padding: 20px;
-  background-color: ${({ theme }) => theme.colors.shape};
-  border-radius: 12px;
-  flex-direction: row;
-  align-items: center;
-  gap: 16px;
-  shadow-color: ${({ theme }) => theme.colors.dark};
-  shadow-offset: 0px 2px;
-  shadow-opacity: 0.1;
-  shadow-radius: 4px;
-  elevation: 3;
-`;
-
-export const LastTestContent = styled.View`
-  flex: 1;
-  gap: 4px;
-`;
-
-export const NameTest = styled.Text`
-  color: ${({ theme }) => theme.colors.title};
-  font-size: ${Platform.OS === "ios" ? "20px" : "18px"};
-  font-weight: 700;
-  letter-spacing: 0.2px;
-`;
-
-export const LastNameTest = styled.Text`
-  color: ${({ theme }) => theme.colors.text};
-  font-size: ${Platform.OS === "ios" ? "15px" : "13px"};
-  font-weight: 400;
-`;
+export const CardsTest = styled(ContentSection)``;
 
 export const ViewPlano = styled.View`
   width: 100%;
-  padding: 16px 18px;
+  padding: 18px 20px;
   background-color: ${({ theme }) => theme.colors.primary};
-  color: ${({ theme }) => theme.colors.text_dark};
-  border-radius: 8px;
+  border-radius: 14px;
   margin-top: auto;
   gap: 8px;
+  shadow-color: ${({ theme }) => theme.colors.dark};
+  shadow-offset: 0px 2px;
+  shadow-opacity: 0.12;
+  shadow-radius: 6px;
+  elevation: 2;
 `;
 
 export const TitleViewPlano = styled.Text`

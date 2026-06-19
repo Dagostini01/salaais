@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import theme from "../../global/global/theme";
-import { CardText, Container } from "./styles";
+import { CardText, Container, IconCircle } from "./styles";
 
 interface CardsProps {
   title?: string;
@@ -12,11 +12,13 @@ interface CardsProps {
 export function Card({ iconName, title, onPress }: CardsProps) {
   return (
     <Container onPress={onPress}>
-      <MaterialIcons
-        name={iconName as keyof typeof MaterialIcons.glyphMap}
-        color={theme.colors.text}
-        size={50}
-      />
+      <IconCircle>
+        <MaterialIcons
+          name={iconName as keyof typeof MaterialIcons.glyphMap}
+          color={theme.colors.title}
+          size={36}
+        />
+      </IconCircle>
       <CardText>{title}</CardText>
     </Container>
   );

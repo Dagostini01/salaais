@@ -43,3 +43,16 @@ export const EMPTY_HOME_DASHBOARD: HomeDashboardPayload = {
   },
   ultimasProvasAnac: [],
 };
+
+export function hasHomeDashboardData(
+  dashboard: HomeDashboardPayload,
+): boolean {
+  if (dashboard.ultimasProvasAnac.length > 0) {
+    return true;
+  }
+
+  const { aprovado, reprovado, segundaEpoca } =
+    dashboard.mediaDesempenho.distribuicao;
+
+  return aprovado > 0 || reprovado > 0 || segundaEpoca > 0;
+}
