@@ -129,7 +129,7 @@ export function Anac() {
         const formattedQuestions: QuizQuestion[] = quizData.data.map(
           (question) => ({
             id: question.id,
-            key: question.key ?? `cms-${question.id}`,
+            key: question.key,
             question: question.questao_texto,
             bloco: question.bloco,
             materia: question.materia,

@@ -90,6 +90,7 @@ export function Blocos() {
       const formattedQuestions: QuizQuestion[] = quizData.data.map(
         (question: any) => ({
           id: question.id,
+          key: question.key,
           question: question.questao_texto,
           bloco: question.bloco,
           materia: question.materia,
@@ -421,7 +422,7 @@ export function Blocos() {
                           </JustificationContainer>
 
                           <ReviewButton
-                            questaoKey={`CMS-${questionData.id}`}
+                            questaoKey={questionData.key}
                             alternativaAssinalada={
                               selectedAnswers[String(questionData.id)] ?? ""
                             }

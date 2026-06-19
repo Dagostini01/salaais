@@ -103,6 +103,7 @@ export function Materias() {
       const formattedQuestions: QuizQuestion[] = questoes.map(
         (question: any) => ({
           id: question.id,
+          key: question.key,
           question: question.questao_texto,
           materia: question.materia,
           descricao: question.descricao,
@@ -442,7 +443,7 @@ export function Materias() {
                         </JustificationContainer>
 
                         <ReviewButton
-                          questaoKey={`CMS-${questionData.id}`}
+                          questaoKey={questionData.key}
                           alternativaAssinalada={
                             selectedAnswers[String(questionData.id)] ?? ""
                           }
