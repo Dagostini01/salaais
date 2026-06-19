@@ -1,7 +1,7 @@
 import type React from "react";
 import type { RectButtonProps } from "react-native-gesture-handler";
 import type { SvgProps } from "react-native-svg";
-import { Button, ImageContainer, Text } from "./styles";
+import { Button, SideSlot, Text } from "./styles";
 
 interface Props extends RectButtonProps {
   title: string;
@@ -16,11 +16,12 @@ export function SignInSocialButton({
   ...rest
 }: Props) {
   return (
-    <Button {...rest} onPress={onPress} style={{ borderRadius: 15 }}>
-      <ImageContainer>
-        <Svg />
-      </ImageContainer>
+    <Button {...rest} onPress={onPress}>
+      <SideSlot>
+        <Svg width={22} height={22} />
+      </SideSlot>
       <Text>{title}</Text>
+      <SideSlot />
     </Button>
   );
 }
